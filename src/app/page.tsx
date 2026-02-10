@@ -11,11 +11,16 @@ export default function Home() {
   const [students, setStudents] = useState<SchülerApp[]>([])
   const [autoSwitchStatus, setAutoSwitchStatus] = useState<AutoSwitchResult | null>(null)
   const [syncStatus, setSyncStatus] = useState<{ status: string; queueLength: number }>({ status: 'loading', queueLength: 0 })
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState<Date | null>(null) // Null bis hydrated
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
+  const [isClient, setIsClient] = useState(false)
 
   // Initialisierung
   useEffect(() => {
+    // Client-side hydration marker
+    setIsClient(true)
+    setCurrentTime(new Date())
+    
     const storage = OfflineStorageManager.getInstance()
     storage.initialize().then(() => {
       loadStudents()
@@ -72,12 +77,13 @@ export default function Home() {
 
   // Aktueller deutscher Wochentag
   const getCurrentDay = () => {
+    if (!currentTime) return ''
     const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
     return days[currentTime.getDay()]
   }
 
-  // Heutige Schüler
-  const todaysStudents = students.filter(s => s.unterrichtstag === getCurrentDay())
+  // Heutige Schüler - nur wenn Client hydrated
+  const todaysStudents = isClient ? students.filter(s => s.unterrichtstag === getCurrentDay()) : []
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-light)' }}>
@@ -89,14 +95,20 @@ export default function Home() {
               Smart Teaching Assistant
             </h1>
             <p className="text-base font-medium text-muted">
-              {getCurrentDay()}, {currentTime.toLocaleDateString('de-DE', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric' 
-              })} • {currentTime.toLocaleTimeString('de-DE', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
+              {isClient && currentTime ? (
+                <>
+                  {getCurrentDay()}, {currentTime.toLocaleDateString('de-DE', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                  })} • {currentTime.toLocaleTimeString('de-DE', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
+                </>
+              ) : (
+                'Lade...'
+              )}
             </p>
           </div>
           
@@ -121,7 +133,7 @@ export default function Home() {
       <main className="p-6 max-w-6xl mx-auto">
         
         {/* Auto-Switch Status */}
-        {autoSwitchStatus && (
+        {isClient && autoSwitchStatus && (
           <div className="mb-6">
             {autoSwitchStatus.currentStudent ? (
               <div className="status-current p-6 rounded-xl mb-6">
@@ -202,7 +214,7 @@ export default function Home() {
         )}
 
         {/* Heutige Termine */}
-        {todaysStudents.length > 0 && (
+        {isClient && todaysStudents.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-6 text-on-light">
               📅 Heute ({todaysStudents.length} Schüler)
@@ -261,7 +273,7 @@ export default function Home() {
         )}
 
         {/* Loading State */}
-        {students.length === 0 && (
+        {(!isClient || students.length === 0) && (
           <div className="text-center py-16">
             <div className="card p-8 max-w-md mx-auto">
               <div className="text-6xl mb-4">🔄</div>
@@ -276,7 +288,7 @@ export default function Home() {
         )}
 
         {/* Bücher-Statistiken */}
-        <BookStats />
+        {isClient && <BookStats />}
 
         {/* Debug Info (nur in Development) */}
         {process.env.NODE_ENV === 'development' && autoSwitchStatus && (
