@@ -36,11 +36,13 @@ export default function Home() {
 
   // Auto-Switch Status alle 30 Sekunden aktualisieren
   useEffect(() => {
-    updateAutoSwitch()
-    
-    const interval = setInterval(updateAutoSwitch, 30000)
-    return () => clearInterval(interval)
-  }, [students])
+    if (isClient && currentTime) {
+      updateAutoSwitch()
+      
+      const interval = setInterval(updateAutoSwitch, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [students, isClient, currentTime])
 
   // Schüler laden
   const loadStudents = async () => {
@@ -58,7 +60,7 @@ export default function Home() {
 
   // Auto-Switch Status berechnen
   const updateAutoSwitch = () => {
-    if (students.length === 0) return
+    if (students.length === 0 || !currentTime) return
     
     const status = getAutoSwitchStatus(students, 5)
     setAutoSwitchStatus(status)
@@ -75,26 +77,32 @@ export default function Home() {
     }
   }
 
-  // Aktueller deutscher Wochentag
-  const getCurrentDay = () => {
-    if (!currentTime) return ''
-    const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
-    return days[currentTime.getDay()]
+  // Aktueller deutscher Wochentag - nur wenn Zeit verfügbar
+  const getCurrentDay = (): string => {
+    try {
+      if (!currentTime || !isClient) return ''
+      const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
+      const dayIndex = currentTime.getDay()
+      return days[dayIndex] || ''
+    } catch (error) {
+      console.warn('getCurrentDay error:', error)
+      return ''
+    }
   }
 
-  // Heutige Schüler - nur wenn Client hydrated
-  const todaysStudents = isClient ? students.filter(s => s.unterrichtstag === getCurrentDay()) : []
+  // Heutige Schüler - nur wenn Client hydrated und Zeit verfügbar
+  const todaysStudents = isClient && currentTime ? students.filter(s => s.unterrichtstag === getCurrentDay()) : []
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-light)' }}>
       {/* Header */}
-      <header className="bg-white shadow-medium border-b border-gray-200 p-6">
+      <header className="bg-white shadow-lg border-b border-gray-200 p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <div>
-            <h1 className="text-3xl font-bold text-on-light">
+            <h1 className="text-3xl font-bold text-gray-900">
               Smart Teaching Assistant
             </h1>
-            <p className="text-base font-medium text-muted">
+            <p className="text-base font-medium text-gray-600">
               {isClient && currentTime ? (
                 <>
                   {getCurrentDay()}, {currentTime.toLocaleDateString('de-DE', { 
@@ -116,11 +124,11 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <span className="text-3xl">{getSyncIcon()}</span>
               <div className="text-sm">
-                <div className="font-semibold capitalize text-on-light">
+                <div className="font-semibold capitalize text-gray-900">
                   {syncStatus.status}
                 </div>
                 {syncStatus.queueLength > 0 && (
-                  <div className="text-warning font-medium">
+                  <div className="text-orange-600 font-medium">
                     {syncStatus.queueLength} Updates
                   </div>
                 )}
@@ -136,19 +144,19 @@ export default function Home() {
         {isClient && autoSwitchStatus && (
           <div className="mb-6">
             {autoSwitchStatus.currentStudent ? (
-              <div className="status-current p-6 rounded-xl mb-6">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-xl mb-6 shadow-lg">
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="font-bold text-2xl text-on-dark">
+                    <div className="font-bold text-2xl text-white">
                       ▶️ Aktuell: {autoSwitchStatus.currentStudent.vorname} {autoSwitchStatus.currentStudent.nachname}
                     </div>
-                    <div className="text-on-dark opacity-90 text-lg font-medium">
+                    <div className="text-white opacity-90 text-lg font-medium">
                       {autoSwitchStatus.currentStudent.unterrichtszeit}
                     </div>
                   </div>
                   
                   {autoSwitchStatus.nextStudent && autoSwitchStatus.minutesUntilNext > 0 && (
-                    <div className="text-right text-on-dark opacity-90">
+                    <div className="text-right text-white opacity-90">
                       <div className="text-sm">Nächster:</div>
                       <div className="font-medium">
                         {autoSwitchStatus.nextStudent.vorname} {getCountdownText(autoSwitchStatus.minutesUntilNext)}
@@ -158,20 +166,20 @@ export default function Home() {
                 </div>
               </div>
             ) : autoSwitchStatus.isWaitingTime && autoSwitchStatus.nextStudent ? (
-              <div className="status-waiting p-6 rounded-xl mb-6">
-                <div className="font-bold text-2xl text-on-dark">
+              <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-xl mb-6 shadow-lg">
+                <div className="font-bold text-2xl text-white">
                   ⏰ Wartezeit - Nächster: {autoSwitchStatus.nextStudent.vorname} {autoSwitchStatus.nextStudent.nachname}
                 </div>
-                <div className="text-on-dark opacity-90 text-lg font-medium">
+                <div className="text-white opacity-90 text-lg font-medium">
                   {getCountdownText(autoSwitchStatus.minutesUntilNext)} • {autoSwitchStatus.nextStudent.unterrichtszeit}
                 </div>
               </div>
             ) : (
-              <div className="status-inactive p-6 rounded-xl mb-6">
-                <div className="font-bold text-2xl text-on-dark">
+              <div className="bg-gradient-to-r from-gray-600 to-gray-700 text-white p-6 rounded-xl mb-6 shadow-lg">
+                <div className="font-bold text-2xl text-white">
                   📅 Kein Unterricht zur aktuellen Zeit
                 </div>
-                <div className="text-on-dark opacity-90 text-lg font-medium">
+                <div className="text-white opacity-90 text-lg font-medium">
                   {todaysStudents.length > 0 
                     ? `${todaysStudents.length} Schüler heute geplant`
                     : `Keine Schüler für ${getCurrentDay()} eingetragen`
@@ -195,12 +203,12 @@ export default function Home() {
         {/* Ausgewählter Schüler Detail-Card */}
         {selectedStudent && students.find(s => s.id === selectedStudent) && (
           <div className="mb-8">
-            <div className="bg-green-50 border-l-4 rounded-lg p-5 mb-6 shadow-medium" style={{ borderLeftColor: 'var(--primary-green)' }}>
+            <div className="bg-green-50 border-l-4 border-l-green-500 rounded-lg p-5 mb-6 shadow-lg">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-on-light">📖 Schüler-Details</h2>
+                <h2 className="text-2xl font-bold text-gray-900">📖 Schüler-Details</h2>
                 <button
                   onClick={() => setSelectedStudent(null)}
-                  className="btn-secondary"
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
                 >
                   ✖ Schließen
                 </button>
@@ -216,7 +224,7 @@ export default function Home() {
         {/* Heutige Termine */}
         {isClient && todaysStudents.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6 text-on-light">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">
               📅 Heute ({todaysStudents.length} Schüler)
             </h2>
             
@@ -228,16 +236,16 @@ export default function Home() {
                   return timeA.localeCompare(timeB)
                 })
                 .map(student => (
-                  <div key={student.id} className={`card p-5 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'card-active' : ''}`}>
+                  <div key={student.id} className={`bg-white rounded-xl shadow-lg p-5 border transition-all duration-200 hover:shadow-xl hover:-translate-y-1 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
-                        <div className="font-bold text-on-light text-xl mb-1">
+                        <div className="font-bold text-gray-900 text-xl mb-1">
                           {student.vorname} {student.nachname}
                         </div>
-                        <div className="text-base text-on-light font-semibold mb-1">
+                        <div className="text-base text-gray-900 font-semibold mb-1">
                           {student.unterrichtszeit} • {student.buch || 'Kein Buch'}
                         </div>
-                        <div className="text-sm text-muted">
+                        <div className="text-sm text-gray-600">
                           Zahlung: <span className={`font-medium ${
                             student.zahlungStatus === 'ja' ? 'text-success' :
                             student.zahlungStatus === 'nein' ? 'text-error' : 'text-warning'
@@ -260,7 +268,9 @@ export default function Home() {
                           e.stopPropagation()
                           setSelectedStudent(student.id)
                         }}
-                        className={autoSwitchStatus?.currentStudent?.id === student.id ? 'btn-success ml-4' : 'btn-primary ml-4'}
+                        className={autoSwitchStatus?.currentStudent?.id === student.id 
+                          ? 'bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md ml-4' 
+                          : 'bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md ml-4'}
                       >
                         {autoSwitchStatus?.currentStudent?.id === student.id ? '👆 Aktuell' : '▶️ Details'}
                       </button>
@@ -275,12 +285,12 @@ export default function Home() {
         {/* Loading State */}
         {(!isClient || students.length === 0) && (
           <div className="text-center py-16">
-            <div className="card p-8 max-w-md mx-auto">
+            <div className="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto">
               <div className="text-6xl mb-4">🔄</div>
-              <div className="text-2xl font-bold mb-2 text-on-light">
+              <div className="text-2xl font-bold mb-2 text-gray-900">
                 Schüler werden geladen...
               </div>
-              <div className="text-base text-muted">
+              <div className="text-base text-gray-600">
                 Verbindung zu Baserow wird hergestellt
               </div>
             </div>
