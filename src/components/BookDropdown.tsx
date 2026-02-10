@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { DRUM_BOOKS, formatBookName } from '@/lib/bookList'
+import { useState, useEffect } from 'react'
+import { getAllBooks, addCustomBook, isCustomBook } from '@/lib/dynamicBooks'
 
 interface BookDropdownProps {
   currentBook: string
@@ -17,8 +17,14 @@ export default function BookDropdown({
   onToggleEdit 
 }: BookDropdownProps) {
   
+  const [availableBooks, setAvailableBooks] = useState<string[]>([])
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customBook, setCustomBook] = useState('')
+
+  // Books beim Mount und bei Änderungen laden
+  useEffect(() => {
+    setAvailableBooks(getAllBooks())
+  }, [])
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedBook = event.target.value
@@ -34,51 +40,79 @@ export default function BookDropdown({
   }
 
   const handleCustomBookSave = () => {
-    if (customBook.trim()) {
-      onBookChange(customBook.trim())
+    const trimmedBook = customBook.trim()
+    if (trimmedBook) {
+      // Füge zur globalen Liste hinzu
+      addCustomBook(trimmedBook)
+      
+      // Update lokale Bücher-Liste
+      setAvailableBooks(getAllBooks())
+      
+      // Setze als aktuelles Buch
+      onBookChange(trimmedBook)
+      
+      // Cleanup
       setCustomBook('')
       setShowCustomInput(false)
       onToggleEdit()
     }
   }
 
+  const handleCancelCustom = () => {
+    setShowCustomInput(false)
+    setCustomBook('')
+    onToggleEdit()
+  }
+
+  const formatBookName = (book: string): string => {
+    if (!book) return 'Kein Buch ausgewählt'
+    return book
+  }
+
+  // Custom Input Anzeige
   if (showCustomInput) {
     return (
-      <div>
+      <div className="space-y-3">
         <input
           type="text"
           value={customBook}
           onChange={(e) => setCustomBook(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleCustomBookSave()}
-          className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Anderes Buch eingeben..."
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') handleCustomBookSave()
+            if (e.key === 'Escape') handleCancelCustom()
+          }}
+          className="w-full p-3 border-2 border-blue-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+          placeholder="Neues Buch eingeben..."
           autoFocus
         />
-        <div className="flex gap-2 mt-2">
+        
+        <div className="flex gap-2">
           <button
             onClick={handleCustomBookSave}
-            className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+            disabled={!customBook.trim()}
+            className="bg-green-600 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:cursor-not-allowed transition-colors"
           >
-            ✓ Speichern
+            ✓ Hinzufügen & Auswählen
           </button>
           <button
-            onClick={() => {
-              setShowCustomInput(false)
-              setCustomBook('')
-              onToggleEdit()
-            }}
-            className="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400"
+            onClick={handleCancelCustom}
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-400 transition-colors"
           >
             ✖ Abbrechen
           </button>
+        </div>
+        
+        <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded border-l-4 border-l-blue-500">
+          💡 Das neue Buch wird für <strong>alle Schüler</strong> verfügbar sein
         </div>
       </div>
     )
   }
 
+  // Dropdown-Auswahl
   if (isEditing) {
     return (
-      <div className="relative">
+      <div className="space-y-2">
         <select
           value={currentBook}
           onChange={handleSelectChange}
@@ -86,45 +120,60 @@ export default function BookDropdown({
           className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer shadow-sm"
           autoFocus
         >
-          <option value="" className="text-gray-500">
+          <option value="" className="text-gray-500 py-2">
             Buch auswählen...
           </option>
-          {DRUM_BOOKS.filter(book => book !== '').map((book) => (
+          
+          {/* Basis-Bücher */}
+          {availableBooks.map((book) => (
             <option key={book} value={book} className="py-2">
-              {book}
+              {book} {isCustomBook(book) ? '⭐' : ''}
             </option>
           ))}
           
-          <option value="__custom__" className="py-2 font-medium text-blue-600">
-            ➕ Anderes Buch eingeben...
+          <option disabled className="text-gray-400 py-1 font-medium">
+            ──────────────
+          </option>
+          
+          <option value="__custom__" className="py-2 font-medium text-green-600">
+            ➕ Neues Buch hinzufügen
           </option>
         </select>
         
-        {/* Info-Text */}
-        <div className="text-xs text-gray-600 mt-1">
-          Klicke auf ein Buch um es auszuwählen
+        <div className="text-xs text-gray-600">
+          ⭐ = von dir hinzugefügtes Buch • Neue Bücher sind für alle Schüler verfügbar
         </div>
       </div>
     )
   }
 
+  // Display-Modus
   return (
     <div 
-      className="cursor-pointer hover:bg-gray-200 p-3 rounded-lg border-2 border-dashed border-gray-300 font-medium text-lg transition-colors duration-200 min-h-[3rem] flex items-center"
+      className="cursor-pointer hover:bg-gray-200 p-3 rounded-lg border-2 border-dashed border-gray-300 font-medium text-lg transition-colors duration-200 min-h-[3rem] flex items-center group"
       onClick={onToggleEdit}
     >
       <div className="flex items-center justify-between w-full">
-        <span className={currentBook ? 'text-gray-900' : 'text-gray-500'}>
-          {formatBookName(currentBook)}
-        </span>
-        <svg 
-          className="w-5 h-5 text-gray-400" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <div className="flex items-center gap-2">
+          <span className={currentBook ? 'text-gray-900' : 'text-gray-500'}>
+            {formatBookName(currentBook)}
+          </span>
+          {currentBook && isCustomBook(currentBook) && (
+            <span className="text-yellow-600 text-sm">⭐</span>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-2 text-gray-400 group-hover:text-gray-600">
+          <span className="text-sm">Klicken zum Ändern</span>
+          <svg 
+            className="w-5 h-5" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
     </div>
   )

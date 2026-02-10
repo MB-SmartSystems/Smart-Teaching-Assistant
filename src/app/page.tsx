@@ -5,6 +5,7 @@ import { SchülerApp } from '@/lib/baserow'
 import { getAutoSwitchStatus, getCountdownText, AutoSwitchResult } from '@/lib/autoSwitch'
 import { OfflineStorageManager } from '@/lib/offlineSync'
 import SchülerCard from '@/components/SchülerCard'
+import BookStats from '@/components/BookStats'
 
 export default function Home() {
   const [students, setStudents] = useState<SchülerApp[]>([])
@@ -274,6 +275,9 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* Bücher-Statistiken */}
+        <BookStats />
 
         {/* Debug Info (nur in Development) */}
         {process.env.NODE_ENV === 'development' && autoSwitchStatus && (
