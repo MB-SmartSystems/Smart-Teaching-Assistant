@@ -1,65 +1,246 @@
-import Image from "next/image";
+'use client'
+
+import { useEffect, useState } from 'react'
+import { SchülerApp } from '@/lib/baserow'
+import { getAutoSwitchStatus, getCountdownText, AutoSwitchResult } from '@/lib/autoSwitch'
+import { OfflineStorageManager } from '@/lib/offlineSync'
+import SchülerCard from '@/components/SchülerCard'
 
 export default function Home() {
+  const [students, setStudents] = useState<SchülerApp[]>([])
+  const [autoSwitchStatus, setAutoSwitchStatus] = useState<AutoSwitchResult | null>(null)
+  const [syncStatus, setSyncStatus] = useState<{ status: string; queueLength: number }>({ status: 'loading', queueLength: 0 })
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  // Initialisierung
+  useEffect(() => {
+    const storage = OfflineStorageManager.getInstance()
+    storage.initialize().then(() => {
+      loadStudents()
+    })
+
+    // Zeit alle 10 Sekunden aktualisieren
+    const timeInterval = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 10000)
+
+    return () => clearInterval(timeInterval)
+  }, [])
+
+  // Auto-Switch Status alle 30 Sekunden aktualisieren
+  useEffect(() => {
+    updateAutoSwitch()
+    
+    const interval = setInterval(updateAutoSwitch, 30000)
+    return () => clearInterval(interval)
+  }, [students])
+
+  // Schüler laden
+  const loadStudents = async () => {
+    try {
+      const storage = OfflineStorageManager.getInstance()
+      const loadedStudents = await storage.getStudents()
+      setStudents(loadedStudents)
+      
+      const status = await storage.getSyncStatus()
+      setSyncStatus(status)
+    } catch (error) {
+      console.error('Fehler beim Laden der Schüler:', error)
+    }
+  }
+
+  // Auto-Switch Status berechnen
+  const updateAutoSwitch = () => {
+    if (students.length === 0) return
+    
+    const status = getAutoSwitchStatus(students, 5)
+    setAutoSwitchStatus(status)
+  }
+
+  // Sync-Status Icon
+  const getSyncIcon = () => {
+    switch (syncStatus.status) {
+      case 'synced': return '✅'
+      case 'syncing': return '🔄'
+      case 'offline': return '⚠️'
+      case 'error': return '❌'
+      default: return '⏳'
+    }
+  }
+
+  // Aktueller deutscher Wochentag
+  const getCurrentDay = () => {
+    const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
+    return days[currentTime.getDay()]
+  }
+
+  // Heutige Schüler
+  const todaysStudents = students.filter(s => s.unterrichtstag === getCurrentDay())
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gray-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b p-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">
+              Smart Teaching Assistant
+            </h1>
+            <p className="text-sm text-gray-600">
+              {getCurrentDay()}, {currentTime.toLocaleDateString('de-DE', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+              })} • {currentTime.toLocaleTimeString('de-DE', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </p>
+          </div>
+          
+          <div className="text-right">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">{getSyncIcon()}</span>
+              <div className="text-sm">
+                <div className="font-medium capitalize">{syncStatus.status}</div>
+                {syncStatus.queueLength > 0 && (
+                  <div className="text-gray-500">{syncStatus.queueLength} Updates</div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      </header>
+
+      <main className="p-4 max-w-4xl mx-auto">
+        
+        {/* Auto-Switch Status */}
+        {autoSwitchStatus && (
+          <div className="mb-6">
+            {autoSwitchStatus.currentStudent ? (
+              <div className="bg-blue-500 text-white p-4 rounded-lg mb-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-lg">
+                      ▶️ Aktuell: {autoSwitchStatus.currentStudent.vorname} {autoSwitchStatus.currentStudent.nachname}
+                    </div>
+                    <div className="text-blue-100">
+                      {autoSwitchStatus.currentStudent.unterrichtszeit}
+                    </div>
+                  </div>
+                  
+                  {autoSwitchStatus.nextStudent && autoSwitchStatus.minutesUntilNext > 0 && (
+                    <div className="text-right text-blue-100">
+                      <div className="text-sm">Nächster:</div>
+                      <div className="font-medium">
+                        {autoSwitchStatus.nextStudent.vorname} {getCountdownText(autoSwitchStatus.minutesUntilNext)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : autoSwitchStatus.isWaitingTime && autoSwitchStatus.nextStudent ? (
+              <div className="bg-orange-500 text-white p-4 rounded-lg mb-4">
+                <div className="font-bold text-lg">
+                  ⏰ Wartezeit - Nächster: {autoSwitchStatus.nextStudent.vorname} {autoSwitchStatus.nextStudent.nachname}
+                </div>
+                <div className="text-orange-100">
+                  {getCountdownText(autoSwitchStatus.minutesUntilNext)} • {autoSwitchStatus.nextStudent.unterrichtszeit}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-500 text-white p-4 rounded-lg mb-4">
+                <div className="font-bold text-lg">
+                  📅 Kein Unterricht zur aktuellen Zeit
+                </div>
+                <div className="text-gray-200">
+                  {todaysStudents.length > 0 
+                    ? `${todaysStudents.length} Schüler heute geplant`
+                    : `Keine Schüler für ${getCurrentDay()} eingetragen`
+                  }
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Aktueller/Nächster Schüler Card */}
+        {autoSwitchStatus?.currentStudent && (
+          <div className="mb-6">
+            <SchülerCard 
+              student={autoSwitchStatus.currentStudent} 
+              isActive={true}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          </div>
+        )}
+
+        {/* Heutige Termine */}
+        {todaysStudents.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              📅 Heute ({todaysStudents.length} Schüler)
+            </h2>
+            
+            <div className="grid gap-4">
+              {todaysStudents
+                .sort((a, b) => {
+                  const timeA = a.unterrichtszeit.split('-')[0] || '00:00'
+                  const timeB = b.unterrichtszeit.split('-')[0] || '00:00'
+                  return timeA.localeCompare(timeB)
+                })
+                .map(student => (
+                  <div key={student.id} className="bg-white rounded-lg p-4 shadow border">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="font-bold">
+                          {student.vorname} {student.nachname}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {student.unterrichtszeit} • {student.buch}
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={() => {
+                          // Scroll to student card wenn es die aktuelle Karte ist
+                          if (autoSwitchStatus?.currentStudent?.id === student.id) {
+                            window.scrollTo({ top: 0, behavior: 'smooth' })
+                          }
+                        }}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      >
+                        {autoSwitchStatus?.currentStudent?.id === student.id ? '👆 Aktuell' : '▶️ Start'}
+                      </button>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {students.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🔄</div>
+            <div className="text-xl font-medium text-gray-600">
+              Schüler werden geladen...
+            </div>
+          </div>
+        )}
+
+        {/* Debug Info (nur in Development) */}
+        {process.env.NODE_ENV === 'development' && autoSwitchStatus && (
+          <div className="mt-8 p-4 bg-gray-200 rounded text-xs">
+            <details>
+              <summary className="font-bold cursor-pointer">🔧 Debug Info</summary>
+              <pre className="mt-2 overflow-x-auto">
+                {JSON.stringify(autoSwitchStatus, null, 2)}
+              </pre>
+            </details>
+          </div>
+        )}
       </main>
     </div>
-  );
+  )
 }
