@@ -3,6 +3,7 @@
 import { SchülerApp } from '@/lib/baserow'
 import { useState } from 'react'
 import { useOfflineSync } from '@/lib/offlineSync'
+import BookDropdown from './BookDropdown'
 
 interface SchülerCardProps {
   student: SchülerApp
@@ -131,34 +132,21 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
       {/* Buch und Stand */}
       <div className="grid grid-cols-1 gap-6 mb-6">
         
-        {/* Buch - Jetzt editierbar */}
+        {/* Buch - Dropdown Auswahl */}
         <div className="bg-gray-50 rounded-lg p-5">
           <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
             📚 Aktuelles Buch
           </h3>
           
-          {editingField === 'buch' ? (
-            <input
-              type="text"
-              value={localValues.buch}
-              onChange={(e) => setLocalValues(prev => ({ ...prev, buch: e.target.value }))}
-              onBlur={() => {
-                handleFieldUpdate('buch', localValues.buch)
-                setEditingField(null)
-              }}
-              onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-              className="input-field w-full font-medium text-lg"
-              placeholder="Z.B. Schule für Snaredrum 2"
-              autoFocus
-            />
-          ) : (
-            <div 
-              className="cursor-pointer hover:bg-gray-200 p-3 rounded-lg border-2 border-dashed border-gray-300 font-medium text-lg"
-              onClick={() => setEditingField('buch')}
-            >
-              {localValues.buch || 'Klicken um Buch festzulegen...'}
-            </div>
-          )}
+          <BookDropdown
+            currentBook={localValues.buch}
+            onBookChange={(book) => {
+              setLocalValues(prev => ({ ...prev, buch: book }))
+              handleFieldUpdate('buch', book)
+            }}
+            isEditing={editingField === 'buch'}
+            onToggleEdit={() => setEditingField(editingField === 'buch' ? null : 'buch')}
+          />
         </div>
 
         {/* Seite und Übung - Nummer-Controls */}
