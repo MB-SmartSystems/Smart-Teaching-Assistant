@@ -62,8 +62,8 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     }
   }
 
-  // Nummer-Update Handler (für Seite und Übung)
-  const handleNumberUpdate = async (field: 'seite' | 'übung', change: number) => {
+  // Nummer-Update Handler (nur für Seite)
+  const handleNumberUpdate = async (field: 'seite', change: number) => {
     const currentValue = parseInt(localValues[field] || '1')
     const newValue = Math.max(1, currentValue + change).toString()
     
@@ -197,45 +197,47 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
               </div>
             </div>
 
-            {/* Übung - NEU als Nummer */}
+            {/* Übungen - Flexibles Text-Feld */}
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Übung</label>
-              <div className="flex items-center gap-2 justify-center">
-                <button
-                  onClick={() => handleNumberUpdate('übung', -1)}
-                  className="number-control"
-                >
-                  -
-                </button>
-                
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Übungen</label>
+              
+              {editingField === 'übung' ? (
+                <input
+                  type="text"
+                  value={localValues.übung}
+                  onChange={(e) => setLocalValues(prev => ({ ...prev, übung: e.target.value }))}
+                  onBlur={() => {
+                    handleFieldUpdate('übung', localValues.übung)
+                    setEditingField(null)
+                  }}
+                  onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="z.B. 1, 2, 3 oder 1-6 oder 12, 15"
+                  autoFocus
+                />
+              ) : (
                 <div 
-                  className="number-display"
+                  className="cursor-pointer hover:bg-gray-100 p-3 rounded-lg border-2 border-dashed border-gray-300 font-medium text-lg bg-white transition-colors min-h-[3rem] flex items-center"
                   onClick={() => setEditingField('übung')}
                 >
-                  {editingField === 'übung' ? (
-                    <input
-                      type="number"
-                      value={localValues.übung}
-                      onChange={(e) => setLocalValues(prev => ({ ...prev, übung: e.target.value }))}
-                      onBlur={() => {
-                        handleFieldUpdate('übung', localValues.übung)
-                        setEditingField(null)
-                      }}
-                      onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-                      className="w-16 text-center font-bold text-lg border-none outline-none bg-transparent"
-                      autoFocus
-                    />
-                  ) : (
-                    localValues.übung || '1'
-                  )}
+                  <div className="flex items-center justify-between w-full">
+                    <span className={localValues.übung ? 'text-gray-900' : 'text-gray-500'}>
+                      {localValues.übung || 'Übungen eingeben...'}
+                    </span>
+                    <svg 
+                      className="w-5 h-5 text-gray-400" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </div>
                 </div>
-                
-                <button
-                  onClick={() => handleNumberUpdate('übung', 1)}
-                  className="number-control"
-                >
-                  +
-                </button>
+              )}
+              
+              <div className="text-xs text-gray-500 mt-1">
+                💡 Beispiele: "1, 2, 3" • "1-6" • "12, 15, 18" • "Einführung"
               </div>
             </div>
           </div>

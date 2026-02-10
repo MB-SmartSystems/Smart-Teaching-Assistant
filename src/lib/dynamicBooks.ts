@@ -104,8 +104,15 @@ export function removeCustomBook(bookName: string): void {
 
 // Stats für Debug/Info
 export function getBookStats() {
+  const fallbackBaseBooks = [
+    'Schule für Snaredrum/Drumset 1',
+    'Schule für Snaredrum/Drumset 2', 
+    'Moder Drumming 1',
+    'Kräsch, Bumm, Bäng',
+  ]
+  
   return {
-    baseBooks: BASE_BOOKS.length,
+    baseBooks: fallbackBaseBooks.length,
     customBooks: getCustomBooks().length,
     totalBooks: getAllBooks().length,
     customBooksList: getCustomBooks()
