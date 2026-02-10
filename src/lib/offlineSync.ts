@@ -30,7 +30,7 @@ const SYNC_INTERVAL = 30000 // 30 Sekunden
 // Offline Storage Manager
 export class OfflineStorageManager {
   private static instance: OfflineStorageManager
-  private syncInterval: NodeJS.Timeout | null = null
+  private syncInterval: ReturnType<typeof setInterval> | null = null
   private isOnline = true
 
   static getInstance(): OfflineStorageManager {
@@ -42,9 +42,11 @@ export class OfflineStorageManager {
 
   // Initialisierung
   async initialize(): Promise<void> {
-    this.setupOnlineDetection()
-    await this.loadFromStorage()
-    this.startSyncInterval()
+    if (typeof window !== 'undefined') {
+      this.setupOnlineDetection()
+      await this.loadFromStorage()
+      this.startSyncInterval()
+    }
   }
 
   // Online/Offline Detection
@@ -252,11 +254,12 @@ export class OfflineStorageManager {
 
 // Baserow Field Mappings für Updates
 export const FIELD_MAPPINGS = {
-  seite: 'field_7836',
-  übung: 'field_7837',
-  aktuelleLieder: 'field_7838',
-  wichtigerFokus: 'field_7839', // NEU: Technikübungen/Fokus
-  zahlungStatus: 'field_7858'
+  buch: 'field_7835',              // NEU: Buch
+  seite: 'field_7836',             // Seite (Nummer)
+  übung: 'field_7837',             // Übung (Nummer)
+  aktuelleLieder: 'field_7838',    // Aktuelle Lieder
+  wichtigerFokus: 'field_7839',    // Technikübungen/Fokus
+  zahlungStatus: 'field_7858'      // Zahlung läuft?
 } as const
 
 // Helper Hook für React Components

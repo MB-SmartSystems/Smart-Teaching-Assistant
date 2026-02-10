@@ -1,13 +1,9 @@
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development'
-})
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // PWA Configuration
+  // Turbopack Konfiguration (leer um Fehler zu vermeiden)
+  turbopack: {},
+  
+  // PWA später aktivieren, erstmal ohne
   async headers() {
     return [
       {
@@ -27,4 +23,4 @@ const nextConfig = {
   },
 }
 
-module.exports = withPWA(nextConfig)
+export default nextConfig

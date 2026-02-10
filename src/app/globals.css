@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
+/* Design inspiriert von manuelbuettner.de */
 :root {
+  --primary-blue: #2563eb;
+  --warm-gray: #6b7280;
+  --light-gray: #f9fafb;
+  --dark-text: #1f2937;
+  --accent-orange: #f97316;
+  --success-green: #10b981;
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1f2937;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--primary-blue);
+  --color-accent: var(--accent-orange);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--light-gray);
+  color: var(--dark-text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+/* Sanfte Schatten wie auf der Website */
+.card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.card-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Button-Styles wie auf der Website */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+/* Nummer-Eingabe Buttons */
+.number-control {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200;
+}
+
+.number-display {
+  @apply bg-white border-2 border-gray-300 text-gray-900 font-bold text-lg px-3 py-2 rounded-lg min-w-[4rem] text-center cursor-pointer hover:bg-gray-50 transition-colors duration-200;
+}
+
+/* Eingabefelder */
+.input-field {
+  @apply border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
 }
