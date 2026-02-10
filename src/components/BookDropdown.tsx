@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getAllBooks, addCustomBook, isCustomBook } from '@/lib/dynamicBooks'
+import { getAllBooks, getAllBooksAsync, addCustomBook, isCustomBook } from '@/lib/dynamicBooks'
 
 interface BookDropdownProps {
   currentBook: string
@@ -21,9 +21,17 @@ export default function BookDropdown({
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customBook, setCustomBook] = useState('')
 
-  // Books beim Mount und bei Änderungen laden
+  // Books beim Mount und bei Änderungen laden - FRESH aus DB
   useEffect(() => {
+    // Sofort lokale Bücher laden für schnelle Anzeige
     setAvailableBooks(getAllBooks())
+    
+    // Dann fresh Bücher aus DB laden
+    getAllBooksAsync().then(freshBooks => {
+      setAvailableBooks(freshBooks)
+    }).catch(error => {
+      console.warn('Fehler beim Laden fresh books:', error)
+    })
   }, [])
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -45,8 +53,10 @@ export default function BookDropdown({
       // Füge zur globalen Liste hinzu
       addCustomBook(trimmedBook)
       
-      // Update lokale Bücher-Liste
-      setAvailableBooks(getAllBooks())
+      // Update lokale Bücher-Liste mit fresh data
+      getAllBooksAsync().then(freshBooks => {
+        setAvailableBooks(freshBooks)
+      })
       
       // Setze als aktuelles Buch
       onBookChange(trimmedBook)

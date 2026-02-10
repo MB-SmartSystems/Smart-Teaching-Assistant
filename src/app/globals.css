@@ -1,60 +1,215 @@
 @import "tailwindcss";
 
-/* Design inspiriert von manuelbuettner.de */
+/* Design inspiriert von manuelbuettner.de - Professionell & gut lesbar */
 :root {
-  --primary-blue: #2563eb;
-  --warm-gray: #6b7280;
-  --light-gray: #f9fafb;
-  --dark-text: #1f2937;
-  --accent-orange: #f97316;
-  --success-green: #10b981;
-  --background: #ffffff;
-  --foreground: #1f2937;
+  /* Hauptfarben - Neutral mit grünen Akzenten */
+  --primary-green: #059669;      /* Grün für Aktionen */
+  --success-green: #10b981;      /* Erfolg-Grün */
+  --warning-amber: #f59e0b;      /* Warnungen */
+  --error-red: #ef4444;          /* Fehler */
+  
+  /* Neutrale Farben für perfekte Lesbarkeit */
+  --text-dark: #111827;          /* Sehr dunkler Text */
+  --text-medium: #374151;        /* Medium Text */
+  --text-light: #6b7280;         /* Heller Text */
+  
+  /* Hintergründe */
+  --bg-white: #ffffff;           /* Weiß */
+  --bg-light: #f9fafb;           /* Sehr hell grau */
+  --bg-medium: #f3f4f6;          /* Hell grau */
+  --bg-dark: #1f2937;            /* Dunkler Hintergrund */
+  
+  /* Borders */
+  --border-light: #e5e7eb;       /* Helle Borders */
+  --border-medium: #d1d5db;      /* Medium Borders */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary-blue);
-  --color-accent: var(--accent-orange);
+  --color-primary: var(--primary-green);
+  --color-success: var(--success-green);
+  --color-warning: var(--warning-amber);
+  --color-error: var(--error-red);
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-  background: var(--light-gray);
-  color: var(--dark-text);
+  background: var(--bg-light);
+  color: var(--text-dark);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Sanfte Schatten wie auf der Website */
-.card-shadow {
+/* Schatten-System */
+.shadow-soft {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
-.card-shadow-lg {
+.shadow-medium {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-large {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Button-Styles wie auf der Website */
+/* Button-System */
+.btn {
+  @apply font-medium py-3 px-6 rounded-lg transition-all duration-200 cursor-pointer;
+}
+
 .btn-primary {
-  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200;
+  background-color: var(--primary-green);
+  color: white;
+  @apply shadow-medium;
+}
+.btn-primary:hover {
+  background-color: #047857; /* Darker green */
+  @apply shadow-large;
+}
+
+.btn-success {
+  background-color: var(--success-green);
+  color: white;
+  @apply shadow-medium;
+}
+.btn-success:hover {
+  background-color: #059669;
+  @apply shadow-large;
 }
 
 .btn-secondary {
-  @apply bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  background-color: var(--bg-medium);
+  color: var(--text-dark);
+  border: 1px solid var(--border-medium);
+  @apply shadow-soft;
+}
+.btn-secondary:hover {
+  background-color: var(--bg-white);
+  @apply shadow-medium;
 }
 
-/* Nummer-Eingabe Buttons */
+.btn-danger {
+  background-color: var(--error-red);
+  color: white;
+  @apply shadow-medium;
+}
+.btn-danger:hover {
+  background-color: #dc2626;
+  @apply shadow-large;
+}
+
+/* Card-System */
+.card {
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  @apply shadow-medium;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  @apply shadow-large;
+  transform: translateY(-2px);
+}
+
+.card-active {
+  border-color: var(--primary-green);
+  background-color: #f0fdf4; /* Very light green */
+}
+
+/* Status-System */
+.status-current {
+  background: linear-gradient(135deg, var(--primary-green), #059669);
+  color: white;
+  @apply shadow-large;
+}
+
+.status-waiting {
+  background: linear-gradient(135deg, var(--warning-amber), #f97316);
+  color: white;
+  @apply shadow-large;
+}
+
+.status-inactive {
+  background: linear-gradient(135deg, var(--text-light), #9ca3af);
+  color: white;
+  @apply shadow-large;
+}
+
+/* Number Controls */
 .number-control {
-  @apply bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200;
+  background-color: var(--bg-medium);
+  color: var(--text-dark);
+  border: 1px solid var(--border-medium);
+  @apply w-10 h-10 rounded-full flex items-center justify-center font-bold cursor-pointer shadow-soft;
+  transition: all 0.2s ease;
+}
+.number-control:hover {
+  background-color: var(--primary-green);
+  color: white;
+  @apply shadow-medium;
 }
 
 .number-display {
-  @apply bg-white border-2 border-gray-300 text-gray-900 font-bold text-lg px-3 py-2 rounded-lg min-w-[4rem] text-center cursor-pointer hover:bg-gray-50 transition-colors duration-200;
+  background-color: var(--bg-white);
+  color: var(--text-dark);
+  border: 2px solid var(--border-light);
+  @apply font-bold text-lg px-3 py-2 rounded-lg min-w-[4rem] text-center cursor-pointer shadow-soft;
+  transition: all 0.2s ease;
+}
+.number-display:hover {
+  border-color: var(--primary-green);
+  @apply shadow-medium;
 }
 
-/* Eingabefelder */
+/* Input-System */
 .input-field {
-  @apply border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+  background-color: var(--bg-white);
+  color: var(--text-dark);
+  border: 2px solid var(--border-medium);
+  @apply rounded-lg px-3 py-2 shadow-soft;
+  transition: all 0.2s ease;
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+/* Text-Kontraste */
+.text-on-dark {
+  color: white;
+}
+
+.text-on-light {
+  color: var(--text-dark);
+}
+
+.text-muted {
+  color: var(--text-light);
+}
+
+.text-success {
+  color: var(--success-green);
+}
+
+.text-warning {
+  color: var(--warning-amber);
+}
+
+.text-error {
+  color: var(--error-red);
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 640px) {
+  .btn {
+    @apply py-2 px-4 text-sm;
+  }
+  
+  .card {
+    @apply p-4;
+  }
 }

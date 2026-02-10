@@ -100,23 +100,23 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
   return (
     <div className={`
-      bg-white rounded-xl card-shadow-lg p-6 mb-4 border-l-4
-      ${isActive ? 'border-l-blue-600 bg-blue-50' : 'border-l-gray-300'}
-      ${birthdayStatus ? 'ring-2 ring-red-300' : ''}
+      card p-6 mb-6
+      ${isActive ? 'card-active' : ''}
+      ${birthdayStatus ? 'ring-2 ring-red-400' : ''}
       transition-all duration-200
     `}>
       
       {/* Header mit Name und Geburtstag */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-1">
+          <h2 className="text-3xl font-bold text-on-light mb-1">
             {student.vorname} {student.nachname}
           </h2>
-          <p className="text-base font-semibold text-gray-700">
+          <p className="text-base font-semibold text-on-light">
             {student.unterrichtstag} {student.unterrichtszeit} • {student.anfrageStatus || 'Aktiv'}
           </p>
           {student.monatlicherbetrag && (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted">
               Monatsbeitrag: {student.monatlicherbetrag}€
             </p>
           )}
@@ -302,31 +302,21 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         <div className="flex gap-3">
           <button
             onClick={() => handleZahlungUpdate('ja')}
-            className={`px-5 py-3 rounded-lg font-medium transition-colors ${
-              student.zahlungStatus === 'ja' 
-                ? 'bg-green-500 text-white shadow-md' 
-                : 'bg-gray-100 text-gray-700 hover:bg-green-200'
-            }`}
+            className={student.zahlungStatus === 'ja' ? 'btn-success' : 'btn-secondary hover:bg-green-100'}
           >
             ✅ JA
           </button>
           <button
             onClick={() => handleZahlungUpdate('nein')}
-            className={`px-5 py-3 rounded-lg font-medium transition-colors ${
-              student.zahlungStatus === 'nein'
-                ? 'bg-red-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-red-200'
-            }`}
+            className={student.zahlungStatus === 'nein' ? 'btn-danger' : 'btn-secondary hover:bg-red-100'}
           >
             ❌ NEIN
           </button>
           <button
             onClick={() => handleZahlungUpdate('offen')}
-            className={`px-5 py-3 rounded-lg font-medium transition-colors ${
-              student.zahlungStatus === 'offen' || student.zahlungStatus === 'unbekannt'
-                ? 'bg-orange-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-orange-200'
-            }`}
+            className={student.zahlungStatus === 'offen' || student.zahlungStatus === 'unbekannt' 
+              ? 'btn px-5 py-3 bg-amber-500 text-white shadow-medium hover:bg-amber-600' 
+              : 'btn-secondary hover:bg-amber-100'}
           >
             ⏳ OFFEN
           </button>
@@ -338,7 +328,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         {student.handynummer && (
           <a
             href={getWhatsAppLink()}
-            className="btn-primary bg-green-600 hover:bg-green-700 flex items-center gap-2"
+            className="btn-success flex items-center gap-2"
           >
             📱 WhatsApp {student.ansprechpartner}
           </a>

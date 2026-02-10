@@ -1,13 +1,25 @@
 // Dynamische Bücher-Verwaltung
 // Neue Bücher werden global gespeichert und für alle Schüler verfügbar
 
-// Basis-Bücher aus der Datenbank
-export const BASE_BOOKS = [
-  'Schule für Snaredrum/Drumset 1',
-  'Schule für Snaredrum/Drumset 2', 
-  'Moder Drumming 1',
-  'Kräsch, Bumm, Bäng',
-] as const
+// Bücher aus Baserow API laden (fresh data)
+export async function fetchBooksFromDatabase(): Promise<string[]> {
+  try {
+    const response = await fetch('/api/books')
+    if (!response.ok) throw new Error('API Error')
+    
+    const data = await response.json()
+    return data.books || []
+  } catch (error) {
+    console.warn('Fehler beim Laden der Bücher aus DB:', error)
+    // Fallback auf Basis-Bücher
+    return [
+      'Schule für Snaredrum/Drumset 1',
+      'Schule für Snaredrum/Drumset 2', 
+      'Moder Drumming 1',
+      'Kräsch, Bumm, Bäng',
+    ]
+  }
+}
 
 const CUSTOM_BOOKS_KEY = 'teaching_assistant_custom_books'
 
@@ -45,13 +57,29 @@ export function addCustomBook(bookName: string): void {
   }
 }
 
-// Alle verfügbaren Bücher (Basis + Custom)
-export function getAllBooks(): string[] {
-  const baseBooks = Array.from(BASE_BOOKS)
+// Alle verfügbaren Bücher (DB + Custom) - Async Version
+export async function getAllBooksAsync(): Promise<string[]> {
+  const dbBooks = await fetchBooksFromDatabase()
   const customBooks = getCustomBooks()
   
   // Kombinieren und sortieren
-  const allBooks = [...baseBooks, ...customBooks]
+  const allBooks = [...dbBooks, ...customBooks]
+  return [...new Set(allBooks)].sort()
+}
+
+// Synchrone Version für backwards compatibility (verwendet Cache)
+export function getAllBooks(): string[] {
+  const customBooks = getCustomBooks()
+  
+  // Fallback Basis-Bücher + Custom
+  const fallbackBooks = [
+    'Schule für Snaredrum/Drumset 1',
+    'Schule für Snaredrum/Drumset 2', 
+    'Moder Drumming 1',
+    'Kräsch, Bumm, Bäng',
+  ]
+  
+  const allBooks = [...fallbackBooks, ...customBooks]
   return [...new Set(allBooks)].sort()
 }
 
