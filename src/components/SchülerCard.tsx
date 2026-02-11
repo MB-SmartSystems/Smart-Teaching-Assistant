@@ -100,30 +100,35 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
   return (
     <div className={`
-      bg-white rounded-xl shadow-lg border p-6 mb-6
-      ${isActive ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200'}
-      ${birthdayStatus ? 'ring-2 ring-red-400' : ''}
-      transition-all duration-200 hover:shadow-xl hover:-translate-y-1
-    `}>
+      bg-white rounded-lg shadow-md border p-6 mb-6
+      ${isActive ? 'border-l-4' : 'border-gray-200'}
+      ${birthdayStatus ? 'ring-2 ring-orange-400' : ''}
+      transition-all duration-200 hover:shadow-lg hover:-translate-y-1
+    `} style={{
+      borderColor: isActive ? 'var(--status-active)' : 'var(--border-light)',
+      backgroundColor: isActive ? 'var(--status-active-bg)' : 'white'
+    }}>
       
       {/* Header mit Name und Geburtstag */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-on-light mb-1">
+          <h2 className="text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             {student.vorname} {student.nachname}
           </h2>
-          <p className="text-base font-semibold text-on-light">
+          <p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
             {student.unterrichtstag} {student.unterrichtszeit} • {student.anfrageStatus || 'Aktiv'}
           </p>
           {student.monatlicherbetrag && (
-            <p className="text-sm text-muted">
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
               Monatsbeitrag: {student.monatlicherbetrag}€
             </p>
           )}
         </div>
         
         {birthdayStatus && (
-          <span className={`px-3 py-2 rounded-lg text-white text-sm font-bold ${birthdayStatus.color}`}>
+          <span className="px-3 py-2 rounded-lg text-white text-sm font-bold" style={{
+            backgroundColor: birthdayStatus.text.includes('Heute') ? 'var(--status-warning)' : 'var(--status-neutral)'
+          }}>
             {birthdayStatus.text}
           </span>
         )}
@@ -133,9 +138,9 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
       <div className="grid grid-cols-1 gap-6 mb-6">
         
         {/* Buch - Dropdown Auswahl */}
-        <div className="bg-gray-50 rounded-lg p-5">
-          <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-            📚 Aktuelles Buch
+        <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--accent-light)' }}>
+          <h3 className="font-semibold mb-3 flex items-center" style={{ color: 'var(--text-primary)' }}>
+            Aktuelles Buch
           </h3>
           
           <BookDropdown
@@ -150,8 +155,8 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         </div>
 
         {/* Seite und Übung - Nummer-Controls */}
-        <div className="bg-gray-50 rounded-lg p-5">
-          <h3 className="font-semibold text-gray-800 mb-4">🎯 Aktueller Stand</h3>
+        <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--accent-light)' }}>
+          <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Aktueller Stand</h3>
           
           <div className="grid grid-cols-2 gap-4">
             
@@ -161,13 +166,25 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
               <div className="flex items-center gap-2 justify-center">
                 <button
                   onClick={() => handleNumberUpdate('seite', -1)}
-                  className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-blue-100 hover:text-blue-600 font-semibold text-lg rounded-lg transition-colors border"
+                  className="flex items-center justify-center w-10 h-10 font-semibold text-lg rounded-lg transition-colors border"
+                  style={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-medium)',
+                    color: 'var(--text-primary)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-light)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
                 >
-                  -
+                  −
                 </button>
                 
                 <div 
-                  className="flex items-center justify-center w-16 h-10 font-semibold text-lg cursor-pointer rounded-lg transition-colors hover:bg-gray-50"
+                  className="flex items-center justify-center w-16 h-10 font-semibold text-lg cursor-pointer rounded-lg transition-colors"
+                  style={{ 
+                    backgroundColor: 'var(--bg-primary)',
+                    border: `1px solid var(--border-medium)`,
+                    color: 'var(--text-primary)'
+                  }}
                   onClick={() => setEditingField('seite')}
                 >
                   {editingField === 'seite' ? (
@@ -190,7 +207,14 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 
                 <button
                   onClick={() => handleNumberUpdate('seite', 1)}
-                  className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-blue-100 hover:text-blue-600 font-semibold text-lg rounded-lg transition-colors border"
+                  className="flex items-center justify-center w-10 h-10 font-semibold text-lg rounded-lg transition-colors border"
+                  style={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-medium)',
+                    color: 'var(--text-primary)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-light)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
                 >
                   +
                 </button>
@@ -244,8 +268,11 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         </div>
 
         {/* Wichtiger Fokus */}
-        <div className="bg-yellow-50 rounded-lg p-5 border-l-4 border-l-yellow-500">
-          <h3 className="font-semibold text-gray-800 mb-3">🎯 Wichtiger Fokus</h3>
+        <div className="rounded-lg p-5 border-l-4" style={{ 
+          backgroundColor: 'var(--primary-light)', 
+          borderLeftColor: 'var(--primary)' 
+        }}>
+          <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Wichtiger Fokus</h3>
           {editingField === 'wichtigerFokus' ? (
             <input
               type="text"
@@ -271,8 +298,11 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         </div>
 
         {/* Aktuelle Lieder */}
-        <div className="bg-blue-50 rounded-lg p-5 border-l-4 border-l-blue-500">
-          <h3 className="font-semibold text-gray-800 mb-3">🎵 Heute gelernt</h3>
+        <div className="rounded-lg p-5 border-l-4" style={{ 
+          backgroundColor: 'var(--status-success-bg)', 
+          borderLeftColor: 'var(--status-success)' 
+        }}>
+          <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Heute gelernt</h3>
           {editingField === 'aktuelleLieder' ? (
             <input
               type="text"
@@ -300,31 +330,40 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
       {/* Zahlungsstatus */}
       <div className="mb-6">
-        <h3 className="font-semibold text-gray-800 mb-3">💰 Zahlung</h3>
+        <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Zahlung</h3>
         <div className="flex gap-3">
           <button
             onClick={() => handleZahlungUpdate('ja')}
             className={student.zahlungStatus === 'ja' 
-              ? 'bg-emerald-600 text-white font-medium py-3 px-5 rounded-lg shadow-md'
-              : 'bg-gray-100 hover:bg-green-100 text-gray-800 font-medium py-3 px-5 rounded-lg transition-colors'}
+              ? 'font-medium py-3 px-5 rounded-lg shadow-md text-white'
+              : 'font-medium py-3 px-5 rounded-lg transition-colors'}
+            style={student.zahlungStatus === 'ja' 
+              ? { backgroundColor: 'var(--status-success)', color: 'white' }
+              : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: `1px solid var(--border-medium)` }}
           >
-            ✅ JA
+            JA
           </button>
           <button
             onClick={() => handleZahlungUpdate('nein')}
             className={student.zahlungStatus === 'nein' 
-              ? 'bg-red-600 text-white font-medium py-3 px-5 rounded-lg shadow-md'
-              : 'bg-gray-100 hover:bg-red-100 text-gray-800 font-medium py-3 px-5 rounded-lg transition-colors'}
+              ? 'font-medium py-3 px-5 rounded-lg shadow-md text-white'
+              : 'font-medium py-3 px-5 rounded-lg transition-colors'}
+            style={student.zahlungStatus === 'nein' 
+              ? { backgroundColor: '#dc2626', color: 'white' }
+              : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: `1px solid var(--border-medium)` }}
           >
-            ❌ NEIN
+            NEIN
           </button>
           <button
             onClick={() => handleZahlungUpdate('offen')}
             className={student.zahlungStatus === 'offen' || student.zahlungStatus === 'unbekannt' 
-              ? 'bg-amber-500 text-white font-medium py-3 px-5 rounded-lg shadow-md hover:bg-amber-600' 
-              : 'bg-gray-100 hover:bg-amber-100 text-gray-800 font-medium py-3 px-5 rounded-lg transition-colors'}
+              ? 'font-medium py-3 px-5 rounded-lg shadow-md text-white'
+              : 'font-medium py-3 px-5 rounded-lg transition-colors'}
+            style={student.zahlungStatus === 'offen' || student.zahlungStatus === 'unbekannt' 
+              ? { backgroundColor: 'var(--status-warning)', color: 'white' }
+              : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: `1px solid var(--border-medium)` }}
           >
-            ⏳ OFFEN
+            OFFEN
           </button>
         </div>
       </div>
@@ -334,18 +373,18 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         {student.handynummer && (
           <a
             href={getWhatsAppLink()}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-5 rounded-lg transition-colors flex items-center gap-2 shadow-md"
+            className="btn-primary flex items-center gap-2"
           >
-            📱 WhatsApp {student.ansprechpartner}
+            WhatsApp {student.ansprechpartner}
           </a>
         )}
         
         {student.email && (
           <a
             href={getEmailLink()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-5 rounded-lg transition-colors flex items-center gap-2 shadow-md"
+            className="btn-primary flex items-center gap-2"
           >
-            ✉️ E-Mail
+            E-Mail
           </a>
         )}
         
@@ -354,9 +393,9 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             href={student.vertragslink}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-5 rounded-lg transition-colors flex items-center gap-2 border"
+            className="btn-secondary flex items-center gap-2"
           >
-            📄 Vertrag
+            Vertrag
           </a>
         )}
       </div>

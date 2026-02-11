@@ -1,48 +1,97 @@
 @import "tailwindcss";
 
 /* Manuel Büttner Branding - ruhig, nüchtern, klar, professionell */
+/* Basierend auf manuelbuettner.de Design */
 :root {
-  /* Primärfarben - gedämpfte, professionelle Töne */
-  --primary: #2563eb;         /* Ruhiges Blau */
-  --primary-dark: #1d4ed8;    /* Dunkleres Blau für Hover */
-  --primary-light: #dbeafe;   /* Hellblau für Backgrounds */
+  /* Primärfarben - professionelle, zurückhaltende Töne wie auf der Homepage */
+  --primary: #1e40af;         /* Professionelles Blau (dunkel) */
+  --primary-dark: #1e3a8a;    /* Dunkleres Blau für Hover */
+  --primary-light: #eff6ff;   /* Sehr helles Blau für Backgrounds */
   
-  --secondary: #64748b;       /* Slate Grau */
-  --secondary-light: #f1f5f9; /* Sehr helles Grau */
+  --secondary: #6b7280;       /* Professionelles Grau */
+  --secondary-light: #f9fafb; /* Sehr helles Grau */
+  --secondary-dark: #374151;  /* Dunkles Grau */
   
-  --accent: #059669;          /* Gedämpftes Grün (statt knalligem Grün) */
-  --accent-dark: #047857;     /* Dunkles Grün */
-  --accent-light: #d1fae5;    /* Helles Grün */
+  /* Akzentfarben - sehr zurückhaltend */
+  --accent: #1f2937;          /* Dunkles Anthrazit */
+  --accent-light: #f3f4f6;    /* Helles Grau für Karten */
   
   /* Textfarben */
-  --text-primary: #1e293b;    /* Dunkles Slate */
-  --text-secondary: #475569;  /* Mittleres Grau */
-  --text-muted: #64748b;      /* Helles Grau für Subtexte */
+  --text-primary: #111827;    /* Fast Schwarz */
+  --text-secondary: #4b5563;  /* Mittleres Grau */
+  --text-muted: #9ca3af;      /* Helles Grau für Subtexte */
   
   /* Hintergründe */
-  --bg-primary: #ffffff;      /* Weiß */
-  --bg-secondary: #f8fafc;    /* Sehr helles Grau */
-  --bg-light: #f1f5f9;        /* Hintergrund-Grau */
+  --bg-primary: #ffffff;      /* Reines Weiß */
+  --bg-secondary: #f9fafb;    /* Sehr helles Grau */
+  --bg-light: #f3f4f6;        /* Hintergrund-Grau */
   
-  /* Status-Farben - gedämpft */
-  --success: #059669;         /* Gedämpftes Grün */
-  --success-light: #d1fae5;   /* Helles Erfolgs-Grün */
-  --warning: #d97706;         /* Orange (weniger grell) */
-  --warning-light: #fed7aa;   /* Helles Orange */
-  --error: #dc2626;           /* Rot */
-  --error-light: #fecaca;     /* Helles Rot */
+  /* Status-Farben - professionell gedämpft */
+  --status-active: #1f2937;   /* Dunkles Grau für aktiv */
+  --status-active-bg: #f3f4f6; /* Heller Hintergrund für aktiv */
+  --status-success: #065f46;  /* Dunkles Grün */
+  --status-success-bg: #f0fdf4; /* Helles Grün */
+  --status-warning: #92400e;  /* Dunkles Orange */
+  --status-warning-bg: #fffbeb; /* Helles Orange */
+  --status-neutral: #6b7280;  /* Grau für neutral */
+  --status-neutral-bg: #f9fafb; /* Helles Grau für neutral */
   
-  /* Schatten */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  /* Schatten - sehr subtil */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08);
+  
+  /* Borders */
+  --border-light: #e5e7eb;
+  --border-medium: #d1d5db;
+  --border-dark: #9ca3af;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   line-height: 1.6;
   color: var(--text-primary);
   background-color: var(--bg-light);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility Classes für das neue Design */
+.text-on-light { color: var(--text-primary); }
+.text-muted { color: var(--text-muted); }
+.bg-card { background-color: var(--bg-primary); }
+.bg-card-light { background-color: var(--accent-light); }
+.border-card { border-color: var(--border-light); }
+
+/* Button-Styles im Manuel Büttner Design */
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: var(--accent-light);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }

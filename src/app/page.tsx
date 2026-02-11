@@ -96,10 +96,10 @@ export default function Home() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-light)' }}>
       {/* Header */}
-      <header style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--secondary-light)' }} className="shadow-lg border-b p-6">
+      <header style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-light)' }} className="shadow-md border-b p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <div>
-            <h1 className="text-3xl font-semibold" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
               Smart Teaching Assistant
             </h1>
             <p className="text-base font-medium" style={{ color: 'var(--text-secondary)' }}>
@@ -115,21 +115,29 @@ export default function Home() {
                   })}
                 </>
               ) : (
-                'Lade...'
+                'Laden...'
               )}
             </p>
           </div>
           
           <div className="text-right">
             <div className="flex items-center gap-3">
-              <span className="text-3xl">{getSyncIcon()}</span>
+              <div className="w-3 h-3 rounded-full" style={{ 
+                backgroundColor: syncStatus.status === 'synced' ? 'var(--status-success)' :
+                               syncStatus.status === 'syncing' ? 'var(--status-warning)' :
+                               syncStatus.status === 'offline' ? 'var(--status-warning)' :
+                               'var(--status-neutral)'
+              }}></div>
               <div className="text-sm">
                 <div className="font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>
-                  {syncStatus.status}
+                  {syncStatus.status === 'synced' ? 'Synchronisiert' :
+                   syncStatus.status === 'syncing' ? 'Synchronisiert...' :
+                   syncStatus.status === 'offline' ? 'Offline' :
+                   syncStatus.status === 'error' ? 'Fehler' : 'Laden...'}
                 </div>
                 {syncStatus.queueLength > 0 && (
-                  <div className="font-medium" style={{ color: 'var(--warning)' }}>
-                    {syncStatus.queueLength} Updates
+                  <div className="font-medium" style={{ color: 'var(--text-muted)' }}>
+                    {syncStatus.queueLength} ausstehend
                   </div>
                 )}
               </div>
@@ -144,20 +152,20 @@ export default function Home() {
         {isClient && autoSwitchStatus && (
           <div className="mb-6">
             {autoSwitchStatus.currentStudent ? (
-              <div style={{ backgroundColor: 'var(--accent)', color: 'white' }} className="p-6 rounded-xl mb-6 shadow-lg">
+              <div style={{ backgroundColor: 'var(--status-active)', color: 'white', borderColor: 'var(--status-active)' }} className="p-6 rounded-lg mb-6 shadow-md border-l-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="font-semibold text-2xl text-white">
-                      ▶️ Aktuell: {autoSwitchStatus.currentStudent.vorname} {autoSwitchStatus.currentStudent.nachname}
+                    <div className="font-bold text-xl text-white">
+                      Aktueller Schüler: {autoSwitchStatus.currentStudent.vorname} {autoSwitchStatus.currentStudent.nachname}
                     </div>
-                    <div className="text-white opacity-90 text-lg font-medium">
+                    <div className="text-white text-base font-medium mt-1">
                       {autoSwitchStatus.currentStudent.unterrichtszeit}
                     </div>
                   </div>
                   
                   {autoSwitchStatus.nextStudent && autoSwitchStatus.minutesUntilNext > 0 && (
-                    <div className="text-right text-white opacity-90">
-                      <div className="text-sm">Nächster:</div>
+                    <div className="text-right text-white">
+                      <div className="text-sm font-medium">Nächster Schüler:</div>
                       <div className="font-medium">
                         {autoSwitchStatus.nextStudent.vorname} {getCountdownText(autoSwitchStatus.minutesUntilNext)}
                       </div>
@@ -166,20 +174,20 @@ export default function Home() {
                 </div>
               </div>
             ) : autoSwitchStatus.isWaitingTime && autoSwitchStatus.nextStudent ? (
-              <div style={{ backgroundColor: 'var(--warning)', color: 'white' }} className="p-6 rounded-xl mb-6 shadow-lg">
-                <div className="font-semibold text-2xl text-white">
-                  ⏰ Wartezeit - Nächster: {autoSwitchStatus.nextStudent.vorname} {autoSwitchStatus.nextStudent.nachname}
+              <div style={{ backgroundColor: 'var(--status-warning-bg)', color: 'var(--status-warning)', borderColor: 'var(--status-warning)' }} className="p-6 rounded-lg mb-6 shadow-md border-l-4">
+                <div className="font-bold text-xl">
+                  Wartezeit - Nächster: {autoSwitchStatus.nextStudent.vorname} {autoSwitchStatus.nextStudent.nachname}
                 </div>
-                <div className="text-white opacity-90 text-lg font-medium">
+                <div className="text-base font-medium mt-1">
                   {getCountdownText(autoSwitchStatus.minutesUntilNext)} • {autoSwitchStatus.nextStudent.unterrichtszeit}
                 </div>
               </div>
             ) : (
-              <div style={{ backgroundColor: 'var(--secondary)', color: 'white' }} className="p-6 rounded-xl mb-6 shadow-lg">
-                <div className="font-semibold text-2xl text-white">
-                  📅 Kein Unterricht zur aktuellen Zeit
+              <div style={{ backgroundColor: 'var(--status-neutral-bg)', color: 'var(--status-neutral)', borderColor: 'var(--status-neutral)' }} className="p-6 rounded-lg mb-6 shadow-md border-l-4">
+                <div className="font-bold text-xl">
+                  Kein Unterricht zur aktuellen Zeit
                 </div>
-                <div className="text-white opacity-90 text-lg font-medium">
+                <div className="text-base font-medium mt-1">
                   {todaysStudents.length > 0 
                     ? `${todaysStudents.length} Schüler heute geplant`
                     : `Keine Schüler für ${getCurrentDay()} eingetragen`
@@ -203,14 +211,14 @@ export default function Home() {
         {/* Ausgewählter Schüler Detail-Card */}
         {selectedStudent && students.find(s => s.id === selectedStudent) && (
           <div className="mb-8">
-            <div style={{ backgroundColor: 'var(--accent-light)', borderLeftColor: 'var(--accent)' }} className="border-l-4 rounded-lg p-5 mb-6 shadow-lg">
+            <div style={{ backgroundColor: 'var(--accent-light)', borderLeftColor: 'var(--primary)' }} className="border-l-4 rounded-lg p-5 mb-6 shadow-md">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">📖 Schüler-Details</h2>
+                <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Schüler-Details</h2>
                 <button
                   onClick={() => setSelectedStudent(null)}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+                  className="btn-secondary"
                 >
-                  ✖ Schließen
+                  Schließen
                 </button>
               </div>
             </div>
@@ -224,8 +232,8 @@ export default function Home() {
         {/* Heutige Termine */}
         {isClient && todaysStudents.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900">
-              📅 Heute ({todaysStudents.length} Schüler)
+            <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+              Heute ({todaysStudents.length} Schüler)
             </h2>
             
             <div className="grid gap-4">
@@ -236,19 +244,22 @@ export default function Home() {
                   return timeA.localeCompare(timeB)
                 })
                 .map(student => (
-                  <div key={student.id} className={`bg-white rounded-xl shadow-lg border p-5 transition-all duration-200 hover:shadow-xl hover:-translate-y-1 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200'}`}>
+                  <div key={student.id} className={`bg-white rounded-lg shadow-md border p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-l-4' : 'border-gray-200'}`} style={{
+                    borderLeftColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active)' : undefined,
+                    backgroundColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active-bg)' : undefined
+                  }}>
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
-                        <div className="font-bold text-gray-900 text-xl mb-1">
+                        <div className="font-bold text-xl mb-1" style={{ color: 'var(--text-primary)' }}>
                           {student.vorname} {student.nachname}
                         </div>
-                        <div className="text-base text-gray-900 font-semibold mb-1">
+                        <div className="text-base font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
                           {student.unterrichtszeit} • {student.buch || 'Kein Buch'}
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                           Zahlung: <span className={`font-medium ${
-                            student.zahlungStatus === 'ja' ? 'text-success' :
-                            student.zahlungStatus === 'nein' ? 'text-error' : 'text-warning'
+                            student.zahlungStatus === 'ja' ? 'text-green-600' :
+                            student.zahlungStatus === 'nein' ? 'text-red-600' : 'text-orange-600'
                           }`}>
                             {student.zahlungStatus || 'unbekannt'}
                           </span>
@@ -257,8 +268,8 @@ export default function Home() {
                           )}
                         </div>
                         {student.wichtigerFokus && (
-                          <div className="text-sm mt-1 font-medium" style={{ color: 'var(--primary-green)' }}>
-                            🎯 {student.wichtigerFokus}
+                          <div className="text-sm mt-1 font-medium" style={{ color: 'var(--primary)' }}>
+                            Fokus: {student.wichtigerFokus}
                           </div>
                         )}
                       </div>
@@ -269,10 +280,10 @@ export default function Home() {
                           setSelectedStudent(student.id)
                         }}
                         className={autoSwitchStatus?.currentStudent?.id === student.id 
-                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md ml-4' 
-                          : 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md ml-4'}
+                          ? 'btn-primary ml-4' 
+                          : 'btn-secondary ml-4'}
                       >
-                        {autoSwitchStatus?.currentStudent?.id === student.id ? '👆 Aktuell' : '▶️ Details'}
+                        {autoSwitchStatus?.currentStudent?.id === student.id ? 'Aktuell' : 'Details'}
                       </button>
                     </div>
                   </div>
@@ -285,12 +296,12 @@ export default function Home() {
         {/* Loading State */}
         {(!isClient || students.length === 0) && (
           <div className="text-center py-16">
-            <div className="bg-white rounded-xl shadow-lg border p-8 max-w-md mx-auto">
-              <div className="text-6xl mb-4">🔄</div>
-              <div className="text-2xl font-bold mb-2 text-gray-900">
-                Schüler werden geladen...
+            <div className="bg-white rounded-lg shadow-md border p-8 max-w-md mx-auto" style={{ borderColor: 'var(--border-light)' }}>
+              <div className="w-8 h-8 mx-auto mb-4 border-4 border-gray-200 border-t-primary rounded-full animate-spin" style={{ borderTopColor: 'var(--primary)' }}></div>
+              <div className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                Schüler werden geladen
               </div>
-              <div className="text-base text-gray-600">
+              <div className="text-base" style={{ color: 'var(--text-secondary)' }}>
                 Verbindung zu Baserow wird hergestellt
               </div>
             </div>
