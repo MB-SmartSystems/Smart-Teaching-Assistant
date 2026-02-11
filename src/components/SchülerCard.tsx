@@ -229,7 +229,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             
             {/* Seite */}
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Seite</label>
+              <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-secondary)' }}>Seite</label>
               <div className="flex items-center gap-2 justify-center">
                 <button
                   onClick={() => handleNumberUpdate('seite', -1)}
@@ -290,7 +290,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
             {/* Übungen - Flexibles Text-Feld */}
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Übungen</label>
+              <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-secondary)' }}>Übungen</label>
               
               {editingField === 'übung' ? (
                 <input
@@ -302,21 +302,34 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                     setEditingField(null)
                   }}
                   onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-                  className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full p-3 border-2 rounded-lg font-medium text-lg focus:outline-none focus:ring-2 focus:border-transparent"
+                  style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    borderColor: 'var(--border-medium)',
+                    color: 'var(--text-primary)',
+                    '--tw-ring-color': 'var(--primary)'
+                  } as React.CSSProperties}
                   placeholder="z.B. 1, 2, 3 oder 1-6 oder 12, 15"
                   autoFocus
                 />
               ) : (
                 <div 
-                  className="cursor-pointer hover:bg-gray-100 p-3 rounded-lg border-2 border-dashed border-gray-300 font-medium text-lg bg-white transition-colors min-h-[3rem] flex items-center"
+                  className="cursor-pointer p-3 rounded-lg border-2 border-dashed font-medium text-lg transition-colors min-h-[3rem] flex items-center"
+                  style={{
+                    backgroundColor: 'var(--accent-light)',
+                    borderColor: 'var(--border-medium)'
+                  }}
                   onClick={() => setEditingField('übung')}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-light)'}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className={localValues.übung ? 'text-gray-900' : 'text-gray-500'}>
+                    <span style={{ color: localValues.übung ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                       {localValues.übung || 'Übungen eingeben...'}
                     </span>
                     <svg 
-                      className="w-5 h-5 text-gray-400" 
+                      className="w-5 h-5" 
+                      style={{ color: 'var(--text-muted)' }}
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
@@ -327,7 +340,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 </div>
               )}
               
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                 💡 Beispiele: "1, 2, 3" • "1-6" • "12, 15, 18" • "Einführung"
               </div>
             </div>
@@ -350,14 +363,26 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 setEditingField(null)
               }}
               onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-              className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:border-transparent"
+              style={{
+                backgroundColor: 'var(--bg-primary)',
+                borderColor: 'var(--border-medium)',
+                color: 'var(--text-primary)',
+                '--tw-ring-color': 'var(--primary)'
+              } as React.CSSProperties}
               placeholder="Z.B. Handhaltung verbessern, Timing bei Fills"
               autoFocus
             />
           ) : (
             <div 
-              className="cursor-pointer hover:bg-yellow-100 p-3 rounded-lg border-2 border-dashed border-yellow-300 transition-colors"
+              className="cursor-pointer p-3 rounded-lg border-2 border-dashed transition-colors"
+              style={{
+                backgroundColor: 'var(--accent-light)',
+                borderColor: 'var(--border-medium)'
+              }}
               onClick={() => setEditingField('wichtigerFokus')}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-light)'}
             >
               {localValues.wichtigerFokus || 'Technik-Fokus hinzufügen...'}
             </div>
@@ -380,14 +405,26 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 setEditingField(null)
               }}
               onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-              className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:border-transparent"
+              style={{
+                backgroundColor: 'var(--bg-primary)',
+                borderColor: 'var(--border-medium)',
+                color: 'var(--text-primary)',
+                '--tw-ring-color': 'var(--primary)'
+              } as React.CSSProperties}
               placeholder="Z.B. We will rock you, Back in black"
               autoFocus
             />
           ) : (
             <div 
-              className="cursor-pointer hover:bg-blue-100 p-3 rounded-lg border-2 border-dashed border-blue-300 transition-colors"
+              className="cursor-pointer p-3 rounded-lg border-2 border-dashed transition-colors"
+              style={{
+                backgroundColor: 'var(--accent-light)',
+                borderColor: 'var(--border-medium)'
+              }}
               onClick={() => setEditingField('aktuelleLieder')}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-light)'}
             >
               {localValues.aktuelleLieder || 'Neue Lieder hinzufügen...'}
             </div>

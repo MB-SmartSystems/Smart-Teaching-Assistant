@@ -41,7 +41,7 @@ export default function EarningsCard({ student }: EarningsCardProps) {
     return (
       <div className="rounded-lg p-5 border-l-4" style={{ 
         backgroundColor: 'var(--bg-secondary)', 
-        borderLeftColor: 'var(--text-muted)',
+        borderLeftColor: 'var(--border-medium)',
         borderColor: 'var(--border-light)'
       }}>
         <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>💰 Einnahmen</h3>

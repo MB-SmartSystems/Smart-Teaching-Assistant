@@ -130,7 +130,13 @@ export default function BookDropdown({
             if (e.key === 'Enter') handleSaveEditedBook()
             if (e.key === 'Escape') handleCancelEdit()
           }}
-          className="w-full p-3 border-2 border-green-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
+          className="w-full p-3 border-2 rounded-lg font-medium text-lg focus:outline-none focus:ring-2 focus:border-transparent shadow-sm"
+          style={{
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--primary)',
+            color: 'var(--text-primary)',
+            '--tw-ring-color': 'var(--primary)'
+          } as React.CSSProperties}
           placeholder="Buch-Namen bearbeiten..."
           autoFocus
         />
@@ -145,7 +151,7 @@ export default function BookDropdown({
           </button>
           <button
             onClick={handleCancelEdit}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-400 transition-colors"
+            className="btn-secondary px-4 py-2 text-sm"
           >
             ✖ Abbrechen
           </button>
@@ -170,7 +176,13 @@ export default function BookDropdown({
             if (e.key === 'Enter') handleCustomBookSave()
             if (e.key === 'Escape') handleCancelCustom()
           }}
-          className="w-full p-3 border-2 border-blue-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+          className="w-full p-3 border-2 rounded-lg font-medium text-lg focus:outline-none focus:ring-2 focus:border-transparent shadow-sm"
+          style={{
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--primary)',
+            color: 'var(--text-primary)',
+            '--tw-ring-color': 'var(--primary)'
+          } as React.CSSProperties}
           placeholder="Neues Buch eingeben..."
           autoFocus
         />
@@ -185,7 +197,7 @@ export default function BookDropdown({
           </button>
           <button
             onClick={handleCancelCustom}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-400 transition-colors"
+            className="btn-secondary px-4 py-2 text-sm"
           >
             ✖ Abbrechen
           </button>
@@ -206,10 +218,16 @@ export default function BookDropdown({
           value={currentBook}
           onChange={handleSelectChange}
           onBlur={onToggleEdit}
-          className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer shadow-sm"
+          className="w-full p-3 border-2 rounded-lg font-medium text-lg focus:outline-none focus:ring-2 focus:border-transparent cursor-pointer shadow-sm"
+          style={{
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--border-medium)',
+            color: 'var(--text-primary)',
+            '--tw-ring-color': 'var(--primary)'
+          } as React.CSSProperties}
           autoFocus
         >
-          <option value="" className="text-gray-500 py-2">
+          <option value="" className="py-2" style={{ color: 'var(--text-muted)' }}>
             Buch auswählen...
           </option>
           
@@ -220,16 +238,16 @@ export default function BookDropdown({
             </option>
           ))}
           
-          <option disabled className="text-gray-400 py-1 font-medium">
+          <option disabled className="py-1 font-medium" style={{ color: 'var(--text-muted)' }}>
             ──────────────
           </option>
           
-          <option value="__custom__" className="py-2 font-medium text-green-600">
+          <option value="__custom__" className="py-2 font-medium" style={{ color: 'var(--primary)' }}>
             ➕ Neues Buch hinzufügen
           </option>
         </select>
         
-        <div className="text-xs text-gray-600">
+        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
           ⭐ = von dir hinzugefügtes Buch • Neue Bücher sind für alle Schüler verfügbar
         </div>
       </div>
@@ -239,12 +257,18 @@ export default function BookDropdown({
   // Display-Modus
   return (
     <div 
-      className="cursor-pointer hover:bg-gray-200 p-3 rounded-lg border-2 border-dashed border-gray-300 font-medium text-lg transition-colors duration-200 min-h-[3rem] flex items-center group"
+      className="cursor-pointer p-3 rounded-lg border-2 border-dashed font-medium text-lg transition-colors duration-200 min-h-[3rem] flex items-center group"
+      style={{
+        backgroundColor: 'var(--accent-light)',
+        borderColor: 'var(--border-medium)'
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-light)'}
       onClick={onToggleEdit}
     >
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-2">
-          <span className={currentBook ? 'text-gray-900' : 'text-gray-500'}>
+          <span style={{ color: currentBook ? 'var(--text-primary)' : 'var(--text-muted)' }}>
             {formatBookName(currentBook)}
           </span>
           {currentBook && isCustomBook(currentBook) && (
@@ -264,7 +288,7 @@ export default function BookDropdown({
           )}
         </div>
         
-        <div className="flex items-center gap-2 text-gray-400 group-hover:text-gray-600">
+        <div className="flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
           <span className="text-sm">Klicken zum Ändern</span>
           <svg 
             className="w-5 h-5" 

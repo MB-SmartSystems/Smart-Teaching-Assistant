@@ -13,14 +13,15 @@
   
   /* Akzentfarben - gedämpft */
   --accent: #4ade80;          /* Gedämpfter grüner Akzent */
-  --accent-light: rgba(74, 222, 128, 0.08); /* Sehr subtiles transparentes Grün */
+  --accent-light: #1e293b;    /* Dunkler Hintergrund für Karten (nicht transparent!) */
   --accent-dark: #16a34a;     /* Dunkles Grün */
   
   /* Textfarben - optimiert für Lesbarkeit */
   --text-primary: #f1f5f9;    /* Sehr helles Grau (nicht reines Weiß) */
   --text-secondary: #cbd5e1;  /* Mittleres helles Grau */
-  --text-muted: #94a3b8;      /* Gedämpftes Grau für Subtexte */
+  --text-muted: #64748b;      /* Dunkleres Grau für besseren Kontrast */
   --text-on-color: #ffffff;   /* Weißer Text auf farbigen Hintergründen */
+  --text-light-muted: #94a3b8; /* Helles gedämpftes Grau nur für dunkle Hintergründe */
   
   /* Dunkle Hintergründe - wie im Screenshot */
   --bg-primary: #0f172a;      /* Sehr dunkles Blau-Grau (Haupthintergrund) */
@@ -29,15 +30,15 @@
   
   /* Status-Farben - gedämpft und professionell */
   --status-active: #4ade80;   /* Gedämpftes Grün für aktiv */
-  --status-active-bg: rgba(74, 222, 128, 0.12); /* Sehr subtiler grüner Hintergrund */
+  --status-active-bg: #1e293b; /* Solider dunkler Hintergrund für aktiv */
   --status-success: #22c55e;  /* Grün für Erfolg */
-  --status-success-bg: rgba(34, 197, 94, 0.08); /* Subtiles transparentes Grün */
+  --status-success-bg: #1e293b; /* Solider dunkler Hintergrund */
   --status-warning: #f59e0b;  /* Orange für Warnungen */
-  --status-warning-bg: rgba(245, 158, 11, 0.08); /* Subtiles Orange */
+  --status-warning-bg: #1e293b; /* Solider dunkler Hintergrund */
   --status-error: #ef4444;    /* Rot für Fehler/Nein */
-  --status-error-bg: rgba(239, 68, 68, 0.08); /* Subtiles Rot */
+  --status-error-bg: #1e293b; /* Solider dunkler Hintergrund */
   --status-neutral: #64748b;  /* Slate Grau für neutral */
-  --status-neutral-bg: rgba(100, 116, 139, 0.08); /* Subtiles Grau */
+  --status-neutral-bg: #1e293b; /* Solider dunkler Hintergrund */
   
   /* Schatten - für dunkles Theme */
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3);
