@@ -26,8 +26,11 @@ export default function Login({ onLogin, error }: LoginProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-light)' }}>
-      <div className="bg-white p-8 rounded-lg shadow-md border max-w-md w-full mx-4" style={{ borderColor: 'var(--border-light)' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="p-8 rounded-lg shadow-lg border max-w-md w-full mx-4" style={{ 
+        backgroundColor: 'var(--bg-secondary)', 
+        borderColor: 'var(--border-light)' 
+      }}>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
             Smart Teaching Assistant
@@ -47,11 +50,13 @@ export default function Login({ onLogin, error }: LoginProps) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border rounded-lg font-medium focus:outline-none focus:ring-2 focus:border-transparent"
               style={{ 
                 borderColor: error ? '#dc2626' : 'var(--border-medium)',
-                backgroundColor: 'var(--bg-primary)'
-              }}
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                '--tw-ring-color': 'var(--primary)'
+              } as React.CSSProperties}
               placeholder="Passwort eingeben"
               disabled={isLoading}
               autoFocus

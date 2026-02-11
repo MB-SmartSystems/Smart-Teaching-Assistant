@@ -7,6 +7,7 @@ import { OfflineStorageManager } from '@/lib/offlineSync'
 import { useAuth } from '@/lib/auth'
 import SchülerCard from '@/components/SchülerCard'
 import BookStats from '@/components/BookStats'
+import EarningsOverview from '@/components/EarningsOverview'
 import Login from '@/components/Login'
 
 export default function Home() {
@@ -134,8 +135,11 @@ export default function Home() {
   // Login-Screen anzeigen wenn nicht authentifiziert
   if (!isAuthChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-light)' }}>
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin" style={{ borderTopColor: 'var(--primary)' }}></div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="w-8 h-8 border-4 border-t-primary rounded-full animate-spin" style={{ 
+          borderColor: 'var(--border-medium)',
+          borderTopColor: 'var(--primary)' 
+        }}></div>
       </div>
     )
   }
@@ -145,9 +149,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-light)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
-      <header style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-light)' }} className="shadow-md border-b p-6">
+      <header style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }} className="shadow-lg border-b p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <div>
             <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -356,11 +360,22 @@ export default function Home() {
           </div>
         )}
 
+        {/* Einnahmen-Übersicht */}
+        {isClient && students.length > 0 && (
+          <EarningsOverview students={students} />
+        )}
+
         {/* Loading State */}
         {(!isClient || students.length === 0) && (
           <div className="text-center py-16">
-            <div className="bg-white rounded-lg shadow-md border p-8 max-w-md mx-auto" style={{ borderColor: 'var(--border-light)' }}>
-              <div className="w-8 h-8 mx-auto mb-4 border-4 border-gray-200 border-t-primary rounded-full animate-spin" style={{ borderTopColor: 'var(--primary)' }}></div>
+            <div className="rounded-lg shadow-lg border p-8 max-w-md mx-auto" style={{ 
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-light)' 
+            }}>
+              <div className="w-8 h-8 mx-auto mb-4 border-4 border-t-primary rounded-full animate-spin" style={{ 
+                borderColor: 'var(--border-medium)',
+                borderTopColor: 'var(--primary)' 
+              }}></div>
               <div className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
                 Schüler werden geladen
               </div>

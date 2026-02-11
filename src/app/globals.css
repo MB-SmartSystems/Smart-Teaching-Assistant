@@ -1,98 +1,99 @@
 @import "tailwindcss";
 
-/* Manuel Büttner Branding - ruhig, nüchtern, klar, professionell */
-/* Basierend auf manuelbuettner.de Design */
+/* Manuel Büttner Branding - Elegantes dunkles Design basierend auf Website */
 :root {
-  /* Primärfarben - professionelle Grün/Grau-Töne */
-  --primary: #047857;         /* Professionelles Grün (emerald-700) */
-  --primary-dark: #065f46;    /* Dunkleres Grün für Hover */
-  --primary-light: #ecfdf5;   /* Sehr helles Grün für Backgrounds */
+  /* Primärfarben - Elegantes dunkles Theme */
+  --primary: #10b981;         /* Heller grüner Akzent (emerald-500) */
+  --primary-dark: #059669;    /* Dunkleres Grün für Hover */
+  --primary-light: #34d399;   /* Helleres Grün für Highlights */
   
-  --secondary: #6b7280;       /* Professionelles Grau */
-  --secondary-light: #f9fafb; /* Sehr helles Grau */
+  --secondary: #6b7280;       /* Mittleres Grau */
+  --secondary-light: #9ca3af; /* Helles Grau für Text */
   --secondary-dark: #374151;  /* Dunkles Grau */
   
-  /* Akzentfarben - Grün-basiert */
-  --accent: #059669;          /* Mittleres Grün (emerald-600) */
-  --accent-light: #f0fdf4;    /* Sehr helles Grün für Karten */
-  --accent-dark: #064e3b;     /* Sehr dunkles Grün */
+  /* Akzentfarben */
+  --accent: #10b981;          /* Grüner Akzent */
+  --accent-light: rgba(16, 185, 129, 0.1); /* Transparentes Grün für Karten */
+  --accent-dark: #047857;     /* Dunkles Grün */
   
-  /* Textfarben */
-  --text-primary: #111827;    /* Fast Schwarz */
-  --text-secondary: #4b5563;  /* Mittleres Grau */
-  --text-muted: #9ca3af;      /* Helles Grau für Subtexte */
+  /* Textfarben - für dunkles Theme */
+  --text-primary: #f9fafb;    /* Fast Weiß */
+  --text-secondary: #d1d5db;  /* Helles Grau */
+  --text-muted: #9ca3af;      /* Mittleres Grau für Subtexte */
   
-  /* Hintergründe - weiß/hellgrau wie auf der Homepage */
-  --bg-primary: #ffffff;      /* Reines Weiß */
-  --bg-secondary: #f8fafc;    /* Sehr helles Grau */
-  --bg-light: #f1f5f9;        /* Hintergrund-Grau */
+  /* Dunkle Hintergründe */
+  --bg-primary: #111827;      /* Sehr dunkles Grau (haupthintergrund) */
+  --bg-secondary: #1f2937;    /* Dunkles Grau für Karten */
+  --bg-light: #0f172a;        /* Noch dunkler für Kontrast */
   
-  /* Status-Farben - mit Grün-Akzenten */
-  --status-active: #047857;   /* Primäres Grün für aktiv */
-  --status-active-bg: #ecfdf5; /* Heller Grün-Hintergrund für aktiv */
-  --status-success: #059669;  /* Mittleres Grün */
-  --status-success-bg: #f0fdf4; /* Helles Grün */
-  --status-warning: #d97706;  /* Orange für Warnungen */
-  --status-warning-bg: #fffbeb; /* Helles Orange */
+  /* Status-Farben - für dunkles Theme */
+  --status-active: #10b981;   /* Helles Grün für aktiv */
+  --status-active-bg: rgba(16, 185, 129, 0.15); /* Transparenter grüner Hintergrund */
+  --status-success: #10b981;  /* Grüner Erfolg */
+  --status-success-bg: rgba(16, 185, 129, 0.1); /* Transparentes Grün */
+  --status-warning: #f59e0b;  /* Gelb/Orange für Warnungen */
+  --status-warning-bg: rgba(245, 158, 11, 0.1); /* Transparentes Orange */
   --status-neutral: #6b7280;  /* Grau für neutral */
-  --status-neutral-bg: #f8fafc; /* Helles Grau für neutral */
+  --status-neutral-bg: rgba(107, 114, 128, 0.1); /* Transparentes Grau */
   
-  /* Schatten - sehr subtil */
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.04);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08);
+  /* Schatten - für dunkles Theme */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
   
-  /* Borders */
-  --border-light: #e5e7eb;
-  --border-medium: #d1d5db;
-  --border-dark: #9ca3af;
+  /* Borders - für dunkles Theme */
+  --border-light: #374151;
+  --border-medium: #4b5563;
+  --border-dark: #6b7280;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   line-height: 1.6;
   color: var(--text-primary);
-  background-color: var(--bg-light);
+  background-color: var(--bg-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Utility Classes für das neue Design */
+/* Utility Classes für dunkles Design */
 .text-on-light { color: var(--text-primary); }
 .text-muted { color: var(--text-muted); }
-.bg-card { background-color: var(--bg-primary); }
+.bg-card { background-color: var(--bg-secondary); }
 .bg-card-light { background-color: var(--accent-light); }
 .border-card { border-color: var(--border-light); }
 
-/* Button-Styles im Manuel Büttner Design */
+/* Button-Styles - Elegantes dunkles Design */
 .btn-primary {
   background-color: var(--primary);
-  color: white;
+  color: var(--bg-primary);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-dark);
-  transform: translateY(-1px);
+  font-weight: 600;
+  transition: all 0.3s ease;
   box-shadow: var(--shadow-md);
 }
 
+.btn-primary:hover {
+  background-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
 .btn-secondary {
-  background-color: var(--accent-light);
+  background-color: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-medium);
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   font-weight: 500;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--border-light);
+  border-color: var(--border-medium);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }

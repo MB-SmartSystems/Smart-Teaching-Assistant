@@ -4,6 +4,7 @@ import { SchülerApp } from '@/lib/baserow'
 import { useState } from 'react'
 import { useOfflineSync } from '@/lib/offlineSync'
 import BookDropdown from './BookDropdown'
+import EarningsCard from './EarningsCard'
 import { 
   getTodayAttendance, 
   setAttendance, 
@@ -501,6 +502,11 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             </div>
           </div>
         )}
+      </div>
+
+      {/* Einnahmen */}
+      <div className="mb-6">
+        <EarningsCard student={student} />
       </div>
 
       {/* Kontakt & Aktionen */}
