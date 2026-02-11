@@ -100,10 +100,10 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
   return (
     <div className={`
-      card p-6 mb-6
-      ${isActive ? 'card-active' : ''}
+      bg-white rounded-xl shadow-lg border p-6 mb-6
+      ${isActive ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200'}
       ${birthdayStatus ? 'ring-2 ring-red-400' : ''}
-      transition-all duration-200
+      transition-all duration-200 hover:shadow-xl hover:-translate-y-1
     `}>
       
       {/* Header mit Name und Geburtstag */}
@@ -161,13 +161,13 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
               <div className="flex items-center gap-2 justify-center">
                 <button
                   onClick={() => handleNumberUpdate('seite', -1)}
-                  className="number-control"
+                  className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-blue-100 hover:text-blue-600 font-semibold text-lg rounded-lg transition-colors border"
                 >
                   -
                 </button>
                 
                 <div 
-                  className="number-display"
+                  className="flex items-center justify-center w-16 h-10 font-semibold text-lg cursor-pointer rounded-lg transition-colors hover:bg-gray-50"
                   onClick={() => setEditingField('seite')}
                 >
                   {editingField === 'seite' ? (
@@ -190,7 +190,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 
                 <button
                   onClick={() => handleNumberUpdate('seite', 1)}
-                  className="number-control"
+                  className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-blue-100 hover:text-blue-600 font-semibold text-lg rounded-lg transition-colors border"
                 >
                   +
                 </button>
@@ -256,7 +256,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 setEditingField(null)
               }}
               onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-              className="input-field w-full"
+              className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Z.B. Handhaltung verbessern, Timing bei Fills"
               autoFocus
             />
@@ -283,7 +283,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 setEditingField(null)
               }}
               onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-              className="input-field w-full"
+              className="w-full p-3 border-2 border-gray-300 rounded-lg font-medium bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Z.B. We will rock you, Back in black"
               autoFocus
             />
@@ -304,21 +304,25 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         <div className="flex gap-3">
           <button
             onClick={() => handleZahlungUpdate('ja')}
-            className={student.zahlungStatus === 'ja' ? 'btn-success' : 'btn-secondary hover:bg-green-100'}
+            className={student.zahlungStatus === 'ja' 
+              ? 'bg-emerald-600 text-white font-medium py-3 px-5 rounded-lg shadow-md'
+              : 'bg-gray-100 hover:bg-green-100 text-gray-800 font-medium py-3 px-5 rounded-lg transition-colors'}
           >
             ✅ JA
           </button>
           <button
             onClick={() => handleZahlungUpdate('nein')}
-            className={student.zahlungStatus === 'nein' ? 'btn-danger' : 'btn-secondary hover:bg-red-100'}
+            className={student.zahlungStatus === 'nein' 
+              ? 'bg-red-600 text-white font-medium py-3 px-5 rounded-lg shadow-md'
+              : 'bg-gray-100 hover:bg-red-100 text-gray-800 font-medium py-3 px-5 rounded-lg transition-colors'}
           >
             ❌ NEIN
           </button>
           <button
             onClick={() => handleZahlungUpdate('offen')}
             className={student.zahlungStatus === 'offen' || student.zahlungStatus === 'unbekannt' 
-              ? 'btn px-5 py-3 bg-amber-500 text-white shadow-medium hover:bg-amber-600' 
-              : 'btn-secondary hover:bg-amber-100'}
+              ? 'bg-amber-500 text-white font-medium py-3 px-5 rounded-lg shadow-md hover:bg-amber-600' 
+              : 'bg-gray-100 hover:bg-amber-100 text-gray-800 font-medium py-3 px-5 rounded-lg transition-colors'}
           >
             ⏳ OFFEN
           </button>
@@ -330,7 +334,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         {student.handynummer && (
           <a
             href={getWhatsAppLink()}
-            className="btn-success flex items-center gap-2"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-5 rounded-lg transition-colors flex items-center gap-2 shadow-md"
           >
             📱 WhatsApp {student.ansprechpartner}
           </a>
@@ -339,7 +343,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         {student.email && (
           <a
             href={getEmailLink()}
-            className="btn-primary flex items-center gap-2"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-5 rounded-lg transition-colors flex items-center gap-2 shadow-md"
           >
             ✉️ E-Mail
           </a>
@@ -350,7 +354,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             href={student.vertragslink}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-secondary flex items-center gap-2"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 px-5 rounded-lg transition-colors flex items-center gap-2 border"
           >
             📄 Vertrag
           </a>

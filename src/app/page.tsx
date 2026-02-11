@@ -96,13 +96,13 @@ export default function Home() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-light)' }}>
       {/* Header */}
-      <header className="bg-white shadow-lg border-b border-gray-200 p-6">
+      <header style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--secondary-light)' }} className="shadow-lg border-b p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-semibold" style={{ color: 'var(--text-primary)' }}>
               Smart Teaching Assistant
             </h1>
-            <p className="text-base font-medium text-gray-600">
+            <p className="text-base font-medium" style={{ color: 'var(--text-secondary)' }}>
               {isClient && currentTime ? (
                 <>
                   {getCurrentDay()}, {currentTime.toLocaleDateString('de-DE', { 
@@ -124,11 +124,11 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <span className="text-3xl">{getSyncIcon()}</span>
               <div className="text-sm">
-                <div className="font-semibold capitalize text-gray-900">
+                <div className="font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>
                   {syncStatus.status}
                 </div>
                 {syncStatus.queueLength > 0 && (
-                  <div className="text-orange-600 font-medium">
+                  <div className="font-medium" style={{ color: 'var(--warning)' }}>
                     {syncStatus.queueLength} Updates
                   </div>
                 )}
@@ -144,10 +144,10 @@ export default function Home() {
         {isClient && autoSwitchStatus && (
           <div className="mb-6">
             {autoSwitchStatus.currentStudent ? (
-              <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-xl mb-6 shadow-lg">
+              <div style={{ backgroundColor: 'var(--accent)', color: 'white' }} className="p-6 rounded-xl mb-6 shadow-lg">
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="font-bold text-2xl text-white">
+                    <div className="font-semibold text-2xl text-white">
                       ▶️ Aktuell: {autoSwitchStatus.currentStudent.vorname} {autoSwitchStatus.currentStudent.nachname}
                     </div>
                     <div className="text-white opacity-90 text-lg font-medium">
@@ -166,8 +166,8 @@ export default function Home() {
                 </div>
               </div>
             ) : autoSwitchStatus.isWaitingTime && autoSwitchStatus.nextStudent ? (
-              <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-xl mb-6 shadow-lg">
-                <div className="font-bold text-2xl text-white">
+              <div style={{ backgroundColor: 'var(--warning)', color: 'white' }} className="p-6 rounded-xl mb-6 shadow-lg">
+                <div className="font-semibold text-2xl text-white">
                   ⏰ Wartezeit - Nächster: {autoSwitchStatus.nextStudent.vorname} {autoSwitchStatus.nextStudent.nachname}
                 </div>
                 <div className="text-white opacity-90 text-lg font-medium">
@@ -175,8 +175,8 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <div className="bg-gradient-to-r from-gray-600 to-gray-700 text-white p-6 rounded-xl mb-6 shadow-lg">
-                <div className="font-bold text-2xl text-white">
+              <div style={{ backgroundColor: 'var(--secondary)', color: 'white' }} className="p-6 rounded-xl mb-6 shadow-lg">
+                <div className="font-semibold text-2xl text-white">
                   📅 Kein Unterricht zur aktuellen Zeit
                 </div>
                 <div className="text-white opacity-90 text-lg font-medium">
@@ -203,7 +203,7 @@ export default function Home() {
         {/* Ausgewählter Schüler Detail-Card */}
         {selectedStudent && students.find(s => s.id === selectedStudent) && (
           <div className="mb-8">
-            <div className="bg-green-50 border-l-4 border-l-green-500 rounded-lg p-5 mb-6 shadow-lg">
+            <div style={{ backgroundColor: 'var(--accent-light)', borderLeftColor: 'var(--accent)' }} className="border-l-4 rounded-lg p-5 mb-6 shadow-lg">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">📖 Schüler-Details</h2>
                 <button
@@ -236,7 +236,7 @@ export default function Home() {
                   return timeA.localeCompare(timeB)
                 })
                 .map(student => (
-                  <div key={student.id} className={`bg-white rounded-xl shadow-lg p-5 border transition-all duration-200 hover:shadow-xl hover:-translate-y-1 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
+                  <div key={student.id} className={`bg-white rounded-xl shadow-lg border p-5 transition-all duration-200 hover:shadow-xl hover:-translate-y-1 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200'}`}>
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
                         <div className="font-bold text-gray-900 text-xl mb-1">
@@ -269,8 +269,8 @@ export default function Home() {
                           setSelectedStudent(student.id)
                         }}
                         className={autoSwitchStatus?.currentStudent?.id === student.id 
-                          ? 'bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md ml-4' 
-                          : 'bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md ml-4'}
+                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md ml-4' 
+                          : 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md ml-4'}
                       >
                         {autoSwitchStatus?.currentStudent?.id === student.id ? '👆 Aktuell' : '▶️ Details'}
                       </button>
@@ -285,7 +285,7 @@ export default function Home() {
         {/* Loading State */}
         {(!isClient || students.length === 0) && (
           <div className="text-center py-16">
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto">
+            <div className="bg-white rounded-xl shadow-lg border p-8 max-w-md mx-auto">
               <div className="text-6xl mb-4">🔄</div>
               <div className="text-2xl font-bold mb-2 text-gray-900">
                 Schüler werden geladen...
