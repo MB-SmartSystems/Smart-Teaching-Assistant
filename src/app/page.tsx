@@ -323,11 +323,11 @@ export default function Home() {
                         <div className="text-base font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
                           {student.unterrichtszeit} • {student.buch || 'Kein Buch'}
                         </div>
-                        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                          Zahlung: <span className={`font-medium ${
-                            student.zahlungStatus === 'ja' ? 'text-green-600' :
-                            student.zahlungStatus === 'nein' ? 'text-red-600' : 'text-orange-600'
-                          }`}>
+                        <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                          Zahlung: <span className="font-semibold" style={{
+                            color: student.zahlungStatus === 'ja' ? 'var(--status-success)' :
+                                   student.zahlungStatus === 'nein' ? 'var(--status-error)' : 'var(--status-warning)'
+                          }}>
                             {student.zahlungStatus || 'unbekannt'}
                           </span>
                           {student.monatlicherbetrag && (
