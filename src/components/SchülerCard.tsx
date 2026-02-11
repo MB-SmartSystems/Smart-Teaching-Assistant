@@ -25,10 +25,33 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
   
   // Local State für Inline-Editing
   const [editingField, setEditingField] = useState<string | null>(null)
+  
+  // Parse Übungen-String zu von/bis Zahlen
+  const parseUebungen = (ubungString: string): { von: number; bis: number } => {
+    if (!ubungString) return { von: 1, bis: 1 }
+    
+    const dashMatch = ubungString.match(/(\d+)-(\d+)/)
+    if (dashMatch) {
+      return { von: parseInt(dashMatch[1]), bis: parseInt(dashMatch[2]) }
+    }
+    
+    const singleMatch = ubungString.match(/(\d+)/)
+    if (singleMatch) {
+      const num = parseInt(singleMatch[1])
+      return { von: num, bis: num }
+    }
+    
+    return { von: 1, bis: 1 }
+  }
+
+  const initialUebungen = parseUebungen(student.übung || '')
+  
   const [localValues, setLocalValues] = useState({
     buch: student.buch,
     seite: student.seite,
     übung: student.übung,
+    übungVon: initialUebungen.von,
+    übungBis: initialUebungen.bis,
     wichtigerFokus: student.wichtigerFokus,
     aktuelleLieder: student.aktuelleLieder
   })
@@ -109,8 +132,8 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
   const birthdayStatus = getBirthdayStatus()
 
-  // Feld-Update Handler
-  const handleFieldUpdate = async (field: keyof typeof localValues, value: string) => {
+  // Feld-Update Handler (nur für SchülerApp-Felder)
+  const handleFieldUpdate = async (field: 'buch' | 'seite' | 'übung' | 'wichtigerFokus' | 'aktuelleLieder', value: string) => {
     setLocalValues(prev => ({ ...prev, [field]: value }))
     
     try {
@@ -121,7 +144,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     }
   }
 
-  // Nummer-Update Handler (nur für Seite)
+  // Nummer-Update Handler (für Seite)
   const handleNumberUpdate = async (field: 'seite', change: number) => {
     const currentValue = parseInt(localValues[field] || '1')
     const newValue = Math.max(1, currentValue + change).toString()
@@ -132,6 +155,40 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
       await updateField(student.id, field, newValue)
     } catch (error) {
       console.error(`Fehler beim Update von ${field}:`, error)
+    }
+  }
+
+  // Übungen-Nummer-Update Handler
+  const handleUebungUpdate = async (field: 'übungVon' | 'übungBis', change: number) => {
+    const currentVon = localValues.übungVon
+    const currentBis = localValues.übungBis
+    const currentSpanne = currentBis - currentVon
+    
+    let newVon = currentVon
+    let newBis = currentBis
+    
+    if (field === 'übungVon') {
+      newVon = Math.max(1, currentVon + change)
+      // Spanne beibehalten: wenn von sich ändert, bis mitlaufen lassen
+      newBis = Math.max(newVon, newVon + currentSpanne)
+    } else {
+      newBis = Math.max(currentVon, currentBis + change)
+    }
+    
+    // Format: "von-bis" oder nur "von" wenn gleich
+    const ubungString = newVon === newBis ? newVon.toString() : `${newVon}-${newBis}`
+    
+    setLocalValues(prev => ({ 
+      ...prev, 
+      übungVon: newVon,
+      übungBis: newBis,
+      übung: ubungString
+    }))
+    
+    try {
+      await updateField(student.id, 'übung', ubungString)
+    } catch (error) {
+      console.error('Fehler beim Update der Übungen:', error)
     }
   }
 
@@ -225,7 +282,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--accent-light)' }}>
           <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Aktueller Stand</h3>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-6">
             
             {/* Seite */}
             <div>
@@ -288,60 +345,105 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
               </div>
             </div>
 
-            {/* Übungen - Flexibles Text-Feld */}
+            {/* Übungen - Von/Bis Zahlen-Controls */}
             <div>
               <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-secondary)' }}>Übungen</label>
               
-              {editingField === 'übung' ? (
-                <input
-                  type="text"
-                  value={localValues.übung}
-                  onChange={(e) => setLocalValues(prev => ({ ...prev, übung: e.target.value }))}
-                  onBlur={() => {
-                    handleFieldUpdate('übung', localValues.übung)
-                    setEditingField(null)
-                  }}
-                  onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-                  className="w-full p-3 border-2 rounded-lg font-medium text-lg focus:outline-none focus:ring-2 focus:border-transparent"
-                  style={{
-                    backgroundColor: 'var(--bg-primary)',
-                    borderColor: 'var(--border-medium)',
-                    color: 'var(--text-primary)',
-                    '--tw-ring-color': 'var(--primary)'
-                  } as React.CSSProperties}
-                  placeholder="z.B. 1, 2, 3 oder 1-6 oder 12, 15"
-                  autoFocus
-                />
-              ) : (
-                <div 
-                  className="cursor-pointer p-3 rounded-lg border-2 border-dashed font-medium text-lg transition-colors min-h-[3rem] flex items-center"
-                  style={{
-                    backgroundColor: 'var(--accent-light)',
-                    borderColor: 'var(--border-medium)'
-                  }}
-                  onClick={() => setEditingField('übung')}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-light)'}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span style={{ color: localValues.übung ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                      {localValues.übung || 'Übungen eingeben...'}
-                    </span>
-                    <svg 
-                      className="w-5 h-5" 
-                      style={{ color: 'var(--text-muted)' }}
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
+              <div className="flex items-center gap-3">
+                
+                {/* Von */}
+                <div className="flex-1">
+                  <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Von</div>
+                  <div className="flex items-center gap-2 justify-center">
+                    <button
+                      onClick={() => handleUebungUpdate('übungVon', -1)}
+                      className="flex items-center justify-center w-8 h-8 font-semibold text-sm rounded-lg transition-colors border"
+                      style={{
+                        backgroundColor: 'var(--bg-secondary)',
+                        borderColor: 'var(--border-medium)',
+                        color: 'var(--text-primary)'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-light)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
+                      −
+                    </button>
+                    
+                    <div 
+                      className="flex items-center justify-center w-12 h-8 font-semibold text-lg rounded-lg transition-colors"
+                      style={{ 
+                        backgroundColor: 'var(--bg-primary)',
+                        border: `1px solid var(--border-medium)`,
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      {localValues.übungVon}
+                    </div>
+                    
+                    <button
+                      onClick={() => handleUebungUpdate('übungVon', 1)}
+                      className="flex items-center justify-center w-8 h-8 font-semibold text-sm rounded-lg transition-colors border"
+                      style={{
+                        backgroundColor: 'var(--bg-secondary)',
+                        borderColor: 'var(--border-medium)',
+                        color: 'var(--text-primary)'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-light)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
-              )}
+
+                {/* Bis */}
+                <div className="flex-1">
+                  <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Bis</div>
+                  <div className="flex items-center gap-2 justify-center">
+                    <button
+                      onClick={() => handleUebungUpdate('übungBis', -1)}
+                      className="flex items-center justify-center w-8 h-8 font-semibold text-sm rounded-lg transition-colors border"
+                      style={{
+                        backgroundColor: 'var(--bg-secondary)',
+                        borderColor: 'var(--border-medium)',
+                        color: 'var(--text-primary)'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-light)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                    >
+                      −
+                    </button>
+                    
+                    <div 
+                      className="flex items-center justify-center w-12 h-8 font-semibold text-lg rounded-lg transition-colors"
+                      style={{ 
+                        backgroundColor: 'var(--bg-primary)',
+                        border: `1px solid var(--border-medium)`,
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      {localValues.übungBis}
+                    </div>
+                    
+                    <button
+                      onClick={() => handleUebungUpdate('übungBis', 1)}
+                      className="flex items-center justify-center w-8 h-8 font-semibold text-sm rounded-lg transition-colors border"
+                      style={{
+                        backgroundColor: 'var(--bg-secondary)',
+                        borderColor: 'var(--border-medium)',
+                        color: 'var(--text-primary)'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-light)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
               
-              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                💡 Beispiele: "1, 2, 3" • "1-6" • "12, 15, 18" • "Einführung"
+              <div className="text-xs mt-2 text-center" style={{ color: 'var(--text-muted)' }}>
+                💡 Ergebnis: Übungen {localValues.übungVon === localValues.übungBis ? localValues.übungVon : `${localValues.übungVon} bis ${localValues.übungBis}`}
               </div>
             </div>
           </div>
