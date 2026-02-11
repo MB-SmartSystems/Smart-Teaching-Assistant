@@ -13,7 +13,7 @@
   
   /* Akzentfarben - gedämpft */
   --accent: #4ade80;          /* Gedämpfter grüner Akzent */
-  --accent-light: #1e293b;    /* Dunkler Hintergrund für Karten (nicht transparent!) */
+  --accent-light: #354F52;    /* Manus gewählte Farbe für Karten */
   --accent-dark: #16a34a;     /* Dunkles Grün */
   
   /* Textfarben - optimiert für Lesbarkeit */
@@ -25,20 +25,20 @@
   
   /* Dunkle Hintergründe - wie im Screenshot */
   --bg-primary: #0f172a;      /* Sehr dunkles Blau-Grau (Haupthintergrund) */
-  --bg-secondary: #1e293b;    /* Dunkles Grau für Karten */
+  --bg-secondary: #354F52;    /* Manus gewählte Farbe für Karten und Header */
   --bg-light: #020617;        /* Noch dunkler für maximalen Kontrast */
   
   /* Status-Farben - gedämpft und professionell */
   --status-active: #4ade80;   /* Gedämpftes Grün für aktiv */
-  --status-active-bg: #1e293b; /* Solider dunkler Hintergrund für aktiv */
+  --status-active-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
   --status-success: #22c55e;  /* Grün für Erfolg */
-  --status-success-bg: #1e293b; /* Solider dunkler Hintergrund */
+  --status-success-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
   --status-warning: #f59e0b;  /* Orange für Warnungen */
-  --status-warning-bg: #1e293b; /* Solider dunkler Hintergrund */
+  --status-warning-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
   --status-error: #ef4444;    /* Rot für Fehler/Nein */
-  --status-error-bg: #1e293b; /* Solider dunkler Hintergrund */
+  --status-error-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
   --status-neutral: #64748b;  /* Slate Grau für neutral */
-  --status-neutral-bg: #1e293b; /* Solider dunkler Hintergrund */
+  --status-neutral-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
   
   /* Schatten - für dunkles Theme */
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3);

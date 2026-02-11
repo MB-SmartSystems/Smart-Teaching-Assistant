@@ -234,7 +234,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
       transition-all duration-200 hover:shadow-lg hover:-translate-y-1
     `} style={{
       borderColor: isActive ? 'var(--status-active)' : 'var(--border-light)',
-      backgroundColor: isActive ? 'var(--status-active-bg)' : '#354F52'
+      backgroundColor: isActive ? 'var(--status-active-bg)' : 'var(--bg-secondary)'
     }}>
       
       {/* Header mit Name und Geburtstag */}
