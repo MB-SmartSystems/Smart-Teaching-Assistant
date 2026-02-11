@@ -13,7 +13,8 @@ export interface AutoSwitchResult {
 export function getAutoSwitchStatus(students: SchülerApp[], minutesEarly: number = 5): AutoSwitchResult {
   const now = new Date()
   const currentDay = getCurrentGermanDay(now)
-  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes()
+  // Berücksichtige auch Sekunden für präziseres Timing
+  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes() + (now.getSeconds() / 60)
   
   // Filter Schüler für heute
   const todaysStudents = students
@@ -27,10 +28,10 @@ export function getAutoSwitchStatus(students: SchülerApp[], minutesEarly: numbe
     .filter(s => s.startTime !== -1) // Nur gültige Zeiten
     .sort((a, b) => a.startTime - b.startTime) // Nach Startzeit sortieren
 
-  // Aktuellen Schüler finden (5 Min vor bis 1h nach Beginn)
+  // Aktuellen Schüler finden (5 Min vor bis 45 Min nach Beginn)
   const currentStudent = todaysStudents.find(student => 
     currentTimeMinutes >= student.switchTime && 
-    currentTimeMinutes <= student.startTime + 60
+    currentTimeMinutes <= student.startTime + 45
   ) || null
 
   // Nächsten Schüler finden
@@ -95,6 +96,37 @@ export function getCountdownText(minutes: number): string {
   
   if (remainingMins === 0) return `In ${hours}h`
   return `In ${hours}h ${remainingMins}min`
+}
+
+// Debug Helper: Aktueller Status
+export function getDebugInfo(students: SchülerApp[], minutesEarly: number = 5): {
+  currentTime: string
+  currentTimeMinutes: number
+  currentDay: string
+  todaysStudents: Array<{ name: string; time: string; startTime: number; switchTime: number }>
+} {
+  const now = new Date()
+  const currentDay = getCurrentGermanDay(now)
+  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes() + (now.getSeconds() / 60)
+  
+  const todaysStudents = students
+    .filter(s => s.unterrichtstag.toLowerCase() === currentDay.toLowerCase())
+    .filter(s => s.unterrichtszeit)
+    .map(student => ({
+      name: `${student.vorname} ${student.nachname}`,
+      time: student.unterrichtszeit,
+      startTime: parseTimeToMinutes(student.unterrichtszeit),
+      switchTime: parseTimeToMinutes(student.unterrichtszeit) - minutesEarly
+    }))
+    .filter(s => s.startTime !== -1)
+    .sort((a, b) => a.startTime - b.startTime)
+  
+  return {
+    currentTime: `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`,
+    currentTimeMinutes,
+    currentDay,
+    todaysStudents
+  }
 }
 
 // Debug Helper: Alle heutigen Termine anzeigen

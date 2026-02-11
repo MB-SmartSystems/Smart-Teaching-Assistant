@@ -45,24 +45,26 @@ export default function Home() {
         loadStudents()
       })
 
-      // Zeit alle 10 Sekunden aktualisieren
+      // Zeit alle 5 Sekunden aktualisieren (präziseres Switching)
       const timeInterval = setInterval(() => {
         setCurrentTime(new Date())
+        // Auto-Switch Status auch bei Zeit-Update berechnen
+        if (students.length > 0) {
+          const status = getAutoSwitchStatus(students, 5)
+          setAutoSwitchStatus(status)
+        }
         // Session bei Aktivität verlängern
         auth.refreshSession()
-      }, 10000)
+      }, 5000)
 
       return () => clearInterval(timeInterval)
     }
   }, [isAuthenticated])
 
-  // Auto-Switch Status alle 30 Sekunden aktualisieren
+  // Auto-Switch Status bei Änderungen sofort aktualisieren
   useEffect(() => {
-    if (isClient && currentTime) {
+    if (isClient && currentTime && students.length > 0) {
       updateAutoSwitch()
-      
-      const interval = setInterval(updateAutoSwitch, 30000)
-      return () => clearInterval(interval)
     }
   }, [students, isClient, currentTime])
 
@@ -412,14 +414,25 @@ export default function Home() {
         {/* Bücher-Statistiken */}
         {isClient && <BookStats />}
 
-        {/* Debug Info (nur in Development) */}
-        {process.env.NODE_ENV === 'development' && autoSwitchStatus && (
-          <div className="mt-8 p-4 bg-gray-200 rounded text-xs">
+        {/* Debug Info - immer sichtbar für Testing */}
+        {autoSwitchStatus && isClient && currentTime && (
+          <div className="mt-8 p-4 rounded text-xs" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <details>
-              <summary className="font-bold cursor-pointer">🔧 Debug Info</summary>
-              <pre className="mt-2 overflow-x-auto">
-                {JSON.stringify(autoSwitchStatus, null, 2)}
-              </pre>
+              <summary className="font-bold cursor-pointer" style={{ color: 'var(--text-primary)' }}>
+                🔧 Debug Info - Auto-Switch Status
+              </summary>
+              <div className="mt-2 space-y-2" style={{ color: 'var(--text-secondary)' }}>
+                <div><strong>Aktuelle Zeit:</strong> {currentTime.toLocaleTimeString('de-DE')}</div>
+                <div><strong>Zeit in Min:</strong> {currentTime.getHours() * 60 + currentTime.getMinutes()}</div>
+                <div><strong>Aktueller Schüler:</strong> {autoSwitchStatus.currentStudent?.vorname || 'Keiner'}</div>
+                <div><strong>Nächster Schüler:</strong> {autoSwitchStatus.nextStudent?.vorname || 'Keiner'}</div>
+                <div><strong>Minuten bis nächster:</strong> {autoSwitchStatus.minutesUntilNext}</div>
+                <div><strong>Wartezeit:</strong> {autoSwitchStatus.isWaitingTime ? 'Ja' : 'Nein'}</div>
+                <div><strong>Heutige Schüler:</strong> {todaysStudents.length}</div>
+                <pre className="mt-2 overflow-x-auto text-xs">
+                  {JSON.stringify(autoSwitchStatus, null, 2)}
+                </pre>
+              </div>
             </details>
           </div>
         )}
