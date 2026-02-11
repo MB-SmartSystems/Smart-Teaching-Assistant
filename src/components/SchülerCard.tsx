@@ -228,26 +228,26 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
   return (
     <div className={`
-      bg-white rounded-lg shadow-md border p-6 mb-6
+      rounded-lg shadow-md border p-6 mb-6
       ${isActive ? 'border-l-4' : 'border-gray-200'}
       ${birthdayStatus ? 'ring-2 ring-orange-400' : ''}
       transition-all duration-200 hover:shadow-lg hover:-translate-y-1
     `} style={{
       borderColor: isActive ? 'var(--status-active)' : 'var(--border-light)',
-      backgroundColor: isActive ? 'var(--status-active-bg)' : 'white'
+      backgroundColor: isActive ? 'var(--status-active-bg)' : '#354F52'
     }}>
       
       {/* Header mit Name und Geburtstag */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-3xl font-bold mb-1" style={{ color: '#ffffff' }}>
             {student.vorname} {student.nachname}
           </h2>
-          <p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
+          <p className="text-base font-semibold" style={{ color: '#ffffff' }}>
             {student.unterrichtstag} {student.unterrichtszeit} • {student.anfrageStatus || 'Aktiv'}
           </p>
           {student.monatlicherbetrag && (
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-sm" style={{ color: '#cbd5e1' }}>
               Monatsbeitrag: {student.monatlicherbetrag}€
             </p>
           )}
@@ -267,7 +267,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         
         {/* Buch - Dropdown Auswahl */}
         <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--accent-light)' }}>
-          <h3 className="font-semibold mb-3 flex items-center" style={{ color: 'var(--text-primary)' }}>
+          <h3 className="font-semibold mb-3 flex items-center" style={{ color: '#ffffff' }}>
             Aktuelles Buch
           </h3>
           
@@ -284,13 +284,13 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
         {/* Seite und Übung - Nummer-Controls */}
         <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--accent-light)' }}>
-          <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Aktueller Stand</h3>
+          <h3 className="font-semibold mb-4" style={{ color: '#ffffff' }}>Aktueller Stand</h3>
           
           <div className="grid grid-cols-1 gap-6">
             
             {/* Seite */}
             <div>
-              <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-secondary)' }}>Seite</label>
+              <label className="text-sm font-medium mb-2 block" style={{ color: '#cbd5e1' }}>Seite</label>
               <div className="flex items-center gap-2 justify-center">
                 <button
                   onClick={() => handleNumberUpdate('seite', -1)}
@@ -351,13 +351,13 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
             {/* Übungen - Von/Bis Zahlen-Controls */}
             <div>
-              <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-secondary)' }}>Übungen</label>
+              <label className="text-sm font-medium mb-2 block" style={{ color: '#cbd5e1' }}>Übungen</label>
               
               <div className="flex items-center gap-3">
                 
                 {/* Von */}
                 <div className="flex-1">
-                  <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Von</div>
+                  <div className="text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>Von</div>
                   <div className="flex items-center gap-2 justify-center">
                     <button
                       onClick={() => handleUebungUpdate('übungVon', -1)}
@@ -402,7 +402,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
                 {/* Bis */}
                 <div className="flex-1">
-                  <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Bis</div>
+                  <div className="text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>Bis</div>
                   <div className="flex items-center gap-2 justify-center">
                     <button
                       onClick={() => handleUebungUpdate('übungBis', -1)}
@@ -458,7 +458,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
           backgroundColor: 'var(--primary-light)', 
           borderLeftColor: 'var(--primary)' 
         }}>
-          <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Wichtiger Fokus</h3>
+          <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>Wichtiger Fokus</h3>
           {editingField === 'wichtigerFokus' ? (
             <input
               type="text"
@@ -500,7 +500,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
           backgroundColor: 'var(--status-success-bg)', 
           borderLeftColor: 'var(--status-success)' 
         }}>
-          <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Heute gelernt</h3>
+          <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>Heute gelernt</h3>
           {editingField === 'aktuelleLieder' ? (
             <input
               type="text"
@@ -540,7 +540,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
       {/* Zahlungsstatus */}
       <div className="mb-6">
-        <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Zahlung</h3>
+        <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>Zahlung</h3>
         <div className="flex gap-3">
           <button
             onClick={() => handleZahlungUpdate('ja')}
@@ -581,7 +581,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
       {/* Anwesenheit heute */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Anwesenheit heute</h3>
+          <h3 className="font-semibold" style={{ color: '#ffffff' }}>Anwesenheit heute</h3>
           {attendanceStats.total > 0 && (
             <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
               {attendanceStats.rate}% Anwesenheit (letzte 30 Tage)
