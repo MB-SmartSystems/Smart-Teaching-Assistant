@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useOfflineSync } from '@/lib/offlineSync'
 import BookDropdown from './BookDropdown'
 import EarningsCard from './EarningsCard'
+import SongSuggestions from './SongSuggestions'
 import { 
   getTodayAttendance, 
   setAttendance, 
@@ -536,6 +537,9 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             </div>
           )}
         </div>
+
+        {/* Liedvorschläge */}
+        <SongSuggestions student={student} />
       </div>
 
       {/* Zahlungsstatus */}

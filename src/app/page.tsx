@@ -10,6 +10,7 @@ import BookStats from '@/components/BookStats'
 import EarningsOverview from '@/components/EarningsOverview'
 import Login from '@/components/Login'
 import { getTodayAttendance } from '@/lib/attendance'
+import SongManagement from '@/components/SongManagement'
 
 export default function Home() {
   const [students, setStudents] = useState<SchülerApp[]>([])
@@ -18,6 +19,7 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null) // Null bis hydrated
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [isClient, setIsClient] = useState(false)
+  const [showSongManagement, setShowSongManagement] = useState(false)
   
   // Authentifizierung
   const auth = useAuth()
@@ -211,6 +213,15 @@ export default function Home() {
                   )}
                 </div>
               </div>
+
+              {/* Lieder-Datenbank Button */}
+              <button
+                onClick={() => setShowSongManagement(true)}
+                className="btn-primary text-sm"
+                title="Lieder-Datenbank öffnen"
+              >
+                🎵 Lieder
+              </button>
 
               {/* Logout Button */}
               <button
@@ -413,6 +424,12 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Lieder-Datenbank Modal */}
+      <SongManagement 
+        isOpen={showSongManagement}
+        onClose={() => setShowSongManagement(false)}
+      />
     </div>
   )
 }
