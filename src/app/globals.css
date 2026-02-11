@@ -25,7 +25,7 @@
   
   /* Dunkle Hintergründe - wie im Screenshot */
   --bg-primary: #0f172a;      /* Sehr dunkles Blau-Grau (Haupthintergrund) */
-  --bg-secondary: #354F52;    /* Manus gewählte Farbe für Karten und Header */
+  --bg-secondary: #1e293b;    /* Dunkles Grau für Header - bleibt dunkelblau */
   --bg-light: #020617;        /* Noch dunkler für maximalen Kontrast */
   
   /* Status-Farben - gedämpft und professionell */

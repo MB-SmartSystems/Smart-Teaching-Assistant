@@ -311,9 +311,9 @@ export default function Home() {
                   return timeA.localeCompare(timeB)
                 })
                 .map(student => (
-                  <div key={student.id} className={`bg-white rounded-lg shadow-md border p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-l-4' : 'border-gray-200'}`} style={{
+                  <div key={student.id} className={`rounded-lg shadow-md border p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-l-4' : 'border-gray-200'}`} style={{
                     borderLeftColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active)' : undefined,
-                    backgroundColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active-bg)' : undefined
+                    backgroundColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active-bg)' : '#354F52'
                   }}>
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
