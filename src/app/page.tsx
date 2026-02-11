@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import { SchülerApp } from '@/lib/baserow'
 import { getAutoSwitchStatus, getCountdownText, AutoSwitchResult } from '@/lib/autoSwitch'
 import { OfflineStorageManager } from '@/lib/offlineSync'
+import { useAuth } from '@/lib/auth'
 import SchülerCard from '@/components/SchülerCard'
 import BookStats from '@/components/BookStats'
+import Login from '@/components/Login'
 
 export default function Home() {
   const [students, setStudents] = useState<SchülerApp[]>([])
@@ -14,25 +16,41 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null) // Null bis hydrated
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [isClient, setIsClient] = useState(false)
+  
+  // Authentifizierung
+  const auth = useAuth()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [loginError, setLoginError] = useState<string | undefined>()
+  const [isAuthChecked, setIsAuthChecked] = useState(false)
 
-  // Initialisierung
+  // Auth-Initialisierung
   useEffect(() => {
-    // Client-side hydration marker
     setIsClient(true)
-    setCurrentTime(new Date())
     
-    const storage = OfflineStorageManager.getInstance()
-    storage.initialize().then(() => {
-      loadStudents()
-    })
-
-    // Zeit alle 10 Sekunden aktualisieren
-    const timeInterval = setInterval(() => {
+    // Auth-Status prüfen
+    const authenticated = auth.isAuthenticated()
+    setIsAuthenticated(authenticated)
+    setIsAuthChecked(true)
+    
+    if (authenticated) {
       setCurrentTime(new Date())
-    }, 10000)
+      
+      // App-Daten laden
+      const storage = OfflineStorageManager.getInstance()
+      storage.initialize().then(() => {
+        loadStudents()
+      })
 
-    return () => clearInterval(timeInterval)
-  }, [])
+      // Zeit alle 10 Sekunden aktualisieren
+      const timeInterval = setInterval(() => {
+        setCurrentTime(new Date())
+        // Session bei Aktivität verlängern
+        auth.refreshSession()
+      }, 10000)
+
+      return () => clearInterval(timeInterval)
+    }
+  }, [isAuthenticated])
 
   // Auto-Switch Status alle 30 Sekunden aktualisieren
   useEffect(() => {
@@ -90,8 +108,41 @@ export default function Home() {
     }
   }
 
+  // Login-Handler
+  const handleLogin = (password: string) => {
+    const success = auth.authenticate(password)
+    if (success) {
+      setIsAuthenticated(true)
+      setLoginError(undefined)
+    } else {
+      setLoginError('Falsches Passwort')
+    }
+  }
+
+  // Logout-Handler
+  const handleLogout = () => {
+    auth.logout()
+    setIsAuthenticated(false)
+    setStudents([])
+    setAutoSwitchStatus(null)
+    setSelectedStudent(null)
+  }
+
   // Heutige Schüler - nur wenn Client hydrated und Zeit verfügbar
   const todaysStudents = isClient && currentTime ? students.filter(s => s.unterrichtstag === getCurrentDay()) : []
+
+  // Login-Screen anzeigen wenn nicht authentifiziert
+  if (!isAuthChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-light)' }}>
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-primary rounded-full animate-spin" style={{ borderTopColor: 'var(--primary)' }}></div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} error={loginError} />
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-light)' }}>
@@ -121,26 +172,38 @@ export default function Home() {
           </div>
           
           <div className="text-right">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full" style={{ 
-                backgroundColor: syncStatus.status === 'synced' ? 'var(--status-success)' :
-                               syncStatus.status === 'syncing' ? 'var(--status-warning)' :
-                               syncStatus.status === 'offline' ? 'var(--status-warning)' :
-                               'var(--status-neutral)'
-              }}></div>
-              <div className="text-sm">
-                <div className="font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>
-                  {syncStatus.status === 'synced' ? 'Synchronisiert' :
-                   syncStatus.status === 'syncing' ? 'Synchronisiert...' :
-                   syncStatus.status === 'offline' ? 'Offline' :
-                   syncStatus.status === 'error' ? 'Fehler' : 'Laden...'}
-                </div>
-                {syncStatus.queueLength > 0 && (
-                  <div className="font-medium" style={{ color: 'var(--text-muted)' }}>
-                    {syncStatus.queueLength} ausstehend
+            <div className="flex items-center gap-4">
+              {/* Sync Status */}
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full" style={{ 
+                  backgroundColor: syncStatus.status === 'synced' ? 'var(--status-success)' :
+                                 syncStatus.status === 'syncing' ? 'var(--status-warning)' :
+                                 syncStatus.status === 'offline' ? 'var(--status-warning)' :
+                                 'var(--status-neutral)'
+                }}></div>
+                <div className="text-sm">
+                  <div className="font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>
+                    {syncStatus.status === 'synced' ? 'Synchronisiert' :
+                     syncStatus.status === 'syncing' ? 'Synchronisiert...' :
+                     syncStatus.status === 'offline' ? 'Offline' :
+                     syncStatus.status === 'error' ? 'Fehler' : 'Laden...'}
                   </div>
-                )}
+                  {syncStatus.queueLength > 0 && (
+                    <div className="font-medium" style={{ color: 'var(--text-muted)' }}>
+                      {syncStatus.queueLength} ausstehend
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="btn-secondary text-sm"
+                title="Abmelden"
+              >
+                Abmelden
+              </button>
             </div>
           </div>
         </div>
