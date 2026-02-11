@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Smart Teaching Assistant",
   description: "Mobile Schüler-Management für Schlagzeugunterricht",
   manifest: "/manifest.json",
-  themeColor: "#2563eb",
+  themeColor: "#4ade80",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
   icons: {
     icon: "/icon-192.png",

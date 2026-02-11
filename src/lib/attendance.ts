@@ -170,7 +170,7 @@ export function getStatusColor(status: AttendanceStatus): string {
     'erschienen': 'var(--status-success)',
     'krank': 'var(--status-warning)',
     'abgesagt': 'var(--status-neutral)',
-    'nicht_erschienen': '#dc2626' // Rot
+    'nicht_erschienen': 'var(--status-error)'
   }
   return colorMap[status]
 }

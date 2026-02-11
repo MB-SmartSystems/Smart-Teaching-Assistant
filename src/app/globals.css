@@ -1,50 +1,53 @@
 @import "tailwindcss";
 
-/* Manuel Büttner Branding - Elegantes dunkles Design basierend auf Website */
+/* Manuel Büttner Branding - Gedämpftes dunkles Design wie Website-Screenshot */
 :root {
-  /* Primärfarben - Elegantes dunkles Theme */
-  --primary: #10b981;         /* Heller grüner Akzent (emerald-500) */
-  --primary-dark: #059669;    /* Dunkleres Grün für Hover */
-  --primary-light: #34d399;   /* Helleres Grün für Highlights */
+  /* Primärfarben - Gedämpfte, professionelle Töne */
+  --primary: #4ade80;         /* Gedämpftes Grün (weniger grell) */
+  --primary-dark: #22c55e;    /* Etwas dunkleres Grün für Hover */
+  --primary-light: #86efac;   /* Helleres Grün für Highlights */
   
-  --secondary: #6b7280;       /* Mittleres Grau */
-  --secondary-light: #9ca3af; /* Helles Grau für Text */
-  --secondary-dark: #374151;  /* Dunkles Grau */
+  --secondary: #64748b;       /* Slate Grau */
+  --secondary-light: #94a3b8; /* Helleres Grau für Text */
+  --secondary-dark: #334155;  /* Dunkles Slate */
   
-  /* Akzentfarben */
-  --accent: #10b981;          /* Grüner Akzent */
-  --accent-light: rgba(16, 185, 129, 0.1); /* Transparentes Grün für Karten */
-  --accent-dark: #047857;     /* Dunkles Grün */
+  /* Akzentfarben - gedämpft */
+  --accent: #4ade80;          /* Gedämpfter grüner Akzent */
+  --accent-light: rgba(74, 222, 128, 0.08); /* Sehr subtiles transparentes Grün */
+  --accent-dark: #16a34a;     /* Dunkles Grün */
   
-  /* Textfarben - für dunkles Theme */
-  --text-primary: #f9fafb;    /* Fast Weiß */
-  --text-secondary: #d1d5db;  /* Helles Grau */
-  --text-muted: #9ca3af;      /* Mittleres Grau für Subtexte */
+  /* Textfarben - optimiert für Lesbarkeit */
+  --text-primary: #f1f5f9;    /* Sehr helles Grau (nicht reines Weiß) */
+  --text-secondary: #cbd5e1;  /* Mittleres helles Grau */
+  --text-muted: #94a3b8;      /* Gedämpftes Grau für Subtexte */
+  --text-on-color: #ffffff;   /* Weißer Text auf farbigen Hintergründen */
   
-  /* Dunkle Hintergründe */
-  --bg-primary: #111827;      /* Sehr dunkles Grau (haupthintergrund) */
-  --bg-secondary: #1f2937;    /* Dunkles Grau für Karten */
-  --bg-light: #0f172a;        /* Noch dunkler für Kontrast */
+  /* Dunkle Hintergründe - wie im Screenshot */
+  --bg-primary: #0f172a;      /* Sehr dunkles Blau-Grau (Haupthintergrund) */
+  --bg-secondary: #1e293b;    /* Dunkles Grau für Karten */
+  --bg-light: #020617;        /* Noch dunkler für maximalen Kontrast */
   
-  /* Status-Farben - für dunkles Theme */
-  --status-active: #10b981;   /* Helles Grün für aktiv */
-  --status-active-bg: rgba(16, 185, 129, 0.15); /* Transparenter grüner Hintergrund */
-  --status-success: #10b981;  /* Grüner Erfolg */
-  --status-success-bg: rgba(16, 185, 129, 0.1); /* Transparentes Grün */
-  --status-warning: #f59e0b;  /* Gelb/Orange für Warnungen */
-  --status-warning-bg: rgba(245, 158, 11, 0.1); /* Transparentes Orange */
-  --status-neutral: #6b7280;  /* Grau für neutral */
-  --status-neutral-bg: rgba(107, 114, 128, 0.1); /* Transparentes Grau */
+  /* Status-Farben - gedämpft und professionell */
+  --status-active: #4ade80;   /* Gedämpftes Grün für aktiv */
+  --status-active-bg: rgba(74, 222, 128, 0.12); /* Sehr subtiler grüner Hintergrund */
+  --status-success: #22c55e;  /* Grün für Erfolg */
+  --status-success-bg: rgba(34, 197, 94, 0.08); /* Subtiles transparentes Grün */
+  --status-warning: #f59e0b;  /* Orange für Warnungen */
+  --status-warning-bg: rgba(245, 158, 11, 0.08); /* Subtiles Orange */
+  --status-error: #ef4444;    /* Rot für Fehler/Nein */
+  --status-error-bg: rgba(239, 68, 68, 0.08); /* Subtiles Rot */
+  --status-neutral: #64748b;  /* Slate Grau für neutral */
+  --status-neutral-bg: rgba(100, 116, 139, 0.08); /* Subtiles Grau */
   
   /* Schatten - für dunkles Theme */
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
   
-  /* Borders - für dunkles Theme */
-  --border-light: #374151;
-  --border-medium: #4b5563;
-  --border-dark: #6b7280;
+  /* Borders - für dunkles Theme mit besserer Sichtbarkeit */
+  --border-light: #334155;    /* Subtile aber sichtbare Borders */
+  --border-medium: #475569;   /* Mittlere Borders */
+  --border-dark: #64748b;     /* Deutliche Borders */
 }
 
 body {
@@ -63,7 +66,7 @@ body {
 .bg-card-light { background-color: var(--accent-light); }
 .border-card { border-color: var(--border-light); }
 
-/* Button-Styles - Elegantes dunkles Design */
+/* Button-Styles - Professionell mit optimaler Lesbarkeit */
 .btn-primary {
   background-color: var(--primary);
   color: var(--bg-primary);
@@ -71,13 +74,15 @@ body {
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   box-shadow: var(--shadow-md);
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-light);
-  transform: translateY(-2px);
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-lg);
 }
 
@@ -88,12 +93,14 @@ body {
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 .btn-secondary:hover {
-  background-color: var(--border-light);
-  border-color: var(--border-medium);
+  background-color: var(--bg-light);
+  border-color: var(--border-dark);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }

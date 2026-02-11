@@ -52,7 +52,7 @@ export default function Login({ onLogin, error }: LoginProps) {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-3 border rounded-lg font-medium focus:outline-none focus:ring-2 focus:border-transparent"
               style={{ 
-                borderColor: error ? '#dc2626' : 'var(--border-medium)',
+                borderColor: error ? 'var(--status-error)' : 'var(--border-medium)',
                 backgroundColor: 'var(--bg-primary)',
                 color: 'var(--text-primary)',
                 '--tw-ring-color': 'var(--primary)'

@@ -416,7 +416,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
               ? 'font-medium py-3 px-5 rounded-lg shadow-md text-white'
               : 'font-medium py-3 px-5 rounded-lg transition-colors'}
             style={student.zahlungStatus === 'nein' 
-              ? { backgroundColor: '#dc2626', color: 'white' }
+              ? { backgroundColor: 'var(--status-error)', color: 'white' }
               : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: `1px solid var(--border-medium)` }}
           >
             NEIN
@@ -495,7 +495,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
               <button
                 onClick={() => handleAttendanceUpdate('nicht_erschienen')}
                 className="font-medium py-2 px-4 rounded-lg transition-colors text-white"
-                style={{ backgroundColor: '#dc2626' }}
+                style={{ backgroundColor: 'var(--status-error)' }}
               >
                 Nicht erschienen
               </button>
