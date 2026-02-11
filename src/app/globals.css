@@ -3,38 +3,39 @@
 /* Manuel Büttner Branding - ruhig, nüchtern, klar, professionell */
 /* Basierend auf manuelbuettner.de Design */
 :root {
-  /* Primärfarben - professionelle, zurückhaltende Töne wie auf der Homepage */
-  --primary: #1e40af;         /* Professionelles Blau (dunkel) */
-  --primary-dark: #1e3a8a;    /* Dunkleres Blau für Hover */
-  --primary-light: #eff6ff;   /* Sehr helles Blau für Backgrounds */
+  /* Primärfarben - professionelle Grün/Grau-Töne */
+  --primary: #047857;         /* Professionelles Grün (emerald-700) */
+  --primary-dark: #065f46;    /* Dunkleres Grün für Hover */
+  --primary-light: #ecfdf5;   /* Sehr helles Grün für Backgrounds */
   
   --secondary: #6b7280;       /* Professionelles Grau */
   --secondary-light: #f9fafb; /* Sehr helles Grau */
   --secondary-dark: #374151;  /* Dunkles Grau */
   
-  /* Akzentfarben - sehr zurückhaltend */
-  --accent: #1f2937;          /* Dunkles Anthrazit */
-  --accent-light: #f3f4f6;    /* Helles Grau für Karten */
+  /* Akzentfarben - Grün-basiert */
+  --accent: #059669;          /* Mittleres Grün (emerald-600) */
+  --accent-light: #f0fdf4;    /* Sehr helles Grün für Karten */
+  --accent-dark: #064e3b;     /* Sehr dunkles Grün */
   
   /* Textfarben */
   --text-primary: #111827;    /* Fast Schwarz */
   --text-secondary: #4b5563;  /* Mittleres Grau */
   --text-muted: #9ca3af;      /* Helles Grau für Subtexte */
   
-  /* Hintergründe */
+  /* Hintergründe - weiß/hellgrau wie auf der Homepage */
   --bg-primary: #ffffff;      /* Reines Weiß */
-  --bg-secondary: #f9fafb;    /* Sehr helles Grau */
-  --bg-light: #f3f4f6;        /* Hintergrund-Grau */
+  --bg-secondary: #f8fafc;    /* Sehr helles Grau */
+  --bg-light: #f1f5f9;        /* Hintergrund-Grau */
   
-  /* Status-Farben - professionell gedämpft */
-  --status-active: #1f2937;   /* Dunkles Grau für aktiv */
-  --status-active-bg: #f3f4f6; /* Heller Hintergrund für aktiv */
-  --status-success: #065f46;  /* Dunkles Grün */
+  /* Status-Farben - mit Grün-Akzenten */
+  --status-active: #047857;   /* Primäres Grün für aktiv */
+  --status-active-bg: #ecfdf5; /* Heller Grün-Hintergrund für aktiv */
+  --status-success: #059669;  /* Mittleres Grün */
   --status-success-bg: #f0fdf4; /* Helles Grün */
-  --status-warning: #92400e;  /* Dunkles Orange */
+  --status-warning: #d97706;  /* Orange für Warnungen */
   --status-warning-bg: #fffbeb; /* Helles Orange */
   --status-neutral: #6b7280;  /* Grau für neutral */
-  --status-neutral-bg: #f9fafb; /* Helles Grau für neutral */
+  --status-neutral-bg: #f8fafc; /* Helles Grau für neutral */
   
   /* Schatten - sehr subtil */
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.04);

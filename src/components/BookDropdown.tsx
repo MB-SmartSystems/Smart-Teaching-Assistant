@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getAllBooks, getAllBooksAsync, addCustomBook, isCustomBook } from '@/lib/dynamicBooks'
+import { getAllBooks, getAllBooksAsync, addCustomBook, isCustomBook, updateCustomBook } from '@/lib/dynamicBooks'
 
 interface BookDropdownProps {
   currentBook: string
@@ -20,6 +20,8 @@ export default function BookDropdown({
   const [availableBooks, setAvailableBooks] = useState<string[]>([])
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customBook, setCustomBook] = useState('')
+  const [editingExistingBook, setEditingExistingBook] = useState<string | null>(null)
+  const [editedBookName, setEditedBookName] = useState('')
 
   // Books beim Mount und bei Änderungen laden - FRESH aus DB
   useEffect(() => {
@@ -74,9 +76,86 @@ export default function BookDropdown({
     onToggleEdit()
   }
 
+  const handleEditExistingBook = (bookName: string) => {
+    setEditingExistingBook(bookName)
+    setEditedBookName(bookName)
+  }
+
+  const handleSaveEditedBook = () => {
+    const trimmedName = editedBookName.trim()
+    if (trimmedName && editingExistingBook) {
+      const success = updateCustomBook(editingExistingBook, trimmedName)
+      
+      if (success) {
+        // Update lokale Bücher-Liste
+        getAllBooksAsync().then(freshBooks => {
+          setAvailableBooks(freshBooks)
+        })
+        
+        // Wenn das aktuell ausgewählte Buch bearbeitet wurde, aktualisiere es
+        if (currentBook === editingExistingBook) {
+          onBookChange(trimmedName)
+        }
+        
+        // Cleanup
+        setEditingExistingBook(null)
+        setEditedBookName('')
+        onToggleEdit()
+      } else {
+        alert('Fehler: Name bereits vorhanden oder Buch kann nicht bearbeitet werden')
+      }
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingExistingBook(null)
+    setEditedBookName('')
+    onToggleEdit()
+  }
+
   const formatBookName = (book: string): string => {
     if (!book) return 'Kein Buch ausgewählt'
     return book
+  }
+
+  // Bearbeitung existierender Bücher
+  if (editingExistingBook) {
+    return (
+      <div className="space-y-3">
+        <input
+          type="text"
+          value={editedBookName}
+          onChange={(e) => setEditedBookName(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') handleSaveEditedBook()
+            if (e.key === 'Escape') handleCancelEdit()
+          }}
+          className="w-full p-3 border-2 border-green-300 rounded-lg font-medium text-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
+          placeholder="Buch-Namen bearbeiten..."
+          autoFocus
+        />
+        
+        <div className="flex gap-2">
+          <button
+            onClick={handleSaveEditedBook}
+            disabled={!editedBookName.trim()}
+            className="bg-green-600 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:cursor-not-allowed transition-colors"
+          >
+            ✓ Speichern
+          </button>
+          <button
+            onClick={handleCancelEdit}
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-400 transition-colors"
+          >
+            ✖ Abbrechen
+          </button>
+        </div>
+        
+        <div className="text-sm text-green-600 bg-green-50 p-2 rounded border-l-4 border-l-green-500">
+          ✏️ Nur selbst hinzugefügte Bücher (⭐) können bearbeitet werden
+        </div>
+      </div>
+    )
   }
 
   // Custom Input Anzeige
@@ -169,7 +248,19 @@ export default function BookDropdown({
             {formatBookName(currentBook)}
           </span>
           {currentBook && isCustomBook(currentBook) && (
-            <span className="text-yellow-600 text-sm">⭐</span>
+            <>
+              <span className="text-yellow-600 text-sm">⭐</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleEditExistingBook(currentBook)
+                }}
+                className="text-green-600 hover:text-green-800 p-1 rounded text-sm transition-colors"
+                title="Buch-Namen bearbeiten"
+              >
+                ✏️
+              </button>
+            </>
           )}
         </div>
         

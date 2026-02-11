@@ -4,6 +4,15 @@ import { SchülerApp } from '@/lib/baserow'
 import { useState } from 'react'
 import { useOfflineSync } from '@/lib/offlineSync'
 import BookDropdown from './BookDropdown'
+import { 
+  getTodayAttendance, 
+  setAttendance, 
+  getAttendanceStats, 
+  getTodayString,
+  AttendanceStatus,
+  getStatusText,
+  getStatusColor
+} from '@/lib/attendance'
 
 interface SchülerCardProps {
   student: SchülerApp
@@ -23,29 +32,78 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     aktuelleLieder: student.aktuelleLieder
   })
 
-  // Geburtstag-Status ermitteln
+  // Anwesenheits-State
+  const todayAttendance = getTodayAttendance(student.id)
+  const attendanceStats = getAttendanceStats(student.id, 30) // Letzte 30 Tage
+
+  // Geburtstag-Status ermitteln - erweitert um "seit letztem Unterricht"
   const getBirthdayStatus = () => {
     if (!student.geburtsdatum) return null
     
     const today = new Date()
     const birthday = new Date(student.geburtsdatum)
+    const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate())
     
-    // Gleicher Tag und Monat
+    // Gleicher Tag und Monat - HEUTE Geburtstag
     if (birthday.getDate() === today.getDate() && 
         birthday.getMonth() === today.getMonth()) {
-      return { text: 'Heute Geburtstag! 🎂', color: 'bg-red-500' }
+      return { 
+        text: 'Heute Geburtstag! 🎂', 
+        color: 'var(--status-warning)',
+        priority: 1 
+      }
     }
     
-    // Diese Woche
+    // Seit letztem Unterricht Geburtstag gehabt?
+    const lastLessonDate = getLastLessonDate(student.unterrichtstag)
+    if (lastLessonDate && thisYearBirthday > lastLessonDate && thisYearBirthday < today) {
+      const daysSince = Math.floor((today.getTime() - thisYearBirthday.getTime()) / (1000 * 60 * 60 * 24))
+      return { 
+        text: `Geburtstag seit letzter Stunde (vor ${daysSince} Tag${daysSince !== 1 ? 'en' : ''}) 🎂`, 
+        color: 'var(--primary)',
+        priority: 2 
+      }
+    }
+    
+    // Diese Woche kommend
     const weekFromNow = new Date()
     weekFromNow.setDate(today.getDate() + 7)
     
-    const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate())
     if (thisYearBirthday >= today && thisYearBirthday <= weekFromNow) {
-      return { text: `🎂 in ${Math.ceil((thisYearBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))} Tagen`, color: 'bg-orange-500' }
+      const daysUntil = Math.ceil((thisYearBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      return { 
+        text: `Geburtstag in ${daysUntil} Tag${daysUntil !== 1 ? 'en' : ''} 🎂`, 
+        color: 'var(--status-warning)',
+        priority: 3 
+      }
     }
     
     return null
+  }
+
+  // Letzten Unterrichtstermin berechnen
+  const getLastLessonDate = (weekday: string): Date | null => {
+    if (!weekday) return null
+    
+    const dayMap: { [key: string]: number } = {
+      'Sonntag': 0, 'Montag': 1, 'Dienstag': 2, 'Mittwoch': 3,
+      'Donnerstag': 4, 'Freitag': 5, 'Samstag': 6
+    }
+    
+    const targetDay = dayMap[weekday]
+    if (targetDay === undefined) return null
+    
+    const today = new Date()
+    const todayDay = today.getDay()
+    
+    // Berechne Tage seit letztem Unterrichtstag
+    let daysSince = todayDay - targetDay
+    if (daysSince <= 0) daysSince += 7
+    
+    const lastLesson = new Date(today)
+    lastLesson.setDate(today.getDate() - daysSince)
+    
+    return lastLesson
   }
 
   const birthdayStatus = getBirthdayStatus()
@@ -83,6 +141,14 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     } catch (error) {
       console.error('Fehler beim Update des Zahlungsstatus:', error)
     }
+  }
+
+  // Anwesenheits-Update
+  const handleAttendanceUpdate = (status: AttendanceStatus) => {
+    const today = getTodayString()
+    setAttendance(student.id, today, status)
+    // Trigger re-render durch State-Update
+    setLocalValues(prev => ({ ...prev })) // Dummy update für re-render
   }
 
   // WhatsApp Link generieren
@@ -127,7 +193,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
         
         {birthdayStatus && (
           <span className="px-3 py-2 rounded-lg text-white text-sm font-bold" style={{
-            backgroundColor: birthdayStatus.text.includes('Heute') ? 'var(--status-warning)' : 'var(--status-neutral)'
+            backgroundColor: birthdayStatus.color
           }}>
             {birthdayStatus.text}
           </span>
@@ -366,6 +432,75 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             OFFEN
           </button>
         </div>
+      </div>
+
+      {/* Anwesenheit heute */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Anwesenheit heute</h3>
+          {attendanceStats.total > 0 && (
+            <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              {attendanceStats.rate}% Anwesenheit (letzte 30 Tage)
+            </span>
+          )}
+        </div>
+        
+        {todayAttendance ? (
+          <div className="rounded-lg p-4 border-l-4 flex justify-between items-center" style={{
+            backgroundColor: 'var(--accent-light)',
+            borderLeftColor: getStatusColor(todayAttendance.status)
+          }}>
+            <div>
+              <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                {getStatusText(todayAttendance.status)}
+              </div>
+              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                Erfasst um {new Date(todayAttendance.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+            <button
+              onClick={() => handleAttendanceUpdate('erschienen')}
+              className="text-sm px-3 py-1 rounded transition-colors"
+              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+              title="Anwesenheit zurücksetzen"
+            >
+              Zurücksetzen
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div className="text-sm mb-3" style={{ color: 'var(--text-muted)' }}>
+              Standard: Erschienen (keine Aktion nötig)
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAttendanceUpdate('krank')}
+                className="font-medium py-2 px-4 rounded-lg transition-colors text-white"
+                style={{ backgroundColor: 'var(--status-warning)' }}
+              >
+                Krank
+              </button>
+              <button
+                onClick={() => handleAttendanceUpdate('abgesagt')}
+                className="font-medium py-2 px-4 rounded-lg transition-colors"
+                style={{ 
+                  backgroundColor: 'var(--accent-light)', 
+                  color: 'var(--text-primary)', 
+                  border: `1px solid var(--border-medium)` 
+                }}
+              >
+                Abgesagt
+              </button>
+              <button
+                onClick={() => handleAttendanceUpdate('nicht_erschienen')}
+                className="font-medium py-2 px-4 rounded-lg transition-colors text-white"
+                style={{ backgroundColor: '#dc2626' }}
+              >
+                Nicht erschienen
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Kontakt & Aktionen */}

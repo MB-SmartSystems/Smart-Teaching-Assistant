@@ -102,6 +102,35 @@ export function removeCustomBook(bookName: string): void {
   localStorage.setItem(CUSTOM_BOOKS_KEY, JSON.stringify(filtered))
 }
 
+// Custom Book Namen bearbeiten (bei Schreibfehlern etc.)
+export function updateCustomBook(oldName: string, newName: string): boolean {
+  if (typeof window === 'undefined') return false
+  
+  const trimmedNewName = newName.trim()
+  if (!trimmedNewName) return false
+  
+  const customBooks = getCustomBooks()
+  const oldBookIndex = customBooks.findIndex(book => book === oldName)
+  
+  // Nur Custom Books können bearbeitet werden
+  if (oldBookIndex === -1) return false
+  
+  // Prüfen ob neuer Name bereits existiert
+  const allBooks = getAllBooks()
+  const nameExists = allBooks.some(book => 
+    book.toLowerCase() === trimmedNewName.toLowerCase() && book !== oldName
+  )
+  
+  if (nameExists) return false
+  
+  // Name aktualisieren
+  const updatedCustomBooks = [...customBooks]
+  updatedCustomBooks[oldBookIndex] = trimmedNewName
+  localStorage.setItem(CUSTOM_BOOKS_KEY, JSON.stringify(updatedCustomBooks))
+  
+  return true
+}
+
 // Stats für Debug/Info
 export function getBookStats() {
   const fallbackBaseBooks = [
