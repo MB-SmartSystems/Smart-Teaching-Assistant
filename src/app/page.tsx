@@ -9,6 +9,7 @@ import SchülerCard from '@/components/SchülerCard'
 import BookStats from '@/components/BookStats'
 import EarningsOverview from '@/components/EarningsOverview'
 import Login from '@/components/Login'
+import { getTodayAttendance } from '@/lib/attendance'
 
 export default function Home() {
   const [students, setStudents] = useState<SchülerApp[]>([])
@@ -129,8 +130,19 @@ export default function Home() {
     setSelectedStudent(null)
   }
 
-  // Heutige Schüler - nur wenn Client hydrated und Zeit verfügbar
-  const todaysStudents = isClient && currentTime ? students.filter(s => s.unterrichtstag === getCurrentDay()) : []
+  // Heutige Schüler - nur wenn Client hydrated und Zeit verfügbar, ausschließlich Absagen
+  const todaysStudents = isClient && currentTime ? students.filter(s => {
+    // Nur Schüler mit heutigem Unterrichtstag
+    if (s.unterrichtstag !== getCurrentDay()) return false
+    
+    // Prüfen ob Schüler heute abgesagt hat
+    const todayAttendance = getTodayAttendance(s.id)
+    if (todayAttendance && todayAttendance.status === 'abgesagt') {
+      return false // Schüler hat abgesagt, nicht anzeigen
+    }
+    
+    return true
+  }) : []
 
   // Login-Screen anzeigen wenn nicht authentifiziert
   if (!isAuthChecked) {
