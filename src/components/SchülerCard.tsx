@@ -162,16 +162,20 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
   const handleUebungUpdate = async (field: 'übungVon' | 'übungBis', change: number) => {
     const currentVon = localValues.übungVon
     const currentBis = localValues.übungBis
-    const currentSpanne = currentBis - currentVon
     
     let newVon = currentVon
     let newBis = currentBis
     
     if (field === 'übungVon') {
       newVon = Math.max(1, currentVon + change)
-      // Spanne beibehalten: wenn von sich ändert, bis mitlaufen lassen
-      newBis = Math.max(newVon, newVon + currentSpanne)
+      // Wenn "von" über "bis" erhöht wird, setze "bis" = "von"
+      if (newVon > currentBis) {
+        newBis = newVon
+      } else {
+        newBis = currentBis // "bis" bleibt unverändert
+      }
     } else {
+      // "bis" kann unabhängig geändert werden, aber nie unter "von"
       newBis = Math.max(currentVon, currentBis + change)
     }
     
