@@ -27,7 +27,7 @@ export interface Schüler {
   field_8218: string // Buch_2
   field_8219: string // Seite_2
   field_8220: string // Übung_2
-  field_7831: { id: number; value: string; color: string } | null // Hat Schlagzeug
+  field_8371: { id: number; value: string; color: string } | null // Hat Schlagzeug
 }
 
 // Vereinfachte Schüler-Struktur für die App
@@ -121,7 +121,7 @@ export function convertToAppFormat(baserowStudent: Schüler): SchülerApp {
     buch2: baserowStudent.field_8218 || '',
     seite2: baserowStudent.field_8219 || '',
     übung2: baserowStudent.field_8220 || '',
-    hatSchlagzeug: baserowStudent.field_7831?.value || 'Unbekannt',
+    hatSchlagzeug: baserowStudent.field_8371?.value || 'Unbekannt',
   }
 }
 

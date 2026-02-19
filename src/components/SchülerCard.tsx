@@ -262,11 +262,11 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     }
   }
 
-  // Baserow Option-IDs für field_7831 (Hat Schlagzeug - COPY DB)
+  // Baserow Option-IDs für field_8371 (Hat Schlagzeug - COPY DB)
   const SCHLAGZEUG_OPTIONS: Record<string, number> = {
-    'Ja': 3500,  // Placeholder - wird mit echten IDs ersetzt
-    'Nein': 3501,
-    'Unbekannt': 3502,
+    'Ja': 4500,  // Placeholder - wird mit echten IDs ersetzt
+    'Nein': 4501,
+    'Unbekannt': 4502,
   }
 
   const handleSchlagzeugUpdate = async (label: string) => {
@@ -274,11 +274,13 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     if (!optionId) return
     try {
       // Send integer option ID directly to Baserow API
-      await BaserowAPI.updateStudentField(student.id, 'field_7831', optionId)
+      await BaserowAPI.updateStudentField(student.id, 'field_8371', optionId)
       // Reload to show updated status
       window.location.reload()
     } catch (error) {
       console.error('Fehler beim Update des Schlagzeug-Status:', error)
+      // Show error details in console for debugging Option-IDs
+      console.log('Full error:', error)
     }
   }
 
