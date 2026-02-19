@@ -101,7 +101,8 @@ export default function SongSuggestions({ student }: SongSuggestionsProps) {
       </div>
 
       <div className="text-xs mt-3 text-center" style={{ color: 'var(--text-muted)' }}>
-        Basierend auf: {studentProgress.currentBook}, Seite {studentProgress.currentPage}, Übung {studentProgress.currentExercise}
+        Basierend auf: {book1Progress.currentBook}, Seite {book1Progress.currentPage}, Übung {book1Progress.currentExercise}
+        {book2Progress && ` + ${book2Progress.currentBook} S.${book2Progress.currentPage}`}
       </div>
     </div>
   )
