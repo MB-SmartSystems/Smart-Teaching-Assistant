@@ -264,9 +264,9 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
 
   // Baserow Option-IDs für field_8371 (Hat Schlagzeug - COPY DB)
   const SCHLAGZEUG_OPTIONS: Record<string, number> = {
-    'Ja': 4500,  // Placeholder - wird mit echten IDs ersetzt
-    'Nein': 4501,
-    'Unbekannt': 4502,
+    'Ja': 3572,
+    'Nein': 3573,
+    'Unbekannt': 3574,
   }
 
   const handleSchlagzeugUpdate = async (label: string) => {
