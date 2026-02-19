@@ -291,11 +291,19 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     setAttendanceVersion(prev => prev + 1)
   }
 
-  // WhatsApp Link generieren
+  // WhatsApp Link generieren (direkt zu wa.me für bessere Kompatibilität)
   const getWhatsAppLink = () => {
     if (!student.handynummer) return '#'
-    const cleanNumber = student.handynummer.replace(/[^\d+]/g, '')
-    return `whatsapp://send?phone=${cleanNumber}&text=Hallo%20${student.ansprechpartner},%20`
+    const cleanNumber = student.handynummer.replace(/[^0-9+]/g, '')
+    const phoneNumber = cleanNumber.startsWith('+') ? cleanNumber.slice(1) : cleanNumber
+    return `https://wa.me/${phoneNumber}?text=Hallo%20${student.ansprechpartner || student.vorname}`
+  }
+
+  // Telefon Link generieren
+  const getPhoneLink = () => {
+    if (!student.handynummer) return '#'
+    const cleanNumber = student.handynummer.replace(/[^0-9+]/g, '')
+    return `tel:${cleanNumber}`
   }
 
   // E-Mail Link generieren  
@@ -888,20 +896,33 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
       {/* Kontakt & Aktionen */}
       <div className="flex flex-wrap gap-3">
         {student.handynummer && (
-          <a
-            href={getWhatsAppLink()}
-            className="btn-primary flex items-center gap-2"
-          >
-            WhatsApp {student.ansprechpartner}
-          </a>
+          <div className="flex gap-2">
+            <a
+              href={getPhoneLink()}
+              className="btn-secondary flex items-center gap-1 flex-1"
+              title={`Anrufen: ${student.handynummer}`}
+            >
+              📞 Anrufen
+            </a>
+            <a
+              href={getWhatsAppLink()}
+              target="_blank"
+              rel="noopener noreferrer" 
+              className="btn-primary flex items-center gap-1 flex-1"
+              title={`WhatsApp: ${student.handynummer}`}
+            >
+              💬 WhatsApp
+            </a>
+          </div>
         )}
         
         {student.email && (
           <a
             href={getEmailLink()}
-            className="btn-primary flex items-center gap-2"
+            className="btn-secondary flex items-center gap-2 w-full"
+            title={`E-Mail: ${student.email}`}
           >
-            E-Mail
+            ✉️ E-Mail senden
           </a>
         )}
         

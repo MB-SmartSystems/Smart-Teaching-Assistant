@@ -8,16 +8,28 @@ interface SongSuggestionsProps {
 }
 
 export default function SongSuggestions({ student }: SongSuggestionsProps) {
-  // Schüler-Fortschritt aus Schüler-Daten erstellen
-  const studentProgress: StudentProgress = {
+  // Hauptbuch (Buch 1) Fortschritt
+  const book1Progress: StudentProgress = {
     currentBook: student.buch || 'Essential Beats',
     currentPage: parseInt(student.seite || '1'),
     currentExercise: student.übung || '1',
     techniqueFocus: student.wichtigerFokus || undefined
   }
 
-  // Liedvorschläge generieren
-  const suggestions = generateSongSuggestions(studentProgress, mockSongs).slice(0, 3) // Nur top 3
+  // Buch 2 Fortschritt (falls vorhanden)
+  const book2Progress: StudentProgress | null = student.buch2 ? {
+    currentBook: student.buch2,
+    currentPage: parseInt(student.seite2 || '1'),
+    currentExercise: student.übung2 || '1',
+    techniqueFocus: student.wichtigerFokus || undefined
+  } : null
+
+  // Liedvorschläge für beide Bücher generieren
+  const book1Suggestions = generateSongSuggestions(book1Progress, mockSongs).slice(0, 2)
+  const book2Suggestions = book2Progress ? generateSongSuggestions(book2Progress, mockSongs).slice(0, 2) : []
+  
+  // Kombinierte Vorschläge (maximal 3)
+  const suggestions = [...book1Suggestions, ...book2Suggestions].slice(0, 3)
 
   if (suggestions.length === 0) {
     return null // Keine Vorschläge = keine Anzeige
@@ -37,7 +49,7 @@ export default function SongSuggestions({ student }: SongSuggestionsProps) {
       borderLeftColor: 'var(--primary)' 
     }}>
       <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>
-        🎵 Liedvorschläge für den aktuellen Stand
+        🎵 Liedvorschläge ({student.buch}{student.buch2 ? ` + ${student.buch2}` : ''})
       </h3>
       
       <div className="space-y-3">
@@ -54,6 +66,9 @@ export default function SongSuggestions({ student }: SongSuggestionsProps) {
               <div className="flex-1">
                 <div className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>
                   {suggestion.song.title}
+                </div>
+                <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
+                  📖 {suggestion.song.book}
                 </div>
                 <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                   {suggestion.song.artist}

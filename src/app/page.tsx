@@ -13,6 +13,7 @@ import { getTodayAttendance } from '@/lib/attendance'
 import SongManagement from '@/components/SongManagement'
 import FlexKartenDashboard from '@/components/FlexKartenDashboard'
 import PreiserhoehungsDashboard from '@/components/PreiserhoehungsDashboard'
+import AllStudentsModal from '@/components/AllStudentsModal'
 
 export default function Home() {
   const [students, setStudents] = useState<SchülerApp[]>([])
@@ -22,6 +23,7 @@ export default function Home() {
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [isClient, setIsClient] = useState(false)
   const [showSongManagement, setShowSongManagement] = useState(false)
+  const [showAllStudents, setShowAllStudents] = useState(false)
   
   // Authentifizierung
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -51,18 +53,24 @@ export default function Home() {
       loadStudents()
     })
 
-    // Zeit alle 5 Sekunden aktualisieren (präziseres Switching)
+    // Zeit alle 30 Sekunden aktualisieren (Performance optimiert)
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date())
-      // Auto-Switch Status auch bei Zeit-Update berechnen
+      refreshSession()
+    }, 30000)
+    
+    // Auto-Switch Status alle 60 Sekunden neu berechnen (nicht bei jedem Tick)
+    const autoSwitchInterval = setInterval(() => {
       if (students.length > 0) {
         const status = getAutoSwitchStatus(students, 5)
         setAutoSwitchStatus(status)
       }
-      refreshSession()
-    }, 5000)
+    }, 60000)
 
-    return () => clearInterval(timeInterval)
+    return () => {
+      clearInterval(timeInterval)
+      clearInterval(autoSwitchInterval)
+    }
   }, [isAuthenticated])
 
   // Auto-Switch Status bei Änderungen sofort aktualisieren
@@ -219,6 +227,15 @@ export default function Home() {
                   )}
                 </div>
               </div>
+
+              {/* Alle Schüler Button */}
+              <button
+                onClick={() => setShowAllStudents(true)}
+                className="btn-primary text-sm"
+                title="Komplette Schülerliste anzeigen"
+              >
+                📋 Alle Schüler
+              </button>
 
               {/* Lieder-Datenbank Button */}
               <button
@@ -431,6 +448,14 @@ export default function Home() {
         isOpen={showSongManagement}
         onClose={() => setShowSongManagement(false)}
       />
+
+      {/* Alle Schüler Modal */}
+      {showAllStudents && (
+        <AllStudentsModal
+          students={students}
+          onClose={() => setShowAllStudents(false)}
+        />
+      )}
     </div>
   )
 }
