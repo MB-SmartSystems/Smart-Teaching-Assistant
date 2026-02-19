@@ -1,32 +1,32 @@
 // Baserow API Integration für Smart Teaching Assistant
 // Alle Calls laufen über Server-Side API Routes (/api/students)
 
-// Schüler-Datentyp basierend auf Baserow-Feldern
+// Schüler-Datentyp basierend auf COPY-Baserow-Feldern (Tabelle 853)
 export interface Schüler {
   id: number
   order: string
-  field_7818: string // Vorname
-  field_7819: string // Nachname
-  field_7820: string // Geburtsdatum
-  field_7821: string // Alter
-  field_7832: { id: number; value: string; color: string } | null // Unterrichtstag
-  field_7833: string // Unterrichtszeit
-  field_7835: string // Buch
-  field_7836: string // Seite
-  field_7837: string // Übung
-  field_7838: string // Aktuelle_Lieder
-  field_7839: string // Größter_Bedarf (→ Wichtiger Fokus)
-  field_7840: string // Monatlicher_Betrag
-  field_7845: { id: number; value: string; color: string } | null // Anfrage_Status
-  field_7858: { id: number; value: string; color: string } | null // Zahlung läuft?
-  field_7830: string // Ansprechpartner_Name
-  field_7831: string // Handynummer_Ansprechpartner
-  field_7854: string // Email_Ansprechpartner
-  field_7827: string // Startdatum_Unterrichtsvertrag
-  field_7853: string // Vertragslink
-  field_8173: string // Buch_2
-  field_8174: string // Seite_2
-  field_8175: string // Übung_2
+  field_8176: string // Vorname
+  field_8177: string // Nachname  
+  field_8178: string // Geburtsdatum
+  field_8269: string // Alter
+  field_8188: { id: number; value: string; color: string } | null // Unterrichtstag
+  field_8189: string // Unterrichtszeit
+  field_8190: string // Buch
+  field_8191: string // Seite
+  field_8192: string // Übung
+  field_8193: string // Aktuelle_Lieder
+  field_8194: string // Größter_Bedarf (→ Wichtiger Fokus)
+  field_8195: string // Monatlicher_Betrag
+  field_8200: { id: number; value: string; color: string } | null // Anfrage_Status
+  field_8211: { id: number; value: string; color: string } | null // Zahlung läuft?
+  field_8185: string // Ansprechpartner_Name
+  field_8186: string // Handynummer_Ansprechpartner
+  field_8187: string // Email_Ansprechpartner
+  field_8212: string // Startdatum_Unterrichtsvertrag
+  field_8207: string // Vertragslink
+  field_8218: string // Buch_2
+  field_8219: string // Seite_2
+  field_8220: string // Übung_2
 }
 
 // Vereinfachte Schüler-Struktur für die App
