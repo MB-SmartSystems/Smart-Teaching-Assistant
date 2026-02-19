@@ -262,6 +262,26 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     }
   }
 
+  // Baserow Option-IDs für field_7831 (Hat Schlagzeug - COPY DB)
+  const SCHLAGZEUG_OPTIONS: Record<string, number> = {
+    'Ja': 3500,  // Placeholder - wird mit echten IDs ersetzt
+    'Nein': 3501,
+    'Unbekannt': 3502,
+  }
+
+  const handleSchlagzeugUpdate = async (label: string) => {
+    const optionId = SCHLAGZEUG_OPTIONS[label]
+    if (!optionId) return
+    try {
+      // Send integer option ID directly to Baserow API
+      await BaserowAPI.updateStudentField(student.id, 'field_7831', optionId)
+      // Reload to show updated status
+      window.location.reload()
+    } catch (error) {
+      console.error('Fehler beim Update des Schlagzeug-Status:', error)
+    }
+  }
+
   // Anwesenheits-Update
   const handleAttendanceUpdate = (status: AttendanceStatus) => {
     const today = getTodayString()
@@ -740,6 +760,46 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             </button>
           </div>
         )}
+      </div>
+
+      {/* Schlagzeug Status */}
+      <div className="mb-6">
+        <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>🥁 Schlagzeug</h3>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => handleSchlagzeugUpdate('Ja')}
+            className={student.hatSchlagzeug === 'Ja'
+              ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
+              : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
+            style={student.hatSchlagzeug === 'Ja'
+              ? { backgroundColor: 'var(--status-success)', color: 'white' }
+              : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+          >
+            JA
+          </button>
+          <button
+            onClick={() => handleSchlagzeugUpdate('Nein')}
+            className={student.hatSchlagzeug === 'Nein'
+              ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
+              : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
+            style={student.hatSchlagzeug === 'Nein'
+              ? { backgroundColor: 'var(--status-error)', color: 'white' }
+              : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+          >
+            NEIN
+          </button>
+          <button
+            onClick={() => handleSchlagzeugUpdate('Unbekannt')}
+            className={student.hatSchlagzeug === 'Unbekannt' || !student.hatSchlagzeug
+              ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
+              : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
+            style={student.hatSchlagzeug === 'Unbekannt' || !student.hatSchlagzeug
+              ? { backgroundColor: 'var(--status-warning)', color: 'white' }
+              : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+          >
+            UNBEKANNT
+          </button>
+        </div>
       </div>
 
       {/* Anwesenheit heute */}

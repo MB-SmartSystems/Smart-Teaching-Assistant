@@ -262,7 +262,8 @@ export const FIELD_MAPPINGS = {
   übung2: 'field_8220',            // Übung 2 (COPY)
   aktuelleLieder: 'field_8193',    // Aktuelle Lieder (COPY)
   wichtigerFokus: 'field_8194',    // Technikübungen/Fokus (COPY)
-  zahlungStatus: 'field_8211'      // Zahlung läuft? (COPY)
+  zahlungStatus: 'field_8211',     // Zahlung läuft? (COPY)
+  hatSchlagzeug: 'field_7831'      // Hat Schlagzeug (COPY)
 } as const
 
 // Helper Hook für React Components
