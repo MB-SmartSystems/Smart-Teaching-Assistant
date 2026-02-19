@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+/* Manuel Büttner Branding - Gedämpftes dunkles Design wie Website-Screenshot */
+:root {
+  /* Primärfarben - Gedämpfte, professionelle Töne */
+  --primary: #4ade80;         /* Gedämpftes Grün (weniger grell) */
+  --primary-dark: #22c55e;    /* Etwas dunkleres Grün für Hover */
+  --primary-light: #86efac;   /* Helleres Grün für Highlights */
+  
+  --secondary: #64748b;       /* Slate Grau */
+  --secondary-light: #94a3b8; /* Helleres Grau für Text */
+  --secondary-dark: #334155;  /* Dunkles Slate */
+  
+  /* Akzentfarben - gedämpft */
+  --accent: #4ade80;          /* Gedämpfter grüner Akzent */
+  --accent-light: #354F52;    /* Manus gewählte Farbe für Karten */
+  --accent-dark: #16a34a;     /* Dunkles Grün */
+  
+  /* Textfarben - optimiert für Lesbarkeit */
+  --text-primary: #f1f5f9;    /* Sehr helles Grau (nicht reines Weiß) */
+  --text-secondary: #cbd5e1;  /* Mittleres helles Grau */
+  --text-muted: #64748b;      /* Dunkleres Grau für besseren Kontrast */
+  --text-on-color: #ffffff;   /* Weißer Text auf farbigen Hintergründen */
+  --text-light-muted: #94a3b8; /* Helles gedämpftes Grau nur für dunkle Hintergründe */
+  
+  /* Dunkle Hintergründe - wie im Screenshot */
+  --bg-primary: #0f172a;      /* Sehr dunkles Blau-Grau (Haupthintergrund) */
+  --bg-secondary: #1e293b;    /* Dunkles Grau für Header - bleibt dunkelblau */
+  --bg-light: #020617;        /* Noch dunkler für maximalen Kontrast */
+  
+  /* Status-Farben - gedämpft und professionell */
+  --status-active: #4ade80;   /* Gedämpftes Grün für aktiv */
+  --status-active-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
+  --status-success: #22c55e;  /* Grün für Erfolg */
+  --status-success-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
+  --status-warning: #f59e0b;  /* Orange für Warnungen */
+  --status-warning-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
+  --status-error: #ef4444;    /* Rot für Fehler/Nein */
+  --status-error-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
+  --status-neutral: #64748b;  /* Slate Grau für neutral */
+  --status-neutral-bg: #354F52; /* Manus gewählte Farbe für Status-Hintergründe */
+  
+  /* Schatten - für dunkles Theme */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+  
+  /* Borders - für dunkles Theme mit besserer Sichtbarkeit */
+  --border-light: #334155;    /* Subtile aber sichtbare Borders */
+  --border-medium: #475569;   /* Mittlere Borders */
+  --border-dark: #64748b;     /* Deutliche Borders */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility Classes für dunkles Design */
+.text-on-light { color: var(--text-primary); }
+.text-muted { color: var(--text-muted); }
+.bg-card { background-color: var(--bg-secondary); }
+.bg-card-light { background-color: var(--accent-light); }
+.border-card { border-color: var(--border-light); }
+
+/* Button-Styles - Professionell mit optimaler Lesbarkeit */
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--bg-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-light);
+  border-color: var(--border-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
