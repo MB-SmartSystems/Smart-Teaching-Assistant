@@ -41,11 +41,11 @@ export interface SchülerApp {
   seite: string
   übung: string
   aktuelleLieder: string
-  wichtigerFokus: string // field_7839
+  wichtigerFokus: string // field_8194 (COPY)
   monatlicherbetrag: string
   anfrageStatus: string
   zahlungStatus: string
-  startdatum: string // field_7827
+  startdatum: string // field_8212 (COPY)
   ansprechpartner: string
   handynummer: string
   email: string
@@ -98,27 +98,27 @@ export class BaserowAPI {
 export function convertToAppFormat(baserowStudent: Schüler): SchülerApp {
   return {
     id: baserowStudent.id,
-    vorname: baserowStudent.field_7818 || '',
-    nachname: baserowStudent.field_7819 || '',
-    geburtsdatum: baserowStudent.field_7820 || '',
-    unterrichtstag: baserowStudent.field_7832?.value || '',
-    unterrichtszeit: baserowStudent.field_7833 || '',
-    buch: baserowStudent.field_7835 || '',
-    seite: baserowStudent.field_7836 || '',
-    übung: baserowStudent.field_7837 || '',
-    aktuelleLieder: baserowStudent.field_7838 || '',
-    wichtigerFokus: baserowStudent.field_7839 || '', // NEU: field_7839 → Wichtiger Fokus
-    monatlicherbetrag: baserowStudent.field_7840 || '',
-    anfrageStatus: baserowStudent.field_7845?.value || '',
-    zahlungStatus: baserowStudent.field_7858?.value || 'unbekannt',
-    startdatum: baserowStudent.field_7827 || '',
-    ansprechpartner: baserowStudent.field_7830 || '',
-    handynummer: baserowStudent.field_7831 || '',
-    email: baserowStudent.field_7854 || '',
-    vertragslink: baserowStudent.field_7853 || '',
-    buch2: baserowStudent.field_8173 || '',
-    seite2: baserowStudent.field_8174 || '',
-    übung2: baserowStudent.field_8175 || '',
+    vorname: baserowStudent.field_8176 || '',
+    nachname: baserowStudent.field_8177 || '',
+    geburtsdatum: baserowStudent.field_8178 || '',
+    unterrichtstag: baserowStudent.field_8188?.value || '',
+    unterrichtszeit: baserowStudent.field_8189 || '',
+    buch: baserowStudent.field_8190 || '',
+    seite: baserowStudent.field_8191 || '',
+    übung: baserowStudent.field_8192 || '',
+    aktuelleLieder: baserowStudent.field_8193 || '',
+    wichtigerFokus: baserowStudent.field_8194 || '', // COPY: field_8194 → Wichtiger Fokus
+    monatlicherbetrag: baserowStudent.field_8195 || '',
+    anfrageStatus: baserowStudent.field_8200?.value || '',
+    zahlungStatus: baserowStudent.field_8211?.value || 'unbekannt',
+    startdatum: baserowStudent.field_8212 || '',
+    ansprechpartner: baserowStudent.field_8185 || '',
+    handynummer: baserowStudent.field_8186 || '',
+    email: baserowStudent.field_8187 || '',
+    vertragslink: baserowStudent.field_8207 || '',
+    buch2: baserowStudent.field_8218 || '',
+    seite2: baserowStudent.field_8219 || '',
+    übung2: baserowStudent.field_8220 || '',
   }
 }
 

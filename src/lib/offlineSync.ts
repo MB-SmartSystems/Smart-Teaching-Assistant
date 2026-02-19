@@ -6,7 +6,7 @@ import { SchülerApp, BaserowAPI, convertToAppFormat } from './baserow'
 export interface UpdateQueueItem {
   id: string // Eindeutige Update-ID
   studentId: number
-  fieldName: string // Baserow field_name (z.B. "field_7836")
+  fieldName: string // Baserow field_name (z.B. "field_8191")
   value: string | number
   timestamp: number
   attempts: number
@@ -252,17 +252,17 @@ export class OfflineStorageManager {
   }
 }
 
-// Baserow Field Mappings für Updates
+// Baserow Field Mappings für Updates (COPY Database 238)
 export const FIELD_MAPPINGS = {
-  buch: 'field_7835',              // Buch
-  seite: 'field_7836',             // Seite (Nummer)
-  übung: 'field_7837',             // Übung (Nummer)
-  buch2: 'field_8173',             // Buch 2
-  seite2: 'field_8174',            // Seite 2
-  übung2: 'field_8175',            // Übung 2
-  aktuelleLieder: 'field_7838',    // Aktuelle Lieder
-  wichtigerFokus: 'field_7839',    // Technikübungen/Fokus
-  zahlungStatus: 'field_7858'      // Zahlung läuft?
+  buch: 'field_8190',              // Buch (COPY)
+  seite: 'field_8191',             // Seite (Nummer)
+  übung: 'field_8192',             // Übung (Nummer)
+  buch2: 'field_8218',             // Buch 2 (COPY)
+  seite2: 'field_8219',            // Seite 2 (COPY)
+  übung2: 'field_8220',            // Übung 2 (COPY)
+  aktuelleLieder: 'field_8193',    // Aktuelle Lieder (COPY)
+  wichtigerFokus: 'field_8194',    // Technikübungen/Fokus (COPY)
+  zahlungStatus: 'field_8211'      // Zahlung läuft? (COPY)
 } as const
 
 // Helper Hook für React Components

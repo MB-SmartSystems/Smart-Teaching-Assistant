@@ -33,9 +33,9 @@ export default function EarningsCard({ student }: EarningsCardProps) {
       const updatedEarnings = calculateEarnings(student)
       setEarningsData(updatedEarnings)
       setShowStartDateEdit(false)
-      // Sync to Baserow field_7827 (Startdatum_Unterrichtsvertrag)
+      // Sync to Baserow field_8212 (Startdatum_Unterrichtsvertrag - COPY DB)
       try {
-        await BaserowAPI.updateStudentField(student.id, 'field_7827', newStartDate)
+        await BaserowAPI.updateStudentField(student.id, 'field_8212', newStartDate)
       } catch (error) {
         console.error('Fehler beim Sync des Startdatums zu Baserow:', error)
       }
