@@ -355,16 +355,21 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                   >
                     −
                   </button>
-                  <div 
-                    className="flex-1 text-center font-semibold text-lg py-2 rounded-lg"
+                  <input
+                    type="number"
+                    min="1"
+                    value={localValues.seite}
+                    onChange={(e) => {
+                      const value = Math.max(1, parseInt(e.target.value) || 1)
+                      updateLocalValue('seite', value.toString())
+                    }}
+                    className="flex-1 text-center font-semibold text-lg py-2 rounded-lg border-none outline-none"
                     style={{ 
                       backgroundColor: 'var(--bg-primary)',
                       color: 'var(--text-primary)',
                       border: `1px solid var(--border-light)`
                     }}
-                  >
-                    {localValues.seite}
-                  </div>
+                  />
                   <button
                     onClick={() => handleSeiteUpdate(1)}
                     className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
@@ -387,16 +392,30 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                         >
                           −
                         </button>
-                        <div 
-                          className="flex-1 text-center font-semibold py-1 rounded"
+                        <input
+                          type="number"
+                          min="1"
+                          value={localValues.übungVon}
+                          onChange={(e) => {
+                            const newVon = Math.max(1, parseInt(e.target.value) || 1)
+                            const newBis = Math.max(newVon, localValues.übungBis) // Smart Logic: bis nie unter von
+                            const ubungString = newVon === newBis ? newVon.toString() : `${newVon}-${newBis}`
+                            
+                            setLocalValues(prev => ({ 
+                              ...prev, 
+                              übungVon: newVon,
+                              übungBis: newBis,
+                              übung: ubungString
+                            }))
+                            setHasChanges(true)
+                          }}
+                          className="flex-1 text-center font-semibold py-1 rounded border-none outline-none"
                           style={{ 
                             backgroundColor: 'var(--bg-primary)',
                             color: 'var(--text-primary)',
                             border: `1px solid var(--border-light)`
                           }}
-                        >
-                          {localValues.übungVon}
-                        </div>
+                        />
                         <button
                           onClick={() => handleUebungUpdate('übungVon', 1)}
                           className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
@@ -416,16 +435,28 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                         >
                           −
                         </button>
-                        <div 
-                          className="flex-1 text-center font-semibold py-1 rounded"
+                        <input
+                          type="number"
+                          min={localValues.übungVon}
+                          value={localValues.übungBis}
+                          onChange={(e) => {
+                            const newBis = Math.max(localValues.übungVon, parseInt(e.target.value) || localValues.übungVon)
+                            const ubungString = localValues.übungVon === newBis ? localValues.übungVon.toString() : `${localValues.übungVon}-${newBis}`
+                            
+                            setLocalValues(prev => ({ 
+                              ...prev, 
+                              übungBis: newBis,
+                              übung: ubungString
+                            }))
+                            setHasChanges(true)
+                          }}
+                          className="flex-1 text-center font-semibold py-1 rounded border-none outline-none"
                           style={{ 
                             backgroundColor: 'var(--bg-primary)',
                             color: 'var(--text-primary)',
                             border: `1px solid var(--border-light)`
                           }}
-                        >
-                          {localValues.übungBis}
-                        </div>
+                        />
                         <button
                           onClick={() => handleUebungUpdate('übungBis', 1)}
                           className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
@@ -468,16 +499,21 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                   >
                     −
                   </button>
-                  <div 
-                    className="flex-1 text-center font-semibold text-lg py-2 rounded-lg"
+                  <input
+                    type="number"
+                    min="1"
+                    value={localValues.seite2}
+                    onChange={(e) => {
+                      const value = Math.max(1, parseInt(e.target.value) || 1)
+                      updateLocalValue('seite2', value.toString())
+                    }}
+                    className="flex-1 text-center font-semibold text-lg py-2 rounded-lg border-none outline-none"
                     style={{ 
                       backgroundColor: 'var(--bg-primary)',
                       color: 'var(--text-primary)',
                       border: `1px solid var(--border-light)`
                     }}
-                  >
-                    {localValues.seite2}
-                  </div>
+                  />
                   <button
                     onClick={() => handleSeite2Update(1)}
                     className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
@@ -500,16 +536,30 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                         >
                           −
                         </button>
-                        <div 
-                          className="flex-1 text-center font-semibold py-1 rounded"
+                        <input
+                          type="number"
+                          min="1"
+                          value={localValues.übung2Von}
+                          onChange={(e) => {
+                            const newVon = Math.max(1, parseInt(e.target.value) || 1)
+                            const newBis = Math.max(newVon, localValues.übung2Bis)
+                            const ubungString = newVon === newBis ? newVon.toString() : `${newVon}-${newBis}`
+                            
+                            setLocalValues(prev => ({ 
+                              ...prev, 
+                              übung2Von: newVon,
+                              übung2Bis: newBis,
+                              übung2: ubungString
+                            }))
+                            setHasChanges(true)
+                          }}
+                          className="flex-1 text-center font-semibold py-1 rounded border-none outline-none"
                           style={{ 
                             backgroundColor: 'var(--bg-primary)',
                             color: 'var(--text-primary)',
                             border: `1px solid var(--border-light)`
                           }}
-                        >
-                          {localValues.übung2Von}
-                        </div>
+                        />
                         <button
                           onClick={() => handleUebung2Update('übung2Von', 1)}
                           className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
@@ -529,16 +579,28 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                         >
                           −
                         </button>
-                        <div 
-                          className="flex-1 text-center font-semibold py-1 rounded"
+                        <input
+                          type="number"
+                          min={localValues.übung2Von}
+                          value={localValues.übung2Bis}
+                          onChange={(e) => {
+                            const newBis = Math.max(localValues.übung2Von, parseInt(e.target.value) || localValues.übung2Von)
+                            const ubungString = localValues.übung2Von === newBis ? localValues.übung2Von.toString() : `${localValues.übung2Von}-${newBis}`
+                            
+                            setLocalValues(prev => ({ 
+                              ...prev, 
+                              übung2Bis: newBis,
+                              übung2: ubungString
+                            }))
+                            setHasChanges(true)
+                          }}
+                          className="flex-1 text-center font-semibold py-1 rounded border-none outline-none"
                           style={{ 
                             backgroundColor: 'var(--bg-primary)',
                             color: 'var(--text-primary)',
                             border: `1px solid var(--border-light)`
                           }}
-                        >
-                          {localValues.übung2Bis}
-                        </div>
+                        />
                         <button
                           onClick={() => handleUebung2Update('übung2Bis', 1)}
                           className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
