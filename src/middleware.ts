@@ -31,7 +31,10 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/.env:path*',
-    '/.git:path*',
+    '/.env',
+    '/.env.local',
+    '/.env.production', 
+    '/.env.development',
+    '/.git/:path*',
   ]
 }
