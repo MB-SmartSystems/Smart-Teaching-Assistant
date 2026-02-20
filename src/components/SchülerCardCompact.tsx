@@ -152,14 +152,6 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
     'unbekannt': 3201,
   }
 
-  // Select-Field Option-IDs
-  const ZAHLUNG_OPTIONS: Record<string, number> = {
-    'ja': 3198,
-    'nein': 3199, 
-    'Paypal': 3200,
-    'unbekannt': 3201,
-  }
-
   const SCHLAGZEUG_OPTIONS: Record<string, number> = {
     'Ja': 3572,
     'Nein': 3573,
