@@ -71,6 +71,16 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   // Speichern aller Änderungen
   const handleSave = async () => {
     setIsSaving(true)
+    console.log('🔄 Save gestartet für Schüler:', student.id)
+    console.log('🔄 Lokale Werte:', localValues)
+    console.log('🔄 Original Werte:', { 
+      zahlungStatus: student.zahlungStatus, 
+      hatSchlagzeug: student.hatSchlagzeug,
+      buch2: student.buch2,
+      seite2: student.seite2,
+      übung2: student.übung2
+    })
+    
     try {
       const updates = []
       
@@ -103,20 +113,28 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
       // Select-Felder (mit Option-IDs über updateField)
       if (localValues.zahlungStatus !== student.zahlungStatus) {
         const optionId = ZAHLUNG_OPTIONS[localValues.zahlungStatus]
+        console.log('💳 Zahlung Update:', localValues.zahlungStatus, '→ Option-ID:', optionId)
         if (optionId) {
           updates.push(updateField(student.id, 'zahlungStatus', optionId))
+        } else {
+          console.error('❌ Keine Option-ID für Zahlung-Status:', localValues.zahlungStatus)
         }
       }
       if (localValues.hatSchlagzeug !== student.hatSchlagzeug) {
         const optionId = SCHLAGZEUG_OPTIONS[localValues.hatSchlagzeug]
+        console.log('🥁 Schlagzeug Update:', localValues.hatSchlagzeug, '→ Option-ID:', optionId)
         if (optionId) {
           updates.push(updateField(student.id, 'hatSchlagzeug', optionId))
+        } else {
+          console.error('❌ Keine Option-ID für Schlagzeug-Status:', localValues.hatSchlagzeug)
         }
       }
 
       // Alle Text-Field Updates parallel ausführen
+      console.log('🔄 Führe', updates.length, 'Updates aus...')
       await Promise.all(updates)
       
+      console.log('✅ Save erfolgreich!')
       setHasChanges(false)
       // Erfolgs-Toast hier
     } catch (error) {
@@ -167,11 +185,11 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl" style={{ backgroundColor: 'var(--card-background)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl border" style={{ backgroundColor: '#1a1a1a', borderColor: '#333' }}>
         
         {/* Header mit Save/Cancel */}
-        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--primary)' }}>
+        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: '#333', backgroundColor: '#000' }}>
           <div>
             <h2 className="text-2xl font-bold" style={{ color: '#ffffff' }}>
               {student.vorname} {student.nachname}
@@ -214,7 +232,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
           </div>
         </div>
 
-        <div className="p-6" style={{ backgroundColor: 'var(--primary)' }}>
+        <div className="p-6" style={{ backgroundColor: '#1a1a1a' }}>
           
           {/* Buch 1 */}
           <div className="mb-6">
@@ -225,7 +243,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                 <BookDropdown 
                   currentBook={localValues.buch}
                   onBookChange={(book) => updateLocalValue('buch', book)}
-                  isEditing={false}
+                  isEditing={true}
                   onToggleEdit={() => {}}
                 />
               </div>
@@ -235,7 +253,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                   type="text"
                   value={localValues.seite}
                   onChange={(e) => updateLocalValue('seite', e.target.value)}
-                  className="w-full p-2 rounded border text-black"
+                  className="w-full p-2 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
                   placeholder="z.B. 24"
                 />
               </div>
@@ -245,7 +263,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                   type="text"
                   value={localValues.übung}
                   onChange={(e) => updateLocalValue('übung', e.target.value)}
-                  className="w-full p-2 rounded border text-black"
+                  className="w-full p-2 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
                   placeholder="z.B. 1-5"
                 />
               </div>
@@ -261,7 +279,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                 <BookDropdown 
                   currentBook={localValues.buch2}
                   onBookChange={(book) => updateLocalValue('buch2', book)}
-                  isEditing={false}
+                  isEditing={true}
                   onToggleEdit={() => {}}
                 />
               </div>
@@ -271,7 +289,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                   type="text"
                   value={localValues.seite2}
                   onChange={(e) => updateLocalValue('seite2', e.target.value)}
-                  className="w-full p-2 rounded border text-black"
+                  className="w-full p-2 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
                   placeholder="z.B. 12"
                 />
               </div>
@@ -281,7 +299,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                   type="text"
                   value={localValues.übung2}
                   onChange={(e) => updateLocalValue('übung2', e.target.value)}
-                  className="w-full p-2 rounded border text-black"
+                  className="w-full p-2 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
                   placeholder="z.B. 1-3"
                 />
               </div>
@@ -294,7 +312,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             <textarea
               value={localValues.wichtigerFokus}
               onChange={(e) => updateLocalValue('wichtigerFokus', e.target.value)}
-              className="w-full p-3 rounded border text-black"
+              className="w-full p-3 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
               rows={3}
               placeholder="Was ist der wichtigste Fokus für diesen Schüler?"
             />
@@ -306,7 +324,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             <textarea
               value={localValues.aktuelleLieder}
               onChange={(e) => updateLocalValue('aktuelleLieder', e.target.value)}
-              className="w-full p-3 rounded border text-black"
+              className="w-full p-3 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
               rows={3}
               placeholder="Welche Lieder werden aktuell geübt?"
             />
@@ -325,12 +343,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
                   style={localValues.zahlungStatus === status
                     ? { 
-                        backgroundColor: status === 'ja' ? 'var(--status-success)' :
-                                       status === 'nein' ? 'var(--status-error)' :
-                                       status === 'Paypal' ? 'var(--primary)' : 'var(--status-warning)',
+                        backgroundColor: status === 'ja' ? '#10b981' :
+                                       status === 'nein' ? '#ef4444' :
+                                       status === 'Paypal' ? '#3b82f6' : '#f59e0b',
                         color: 'white' 
                       }
-                    : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+                    : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
                 >
                   {status.toUpperCase()}
                 </button>
@@ -351,11 +369,11 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
                   style={localValues.hatSchlagzeug === status
                     ? { 
-                        backgroundColor: status === 'Ja' ? 'var(--status-success)' :
-                                       status === 'Nein' ? 'var(--status-error)' : 'var(--status-warning)',
+                        backgroundColor: status === 'Ja' ? '#10b981' :
+                                       status === 'Nein' ? '#ef4444' : '#f59e0b',
                         color: 'white' 
                       }
-                    : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+                    : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
                 >
                   {status.toUpperCase()}
                 </button>
@@ -363,44 +381,28 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             </div>
           </div>
 
-          {/* Anwesenheit */}
+          {/* Anwesenheit - Vereinfacht */}
           <div className="mb-6">
             <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>📅 Anwesenheit Heute</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {(['erschienen', 'krank_abgemeldet', 'schulfrei', 'nicht_erschienen'] as AttendanceStatus[]).map(status => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {(['krank_abgemeldet', 'schulfrei', 'nicht_erschienen'] as AttendanceStatus[]).map(status => (
                 <button
                   key={status}
                   onClick={() => handleAttendanceUpdate(status)}
                   className={todayAttendance?.status === status
-                    ? 'font-medium py-2 px-3 rounded-lg shadow-md text-white text-sm'
-                    : 'font-medium py-2 px-3 rounded-lg transition-colors text-sm'}
+                    ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
+                    : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
                   style={todayAttendance?.status === status
                     ? { backgroundColor: getStatusColor(status), color: 'white' }
-                    : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+                    : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
                 >
                   {getStatusText(status)}
                 </button>
               ))}
             </div>
-            {todayAttendance && (
-              <div className="mt-2 flex gap-2">
-                <button
-                  onClick={() => handleAttendanceUpdate('erschienen')}
-                  className="text-sm px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
-                >
-                  → Erschienen
-                </button>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem(`attendance_${student.id}_${getTodayString()}`)
-                    setAttendanceKey(Date.now())
-                  }}
-                  className="text-sm px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700"
-                >
-                  Zurücksetzen
-                </button>
-              </div>
-            )}
+            <div className="mt-3 text-sm" style={{ color: '#9ca3af' }}>
+              💡 Standard: Erschienen (keine Auswahl nötig)
+            </div>
           </div>
 
           {/* Earnings Card */}
