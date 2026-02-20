@@ -18,7 +18,8 @@ export interface Schüler {
   field_7839: string // Größter_Bedarf (→ Wichtiger Fokus)
   field_7840: string // Monatlicher_Betrag
   field_7826: { id: number; value: string; color: string } | null // Anfrage_Status
-  field_7841: string // Zahlung läuft?
+  field_7841: string // Zahlung läuft? (scheint String zu sein)
+  field_7858: { id: number; value: string; color: string } | null // Zahlung läuft? (echtes Select-Feld)
   field_7829: string // Ansprechpartner_Name
   field_7830: string // Handynummer_Ansprechpartner
   field_7831: string // Email_Ansprechpartner
@@ -27,7 +28,8 @@ export interface Schüler {
   field_7844: string // Buch_2
   field_7845: string // Seite_2
   field_7846: string // Übung_2
-  field_7849: { id: number; value: string; color: string } | null // Hat Schlagzeug
+  field_7849: { id: number; value: string; color: string } | null // Anderes Feld (nicht Hat Schlagzeug)
+  // field_8xxx: Hat Schlagzeug - scheint in Original-DB nicht zu existieren
 }
 
 // Vereinfachte Schüler-Struktur für die App
@@ -112,7 +114,7 @@ export function convertToAppFormat(baserowStudent: Schüler): SchülerApp {
     wichtigerFokus: baserowStudent.field_7839 || '', // Original: field_7839 → Wichtiger Fokus
     monatlicherbetrag: baserowStudent.field_7840 || '',
     anfrageStatus: baserowStudent.field_7826?.value || '',
-    zahlungStatus: baserowStudent.field_7841 || 'unbekannt',
+    zahlungStatus: baserowStudent.field_7858?.value || baserowStudent.field_7841 || 'unbekannt',
     startdatum: baserowStudent.field_7842 || '',
     ansprechpartner: baserowStudent.field_7829 || '',
     handynummer: baserowStudent.field_7830 || '',
@@ -121,7 +123,7 @@ export function convertToAppFormat(baserowStudent: Schüler): SchülerApp {
     buch2: baserowStudent.field_7844 || '',
     seite2: baserowStudent.field_7845 || '',
     übung2: baserowStudent.field_7846 || '',
-    hatSchlagzeug: baserowStudent.field_7849?.value || 'Unbekannt',
+    hatSchlagzeug: 'Unbekannt', // Field nicht in Original-DB vorhanden
   }
 }
 
