@@ -1,6 +1,6 @@
 // Offline-Support und Synchronisation für Smart Teaching Assistant
 
-import { SchülerApp, BaserowAPI, convertToAppFormat } from './baserow'
+import { SchülerApp, BaserowAPI } from './baserow'
 
 // Update Queue für Offline-Änderungen
 export interface UpdateQueueItem {
@@ -114,14 +114,14 @@ export class OfflineStorageManager {
     if (this.isOnline && (Date.now() - storage.lastSync > SYNC_INTERVAL)) {
       try {
         const freshData = await BaserowAPI.getAllStudents()
-        const convertedStudents = freshData.map(convertToAppFormat)
+        // freshData ist bereits von API convertiert (SchülerApp[]), nicht mehr konvertieren!
         
-        storage.students = convertedStudents
+        storage.students = freshData
         storage.lastSync = Date.now()
         storage.syncStatus = 'synced'
         this.saveToStorage(storage)
         
-        return convertedStudents
+        return freshData
       } catch (error) {
         console.warn('Fehler beim Laden frischer Daten, verwende Cache:', error)
         storage.syncStatus = 'error'
