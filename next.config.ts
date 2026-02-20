@@ -36,6 +36,32 @@ const nextConfig = {
       },
     ]
   },
+
+  async rewrites() {
+    return [
+      // SECURITY: Block access to sensitive files
+      {
+        source: '/.env',
+        destination: '/404',
+      },
+      {
+        source: '/.env.local',
+        destination: '/404',
+      },
+      {
+        source: '/.env.production',
+        destination: '/404',
+      },
+      {
+        source: '/.env.development',
+        destination: '/404',
+      },
+      {
+        source: '/.git/:path*',
+        destination: '/404',
+      },
+    ]
+  },
 }
 
 export default nextConfig
