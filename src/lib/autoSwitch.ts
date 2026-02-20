@@ -20,18 +20,22 @@ export function getAutoSwitchStatus(students: SchülerApp[], minutesEarly: numbe
   const todaysStudents = students
     .filter(s => s.unterrichtstag.toLowerCase() === currentDay.toLowerCase())
     .filter(s => s.unterrichtszeit) // Nur Schüler mit gesetzten Zeiten
-    .map(student => ({
-      ...student,
-      startTime: parseTimeToMinutes(student.unterrichtszeit),
-      switchTime: parseTimeToMinutes(student.unterrichtszeit) - minutesEarly
-    }))
+    .map(student => {
+      const timeRange = parseTimeRange(student.unterrichtszeit)
+      return {
+        ...student,
+        startTime: timeRange.start,
+        endTime: timeRange.end,
+        switchTime: timeRange.start - minutesEarly
+      }
+    })
     .filter(s => s.startTime !== -1) // Nur gültige Zeiten
     .sort((a, b) => a.startTime - b.startTime) // Nach Startzeit sortieren
 
-  // Aktuellen Schüler finden (5 Min vor bis 45 Min nach Beginn)
+  // Aktuellen Schüler finden (5 Min vor bis Endzeit - oder 45 Min nach Beginn falls keine Endzeit)
   const currentStudent = todaysStudents.find(student => 
     currentTimeMinutes >= student.switchTime && 
-    currentTimeMinutes <= student.startTime + 45
+    currentTimeMinutes <= (student.endTime !== -1 ? student.endTime : student.startTime + 45)
   ) || null
 
   // Nächsten Schüler finden
@@ -56,19 +60,47 @@ export function getAutoSwitchStatus(students: SchülerApp[], minutesEarly: numbe
   }
 }
 
-// Helper: "16:30-17:45" → 990 (Minuten seit Mitternacht)
+// Helper: "11:00-16:00" → { start: 660, end: 960 }
+function parseTimeRange(timeString: string): { start: number; end: number } {
+  if (!timeString) return { start: -1, end: -1 }
+  
+  // Check für Range-Format "HH:MM-HH:MM"
+  const rangeMatch = timeString.match(/(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})/)
+  if (rangeMatch) {
+    const startHours = parseInt(rangeMatch[1])
+    const startMinutes = parseInt(rangeMatch[2])
+    const endHours = parseInt(rangeMatch[3])
+    const endMinutes = parseInt(rangeMatch[4])
+    
+    // Validierung
+    if (startHours < 0 || startHours > 23 || startMinutes < 0 || startMinutes > 59) return { start: -1, end: -1 }
+    if (endHours < 0 || endHours > 23 || endMinutes < 0 || endMinutes > 59) return { start: -1, end: -1 }
+    
+    const start = startHours * 60 + startMinutes
+    const end = endHours * 60 + endMinutes
+    
+    return { start, end }
+  }
+  
+  // Fallback: Nur Startzeit "HH:MM"
+  const singleMatch = timeString.match(/(\d{1,2}):(\d{2})/)
+  if (singleMatch) {
+    const hours = parseInt(singleMatch[1])
+    const minutes = parseInt(singleMatch[2])
+    
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return { start: -1, end: -1 }
+    
+    const time = hours * 60 + minutes
+    return { start: time, end: -1 } // Keine Endzeit
+  }
+  
+  return { start: -1, end: -1 }
+}
+
+// Helper: Legacy-Support für parseTimeToMinutes (für Kompatibilität)
 function parseTimeToMinutes(timeString: string): number {
-  if (!timeString) return -1
-  
-  const match = timeString.match(/(\d{1,2}):(\d{2})/)
-  if (!match) return -1
-  
-  const hours = parseInt(match[1])
-  const minutes = parseInt(match[2])
-  
-  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return -1
-  
-  return hours * 60 + minutes
+  const range = parseTimeRange(timeString)
+  return range.start
 }
 
 // Helper: Aktuellen deutschen Wochentag ermitteln
