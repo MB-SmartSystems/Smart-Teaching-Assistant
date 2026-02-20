@@ -330,7 +330,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             {student.vorname} {student.nachname}
           </h2>
           <p className="text-base font-semibold" style={{ color: '#ffffff' }}>
-            {student.unterrichtstag} {student.unterrichtszeit} • {(typeof student.anfrageStatus === 'object' && student.anfrageStatus ? (student.anfrageStatus as any).value : student.anfrageStatus) || 'Aktiv'}
+            {student.unterrichtstag} {student.unterrichtszeit} • {student.anfrageStatus || 'Aktiv'}
           </p>
           {student.monatlicherbetrag && (
             <p className="text-sm" style={{ color: '#cbd5e1' }}>

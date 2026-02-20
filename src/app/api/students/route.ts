@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { convertToAppFormat, Schüler } from '@/lib/baserow'
 
 const BASEROW_BASE_URL = process.env.BASEROW_BASE_URL
 const BASEROW_TOKEN = process.env.BASEROW_TOKEN
@@ -26,7 +27,11 @@ export async function GET() {
     }
 
     const data = await response.json()
-    return NextResponse.json(data.results)
+    
+    // Convert raw Baserow data to app format
+    const convertedStudents = data.results.map((student: Schüler) => convertToAppFormat(student))
+    
+    return NextResponse.json(convertedStudents)
   } catch (error) {
     console.error('Fehler beim Laden der Schüler:', error)
     return NextResponse.json(
