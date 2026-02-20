@@ -28,8 +28,8 @@ export interface Schüler {
   field_7844: string // Buch_2
   field_7845: string // Seite_2
   field_7846: string // Übung_2
-  field_7849: { id: number; value: string; color: string } | null // Anderes Feld (nicht Hat Schlagzeug)
-  // field_8xxx: Hat Schlagzeug - scheint in Original-DB nicht zu existieren
+  field_7849: { id: number; value: string; color: string } | null // Empfehlung/Quelle
+  field_8370: { id: number; value: string; color: string } | null // Hat Schlagzeug
 }
 
 // Vereinfachte Schüler-Struktur für die App
@@ -123,7 +123,7 @@ export function convertToAppFormat(baserowStudent: Schüler): SchülerApp {
     buch2: baserowStudent.field_7844 || '',
     seite2: baserowStudent.field_7845 || '',
     übung2: baserowStudent.field_7846 || '',
-    hatSchlagzeug: 'Unbekannt', // Field nicht in Original-DB vorhanden
+    hatSchlagzeug: baserowStudent.field_8370?.value || 'Unbekannt',
   }
 }
 

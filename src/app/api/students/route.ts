@@ -53,10 +53,11 @@ export async function PATCH(request: NextRequest) {
     'field_7838', 'field_7839', 'field_7841',
     'field_7842', 'field_7844', 'field_7845', 'field_7846',
     'field_7858', // Zahlung läuft (Select-Feld)
+    'field_8370', // Hat Schlagzeug (Select-Feld)
   ])
 
   // Fields that accept integer option IDs (single_select)
-  const SELECT_FIELDS = new Set(['field_7858']) // field_7841 ist String
+  const SELECT_FIELDS = new Set(['field_7858', 'field_8370']) // field_7841 ist String
 
   try {
     const body = await request.json()
