@@ -30,14 +30,39 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   const [isSaving, setIsSaving] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
   
+  // Parse Übungen-String zu von/bis Zahlen
+  const parseUebungen = (ubungString: string): { von: number; bis: number } => {
+    if (!ubungString) return { von: 1, bis: 1 }
+    
+    const dashMatch = ubungString.match(/(\d+)-(\d+)/)
+    if (dashMatch) {
+      return { von: parseInt(dashMatch[1]), bis: parseInt(dashMatch[2]) }
+    }
+    
+    const singleMatch = ubungString.match(/(\d+)/)
+    if (singleMatch) {
+      const num = parseInt(singleMatch[1])
+      return { von: num, bis: num }
+    }
+    
+    return { von: 1, bis: 1 }
+  }
+
+  const initialUebungen = parseUebungen(student.übung || '')
+  const initialUebungen2 = parseUebungen(student.übung2 || '')
+
   // Lokale Werte (werden erst bei Save übertragen)
   const [localValues, setLocalValues] = useState({
     buch: student.buch,
     seite: student.seite,
     übung: student.übung,
+    übungVon: initialUebungen.von,
+    übungBis: initialUebungen.bis,
     buch2: student.buch2,
     seite2: student.seite2,
     übung2: student.übung2,
+    übung2Von: initialUebungen2.von,
+    übung2Bis: initialUebungen2.bis,
     wichtigerFokus: student.wichtigerFokus,
     aktuelleLieder: student.aktuelleLieder,
     zahlungStatus: student.zahlungStatus,
@@ -49,22 +74,81 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   const todayAttendance = getTodayAttendance(student.id)
   const attendanceStats = getAttendanceStats(student.id, 30)
 
-  // Helper Functions
-  const parseUebungen = (ubungString: string) => {
-    if (!ubungString) return { von: '', bis: '' }
-    const parts = ubungString.split('-')
-    if (parts.length === 2) {
-      return { von: parts[0].trim(), bis: parts[1].trim() }
-    }
-    return { von: ubungString, bis: '' }
-  }
-
-  const initialUebungen = parseUebungen(localValues.übung || '')
-  const initialUebungen2 = parseUebungen(localValues.übung2 || '')
-
   // Update lokale Werte (nicht sofort speichern)
   const updateLocalValue = (field: string, value: string) => {
     setLocalValues(prev => ({ ...prev, [field]: value }))
+    setHasChanges(true)
+  }
+
+  // Seiten +/- Handler 
+  const handleSeiteUpdate = (change: number) => {
+    const currentValue = parseInt(localValues.seite || '1')
+    const newValue = Math.max(1, currentValue + change)
+    updateLocalValue('seite', newValue.toString())
+  }
+
+  const handleSeite2Update = (change: number) => {
+    const currentValue = parseInt(localValues.seite2 || '1')
+    const newValue = Math.max(1, currentValue + change)
+    updateLocalValue('seite2', newValue.toString())
+  }
+
+  // Übungen +/- Handler mit Smart Logic
+  const handleUebungUpdate = (field: 'übungVon' | 'übungBis', change: number) => {
+    const currentVon = localValues.übungVon
+    const currentBis = localValues.übungBis
+    
+    let newVon = currentVon
+    let newBis = currentBis
+    
+    if (field === 'übungVon') {
+      newVon = Math.max(1, currentVon + change)
+      // Smart Logic: Wenn "von" über "bis" erhöht wird, setze "bis" = "von"
+      if (newVon > currentBis) {
+        newBis = newVon
+      } else {
+        newBis = currentBis // "bis" bleibt unverändert
+      }
+    } else {
+      // "bis" kann unabhängig geändert werden, aber nie unter "von"
+      newBis = Math.max(currentVon, currentBis + change)
+    }
+    
+    // Format: "von-bis" oder nur "von" wenn gleich
+    const ubungString = newVon === newBis ? newVon.toString() : `${newVon}-${newBis}`
+    
+    setLocalValues(prev => ({ 
+      ...prev, 
+      übungVon: newVon,
+      übungBis: newBis,
+      übung: ubungString
+    }))
+    setHasChanges(true)
+  }
+
+  // Übungen 2 Handler 
+  const handleUebung2Update = (field: 'übung2Von' | 'übung2Bis', change: number) => {
+    const currentVon = localValues.übung2Von
+    const currentBis = localValues.übung2Bis
+    
+    let newVon = currentVon
+    let newBis = currentBis
+    
+    if (field === 'übung2Von') {
+      newVon = Math.max(1, currentVon + change)
+      if (newVon > currentBis) newBis = newVon
+    } else {
+      newBis = Math.max(currentVon, currentBis + change)
+    }
+    
+    const ubungString = newVon === newBis ? newVon.toString() : `${newVon}-${newBis}`
+    
+    setLocalValues(prev => ({ 
+      ...prev, 
+      übung2Von: newVon,
+      übung2Bis: newBis,
+      übung2: ubungString
+    }))
     setHasChanges(true)
   }
 
@@ -147,13 +231,20 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
 
   // Änderungen verwerfen
   const handleCancel = () => {
+    const resetUebungen = parseUebungen(student.übung || '')
+    const resetUebungen2 = parseUebungen(student.übung2 || '')
+    
     setLocalValues({
       buch: student.buch,
       seite: student.seite,
       übung: student.übung,
+      übungVon: resetUebungen.von,
+      übungBis: resetUebungen.bis,
       buch2: student.buch2,
       seite2: student.seite2,
       übung2: student.übung2,
+      übung2Von: resetUebungen2.von,
+      übung2Bis: resetUebungen2.bis,
       wichtigerFokus: student.wichtigerFokus,
       aktuelleLieder: student.aktuelleLieder,
       zahlungStatus: student.zahlungStatus,
@@ -257,37 +348,98 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Seite</label>
-                <input
-                  type="text"
-                  value={localValues.seite}
-                  onChange={(e) => updateLocalValue('seite', e.target.value)}
-                  className="w-full"
-                  style={{
-                    backgroundColor: 'var(--bg-primary)',
-                    color: 'var(--text-primary)',
-                    border: `1px solid var(--border-light)`,
-                    borderRadius: '0.5rem',
-                    padding: '0.75rem'
-                  }}
-                  placeholder="z.B. 24"
-                />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleSeiteUpdate(-1)}
+                    className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
+                  >
+                    −
+                  </button>
+                  <div 
+                    className="flex-1 text-center font-semibold text-lg py-2 rounded-lg"
+                    style={{ 
+                      backgroundColor: 'var(--bg-primary)',
+                      color: 'var(--text-primary)',
+                      border: `1px solid var(--border-light)`
+                    }}
+                  >
+                    {localValues.seite}
+                  </div>
+                  <button
+                    onClick={() => handleSeiteUpdate(1)}
+                    className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Übung</label>
-                <input
-                  type="text"
-                  value={localValues.übung}
-                  onChange={(e) => updateLocalValue('übung', e.target.value)}
-                  className="w-full"
-                  style={{
-                    backgroundColor: 'var(--bg-primary)',
-                    color: 'var(--text-primary)',
-                    border: `1px solid var(--border-light)`,
-                    borderRadius: '0.5rem',
-                    padding: '0.75rem'
-                  }}
-                  placeholder="z.B. 1-5"
-                />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    {/* Von */}
+                    <div className="flex-1">
+                      <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Von</div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleUebungUpdate('übungVon', -1)}
+                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                        >
+                          −
+                        </button>
+                        <div 
+                          className="flex-1 text-center font-semibold py-1 rounded"
+                          style={{ 
+                            backgroundColor: 'var(--bg-primary)',
+                            color: 'var(--text-primary)',
+                            border: `1px solid var(--border-light)`
+                          }}
+                        >
+                          {localValues.übungVon}
+                        </div>
+                        <button
+                          onClick={() => handleUebungUpdate('übungVon', 1)}
+                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Bis */}
+                    <div className="flex-1">
+                      <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Bis</div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleUebungUpdate('übungBis', -1)}
+                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                        >
+                          −
+                        </button>
+                        <div 
+                          className="flex-1 text-center font-semibold py-1 rounded"
+                          style={{ 
+                            backgroundColor: 'var(--bg-primary)',
+                            color: 'var(--text-primary)',
+                            border: `1px solid var(--border-light)`
+                          }}
+                        >
+                          {localValues.übungBis}
+                        </div>
+                        <button
+                          onClick={() => handleUebungUpdate('übungBis', 1)}
+                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
+                    💡 Ergebnis: Übungen {localValues.übungVon === localValues.übungBis ? localValues.übungVon : `${localValues.übungVon} bis ${localValues.übungBis}`}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -309,30 +461,98 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Seite 2</label>
-                <input
-                  type="text"
-                  value={localValues.seite2}
-                  onChange={(e) => updateLocalValue('seite2', e.target.value)}
-                  className="w-full"
-                  style={{
-                    backgroundColor: 'var(--bg-primary)',
-                    color: 'var(--text-primary)',
-                    border: `1px solid var(--border-light)`,
-                    borderRadius: '0.5rem',
-                    padding: '0.75rem'
-                  }}
-                  placeholder="z.B. 12"
-                />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleSeite2Update(-1)}
+                    className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
+                  >
+                    −
+                  </button>
+                  <div 
+                    className="flex-1 text-center font-semibold text-lg py-2 rounded-lg"
+                    style={{ 
+                      backgroundColor: 'var(--bg-primary)',
+                      color: 'var(--text-primary)',
+                      border: `1px solid var(--border-light)`
+                    }}
+                  >
+                    {localValues.seite2}
+                  </div>
+                  <button
+                    onClick={() => handleSeite2Update(1)}
+                    className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Übung 2</label>
-                <input
-                  type="text"
-                  value={localValues.übung2}
-                  onChange={(e) => updateLocalValue('übung2', e.target.value)}
-                  className="w-full p-2 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
-                  placeholder="z.B. 1-3"
-                />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    {/* Von */}
+                    <div className="flex-1">
+                      <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Von</div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleUebung2Update('übung2Von', -1)}
+                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                        >
+                          −
+                        </button>
+                        <div 
+                          className="flex-1 text-center font-semibold py-1 rounded"
+                          style={{ 
+                            backgroundColor: 'var(--bg-primary)',
+                            color: 'var(--text-primary)',
+                            border: `1px solid var(--border-light)`
+                          }}
+                        >
+                          {localValues.übung2Von}
+                        </div>
+                        <button
+                          onClick={() => handleUebung2Update('übung2Von', 1)}
+                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Bis */}
+                    <div className="flex-1">
+                      <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Bis</div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleUebung2Update('übung2Bis', -1)}
+                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                        >
+                          −
+                        </button>
+                        <div 
+                          className="flex-1 text-center font-semibold py-1 rounded"
+                          style={{ 
+                            backgroundColor: 'var(--bg-primary)',
+                            color: 'var(--text-primary)',
+                            border: `1px solid var(--border-light)`
+                          }}
+                        >
+                          {localValues.übung2Bis}
+                        </div>
+                        <button
+                          onClick={() => handleUebung2Update('übung2Bis', 1)}
+                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
+                    💡 Ergebnis: Übungen {localValues.übung2Von === localValues.übung2Bis ? localValues.übung2Von : `${localValues.übung2Von} bis ${localValues.übung2Bis}`}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
