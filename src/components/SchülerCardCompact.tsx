@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useOfflineSync } from '@/lib/offlineSync'
 import BookDropdown from './BookDropdown'
 import EarningsCard from './EarningsCard'
+import FlexKarteBooking from './FlexKarteBooking'
 import SongSuggestions from './SongSuggestions'
 import { 
   getTodayAttendance, 
@@ -67,6 +68,9 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
     zahlungStatus: student.zahlungStatus,
     hatSchlagzeug: student.hatSchlagzeug
   })
+
+  // FlexKarte Booking State
+  const [showFlexBooking, setShowFlexBooking] = useState(false)
 
   // Attendance State
   const [attendanceKey, setAttendanceKey] = useState(Date.now())
@@ -318,11 +322,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     onChange={(e) => {
                       setLocalValues(prev => ({ ...prev, übungBis: e.target.value === '' ? '' : (parseInt(e.target.value) || prev.übungBis) }))
                     }}
-                    onBlur={(e) => {
+                    onBlur={async (e) => {
                       const currentVon = typeof localValues.übungVon === 'string' ? parseInt(localValues.übungVon) || 1 : localValues.übungVon
                       const newBis = Math.max(currentVon, parseInt(e.target.value) || currentVon)
                       const ubungString = currentVon === newBis ? currentVon.toString() : `${currentVon}-${newBis}`
                       setLocalValues(prev => ({ ...prev, übungBis: newBis, übung: ubungString }))
+                      try { await updateField(student.id, 'übung', ubungString) } catch (error) { console.error('Fehler beim Auto-Save Übung:', error) }
                     }}
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
@@ -378,12 +383,13 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     onChange={(e) => {
                       setLocalValues(prev => ({ ...prev, übung2Von: e.target.value === '' ? '' : (parseInt(e.target.value) || prev.übung2Von) }))
                     }}
-                    onBlur={(e) => {
+                    onBlur={async (e) => {
                       const newVon = Math.max(1, parseInt(e.target.value) || 1)
                       const currentBis = typeof localValues.übung2Bis === 'string' ? parseInt(localValues.übung2Bis) || 1 : localValues.übung2Bis
                       const newBis = Math.max(newVon, currentBis)
                       const ubungString = newVon === newBis ? newVon.toString() : `${newVon}-${newBis}`
                       setLocalValues(prev => ({ ...prev, übung2Von: newVon, übung2Bis: newBis, übung2: ubungString }))
+                      try { await updateField(student.id, 'übung2', ubungString) } catch (error) { console.error('Fehler beim Auto-Save Übung2:', error) }
                     }}
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
@@ -402,11 +408,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     onChange={(e) => {
                       setLocalValues(prev => ({ ...prev, übung2Bis: e.target.value === '' ? '' : (parseInt(e.target.value) || prev.übung2Bis) }))
                     }}
-                    onBlur={(e) => {
+                    onBlur={async (e) => {
                       const currentVon = typeof localValues.übung2Von === 'string' ? parseInt(localValues.übung2Von) || 1 : localValues.übung2Von
                       const newBis = Math.max(currentVon, parseInt(e.target.value) || currentVon)
                       const ubungString = currentVon === newBis ? currentVon.toString() : `${currentVon}-${newBis}`
                       setLocalValues(prev => ({ ...prev, übung2Bis: newBis, übung2: ubungString }))
+                      try { await updateField(student.id, 'übung2', ubungString) } catch (error) { console.error('Fehler beim Auto-Save Übung2:', error) }
                     }}
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
@@ -448,7 +455,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               {['ja', 'nein', 'Paypal', 'unbekannt'].map(status => (
                 <button
                   key={status}
-                  onClick={() => updateLocalValue('zahlungStatus', status)}
+                  onClick={() => handleSelectUpdate('zahlungStatus', status)}
                   className={localValues.zahlungStatus === status
                     ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
                     : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
@@ -474,7 +481,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               {['Ja', 'Nein', 'Unbekannt'].map(status => (
                 <button
                   key={status}
-                  onClick={() => updateLocalValue('hatSchlagzeug', status)}
+                  onClick={() => handleSelectUpdate('hatSchlagzeug', status)}
                   className={localValues.hatSchlagzeug === status
                     ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
                     : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
@@ -515,6 +522,24 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               💡 Standard: Erschienen (keine Auswahl nötig)
             </div>
           </div>
+
+          {/* Flex-Karte buchen */}
+          <div className="mb-6">
+            <button
+              onClick={() => setShowFlexBooking(true)}
+              className="w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors text-sm"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              🎫 Flex-Karte buchen
+            </button>
+          </div>
+
+          {/* FlexKarte Booking Modal */}
+          <FlexKarteBooking
+            isOpen={showFlexBooking}
+            onClose={() => setShowFlexBooking(false)}
+            preselectedStudent={student}
+          />
 
           {/* Earnings Card */}
           <EarningsCard student={student} />

@@ -371,13 +371,7 @@ export default function Home() {
                           <span>⏰ {student.unterrichtszeit}</span>
                           {student.buch && <span>📖 {student.buch}</span>}
                           {student.monatlicherbetrag && <span>💰 {student.monatlicherbetrag}€</span>}
-                          {student.geburtsdatum && (() => {
-                            const birth = new Date(student.geburtsdatum)
-                            const today = new Date()
-                            let age = today.getFullYear() - birth.getFullYear()
-                            if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--
-                            return <span>🎂 {age} Jahre</span>
-                          })()}
+                          {student.alter && <span>🎂 {student.alter} Jahre</span>}
                           {student.startdatum && <span>📅 seit {new Date(student.startdatum).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })}</span>}
                         </div>
                         {student.wichtigerFokus && (

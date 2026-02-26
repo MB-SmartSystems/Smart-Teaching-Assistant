@@ -8,6 +8,7 @@ interface FlexKarteBookingProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
+  preselectedStudent?: SchülerApp
 }
 
 const KARTEN_TYPEN = [
@@ -16,7 +17,7 @@ const KARTEN_TYPEN = [
   { label: '10 Stunden (595€)', value: '10-Std (595€)', preis: 595, kontingent: 10.0, minuten: 600 },
 ]
 
-export default function FlexKarteBooking({ isOpen, onClose, onSuccess }: FlexKarteBookingProps) {
+export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselectedStudent }: FlexKarteBookingProps) {
   const [students, setStudents] = useState<SchülerApp[]>([])
   const [selectedStudent, setSelectedStudent] = useState<number | ''>('')
   const [selectedTyp, setSelectedTyp] = useState(0)
@@ -36,14 +37,14 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess }: FlexKar
         ).sort((a, b) => a.vorname.localeCompare(b.vorname))
         setStudents(active)
       })
-      // Reset form
-      setSelectedStudent('')
+      // Reset form - preselect student if provided
+      setSelectedStudent(preselectedStudent ? preselectedStudent.id : '')
       setSelectedTyp(0)
       setKaufdatum(new Date().toISOString().split('T')[0])
       setSuccess(false)
       setError('')
     }
-  }, [isOpen])
+  }, [isOpen, preselectedStudent])
 
   const handleSubmit = async () => {
     if (!selectedStudent) {

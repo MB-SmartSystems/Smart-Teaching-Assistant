@@ -61,6 +61,7 @@ export interface SchülerApp {
   seite2: string // field_7845
   übung2: string // field_7846
   hatSchlagzeug: string // 'Ja' | 'Nein' | 'Unbekannt'
+  alter: string // field_7821 (Alter)
 }
 
 // API Helper Funktionen - alle über Server-Side API Routes
@@ -128,6 +129,7 @@ export function convertToAppFormat(baserowStudent: Schüler): SchülerApp {
     seite2: baserowStudent.field_8174 || '', // field_7845 ist ein Select-Feld, nicht Seite_2
     übung2: baserowStudent.field_8175 || '', // field_7846 ist ein Select-Feld, nicht Übung_2
     hatSchlagzeug: baserowStudent.field_8370?.value || 'Unbekannt',
+    alter: baserowStudent.field_7821 || '',
   }
 }
 
