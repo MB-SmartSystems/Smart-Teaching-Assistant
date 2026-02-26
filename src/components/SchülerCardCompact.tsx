@@ -265,10 +265,10 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Seite</label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleSeiteUpdate(-1)}
-                    className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
+                    className="btn-secondary w-7 h-7 p-0 text-sm font-bold"
                   >
                     −
                   </button>
@@ -282,16 +282,17 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                       const value = Math.max(1, parseInt(e.target.value) || 1)
                       updateLocalValue('seite', value.toString())
                     }}
-                    className="flex-1 text-center font-semibold text-lg py-2 rounded-lg border-none outline-none"
-                    style={{ 
+                    className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
+                    style={{
                       backgroundColor: 'var(--bg-primary)',
                       color: 'var(--text-primary)',
-                      border: `1px solid var(--border-light)`
+                      border: `1px solid var(--border-light)`,
+                      width: '3rem'
                     }}
                   />
                   <button
                     onClick={() => handleSeiteUpdate(1)}
-                    className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
+                    className="btn-secondary w-7 h-7 p-0 text-sm font-bold"
                   >
                     +
                   </button>
@@ -302,12 +303,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     {/* Von */}
-                    <div className="flex-1">
+                    <div>
                       <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Von</div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-0.5">
                         <button
                           onClick={() => handleUebungUpdate('übungVon', -1)}
-                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                          className="btn-secondary w-6 h-6 p-0 text-xs font-bold"
                         >
                           −
                         </button>
@@ -315,8 +316,8 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                           type="text"
                           value={localValues.übungVon}
                           onChange={(e) => {
-                            setLocalValues(prev => ({ 
-                              ...prev, 
+                            setLocalValues(prev => ({
+                              ...prev,
                               übungVon: e.target.value === '' ? '' : (parseInt(e.target.value) || prev.übungVon)
                             }))
                           }}
@@ -325,31 +326,31 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                             const currentBis = typeof localValues.übungBis === 'string' ? parseInt(localValues.übungBis) || 1 : localValues.übungBis
                             const newBis = Math.max(newVon, currentBis)
                             const ubungString = newVon === newBis ? newVon.toString() : `${newVon}-${newBis}`
-                            
-                            setLocalValues(prev => ({ 
-                              ...prev, 
+
+                            setLocalValues(prev => ({
+                              ...prev,
                               übungVon: newVon,
                               übungBis: newBis,
                               übung: ubungString
                             }))
-                            
-                            // Auto-Save
+
                             try {
                               await updateField(student.id, 'übung', ubungString)
                             } catch (error) {
                               console.error('Fehler beim Auto-Save Übung:', error)
                             }
                           }}
-                          className="flex-1 text-center font-semibold py-1 rounded border-none outline-none"
-                          style={{ 
+                          className="text-center font-semibold text-sm py-1 rounded border-none outline-none"
+                          style={{
                             backgroundColor: 'var(--bg-primary)',
                             color: 'var(--text-primary)',
-                            border: `1px solid var(--border-light)`
+                            border: `1px solid var(--border-light)`,
+                            width: '3rem'
                           }}
                         />
                         <button
                           onClick={() => handleUebungUpdate('übungVon', 1)}
-                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                          className="btn-secondary w-6 h-6 p-0 text-xs font-bold"
                         >
                           +
                         </button>
@@ -357,12 +358,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     </div>
 
                     {/* Bis */}
-                    <div className="flex-1">
+                    <div>
                       <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Bis</div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-0.5">
                         <button
                           onClick={() => handleUebungUpdate('übungBis', -1)}
-                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                          className="btn-secondary w-6 h-6 p-0 text-xs font-bold"
                         >
                           −
                         </button>
@@ -370,8 +371,8 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                           type="text"
                           value={localValues.übungBis}
                           onChange={(e) => {
-                            setLocalValues(prev => ({ 
-                              ...prev, 
+                            setLocalValues(prev => ({
+                              ...prev,
                               übungBis: e.target.value === '' ? '' : (parseInt(e.target.value) || prev.übungBis)
                             }))
                           }}
@@ -379,32 +380,33 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                             const currentVon = typeof localValues.übungVon === 'string' ? parseInt(localValues.übungVon) || 1 : localValues.übungVon
                             const newBis = Math.max(currentVon, parseInt(e.target.value) || currentVon)
                             const ubungString = currentVon === newBis ? currentVon.toString() : `${currentVon}-${newBis}`
-                            
-                            setLocalValues(prev => ({ 
-                              ...prev, 
+
+                            setLocalValues(prev => ({
+                              ...prev,
                               übungBis: newBis,
                               übung: ubungString
                             }))
                           }}
-                          className="flex-1 text-center font-semibold py-1 rounded border-none outline-none"
-                          style={{ 
+                          className="text-center font-semibold text-sm py-1 rounded border-none outline-none"
+                          style={{
                             backgroundColor: 'var(--bg-primary)',
                             color: 'var(--text-primary)',
-                            border: `1px solid var(--border-light)`
+                            border: `1px solid var(--border-light)`,
+                            width: '3rem'
                           }}
                         />
                         <button
                           onClick={() => handleUebungUpdate('übungBis', 1)}
-                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                          className="btn-secondary w-6 h-6 p-0 text-xs font-bold"
                         >
                           +
                         </button>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-                    💡 Ergebnis: Übungen {localValues.übungVon === localValues.übungBis ? localValues.übungVon : `${localValues.übungVon} bis ${localValues.übungBis}`}
+                    Übungen {localValues.übungVon === localValues.übungBis ? localValues.übungVon : `${localValues.übungVon} bis ${localValues.übungBis}`}
                   </div>
                 </div>
               </div>
@@ -428,10 +430,10 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Seite 2</label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleSeite2Update(-1)}
-                    className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
+                    className="btn-secondary w-7 h-7 p-0 text-sm font-bold"
                   >
                     −
                   </button>
@@ -445,16 +447,17 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                       const value = Math.max(1, parseInt(e.target.value) || 1)
                       updateLocalValue('seite2', value.toString())
                     }}
-                    className="flex-1 text-center font-semibold text-lg py-2 rounded-lg border-none outline-none"
-                    style={{ 
+                    className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
+                    style={{
                       backgroundColor: 'var(--bg-primary)',
                       color: 'var(--text-primary)',
-                      border: `1px solid var(--border-light)`
+                      border: `1px solid var(--border-light)`,
+                      width: '3rem'
                     }}
                   />
                   <button
                     onClick={() => handleSeite2Update(1)}
-                    className="btn-secondary w-10 h-10 p-0 text-lg font-bold"
+                    className="btn-secondary w-7 h-7 p-0 text-sm font-bold"
                   >
                     +
                   </button>
@@ -465,12 +468,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     {/* Von */}
-                    <div className="flex-1">
+                    <div>
                       <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Von</div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-0.5">
                         <button
                           onClick={() => handleUebung2Update('übung2Von', -1)}
-                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                          className="btn-secondary w-6 h-6 p-0 text-xs font-bold"
                         >
                           −
                         </button>
@@ -478,8 +481,8 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                           type="text"
                           value={localValues.übung2Von}
                           onChange={(e) => {
-                            setLocalValues(prev => ({ 
-                              ...prev, 
+                            setLocalValues(prev => ({
+                              ...prev,
                               übung2Von: e.target.value === '' ? '' : (parseInt(e.target.value) || prev.übung2Von)
                             }))
                           }}
@@ -488,24 +491,25 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                             const currentBis = typeof localValues.übung2Bis === 'string' ? parseInt(localValues.übung2Bis) || 1 : localValues.übung2Bis
                             const newBis = Math.max(newVon, currentBis)
                             const ubungString = newVon === newBis ? newVon.toString() : `${newVon}-${newBis}`
-                            
-                            setLocalValues(prev => ({ 
-                              ...prev, 
+
+                            setLocalValues(prev => ({
+                              ...prev,
                               übung2Von: newVon,
                               übung2Bis: newBis,
                               übung2: ubungString
                             }))
                           }}
-                          className="flex-1 text-center font-semibold py-1 rounded border-none outline-none"
-                          style={{ 
+                          className="text-center font-semibold text-sm py-1 rounded border-none outline-none"
+                          style={{
                             backgroundColor: 'var(--bg-primary)',
                             color: 'var(--text-primary)',
-                            border: `1px solid var(--border-light)`
+                            border: `1px solid var(--border-light)`,
+                            width: '3rem'
                           }}
                         />
                         <button
                           onClick={() => handleUebung2Update('übung2Von', 1)}
-                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                          className="btn-secondary w-6 h-6 p-0 text-xs font-bold"
                         >
                           +
                         </button>
@@ -513,12 +517,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     </div>
 
                     {/* Bis */}
-                    <div className="flex-1">
+                    <div>
                       <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Bis</div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-0.5">
                         <button
                           onClick={() => handleUebung2Update('übung2Bis', -1)}
-                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                          className="btn-secondary w-6 h-6 p-0 text-xs font-bold"
                         >
                           −
                         </button>
@@ -526,8 +530,8 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                           type="text"
                           value={localValues.übung2Bis}
                           onChange={(e) => {
-                            setLocalValues(prev => ({ 
-                              ...prev, 
+                            setLocalValues(prev => ({
+                              ...prev,
                               übung2Bis: e.target.value === '' ? '' : (parseInt(e.target.value) || prev.übung2Bis)
                             }))
                           }}
@@ -535,32 +539,33 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                             const currentVon = typeof localValues.übung2Von === 'string' ? parseInt(localValues.übung2Von) || 1 : localValues.übung2Von
                             const newBis = Math.max(currentVon, parseInt(e.target.value) || currentVon)
                             const ubungString = currentVon === newBis ? currentVon.toString() : `${currentVon}-${newBis}`
-                            
-                            setLocalValues(prev => ({ 
-                              ...prev, 
+
+                            setLocalValues(prev => ({
+                              ...prev,
                               übung2Bis: newBis,
                               übung2: ubungString
                             }))
                           }}
-                          className="flex-1 text-center font-semibold py-1 rounded border-none outline-none"
-                          style={{ 
+                          className="text-center font-semibold text-sm py-1 rounded border-none outline-none"
+                          style={{
                             backgroundColor: 'var(--bg-primary)',
                             color: 'var(--text-primary)',
-                            border: `1px solid var(--border-light)`
+                            border: `1px solid var(--border-light)`,
+                            width: '3rem'
                           }}
                         />
                         <button
                           onClick={() => handleUebung2Update('übung2Bis', 1)}
-                          className="btn-secondary w-8 h-8 p-0 text-sm font-bold"
+                          className="btn-secondary w-6 h-6 p-0 text-xs font-bold"
                         >
                           +
                         </button>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-                    💡 Ergebnis: Übungen {localValues.übung2Von === localValues.übung2Bis ? localValues.übung2Von : `${localValues.übung2Von} bis ${localValues.übung2Bis}`}
+                    Übungen {localValues.übung2Von === localValues.übung2Bis ? localValues.übung2Von : `${localValues.übung2Von} bis ${localValues.übung2Bis}`}
                   </div>
                 </div>
               </div>

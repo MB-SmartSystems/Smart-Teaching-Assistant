@@ -380,11 +380,11 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 <button onClick={() => handleNumberUpdate('seite', -1)} className="flex items-center justify-center w-7 h-7 text-sm font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>−</button>
                 <div
                   className="flex items-center justify-center h-7 font-semibold text-sm cursor-pointer rounded"
-                  style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', minWidth: '2.2rem', padding: '0 4px' }}
+                  style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', width: '3rem' }}
                   onClick={() => setEditingField('seite')}
                 >
                   {editingField === 'seite' ? (
-                    <input type="number" value={localValues.seite} onChange={(e) => setLocalValues(prev => ({ ...prev, seite: e.target.value }))} onBlur={() => { handleFieldUpdate('seite', localValues.seite); setEditingField(null) }} onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()} className="text-center font-bold text-sm border-none outline-none bg-transparent" style={{ width: '2.2rem' }} autoFocus />
+                    <input type="number" value={localValues.seite} onChange={(e) => setLocalValues(prev => ({ ...prev, seite: e.target.value }))} onBlur={() => { handleFieldUpdate('seite', localValues.seite); setEditingField(null) }} onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()} className="text-center font-bold text-sm border-none outline-none bg-transparent" style={{ width: '3rem' }} autoFocus />
                   ) : (localValues.seite || '1')}
                 </div>
                 <button onClick={() => handleNumberUpdate('seite', 1)} className="flex items-center justify-center w-7 h-7 text-sm font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>+</button>
@@ -392,14 +392,14 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             </div>
 
             {/* Übungen Von/Bis */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-shrink-0">
               <label className="text-xs font-medium mb-1 block" style={{ color: '#cbd5e1' }}>Übungen</label>
               <div className="flex items-center gap-2">
                 <div>
                   <div className="text-xs mb-0.5 text-center" style={{ color: '#94a3b8' }}>Von</div>
                   <div className="flex items-center gap-0.5">
                     <button onClick={() => handleUebungUpdate('übungVon', -1)} className="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>−</button>
-                    <div className="flex items-center justify-center h-6 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', minWidth: '1.8rem', padding: '0 3px' }}>{localValues.übungVon}</div>
+                    <div className="flex items-center justify-center h-6 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', width: '3rem' }}>{localValues.übungVon}</div>
                     <button onClick={() => handleUebungUpdate('übungVon', 1)} className="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>+</button>
                   </div>
                 </div>
@@ -407,7 +407,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                   <div className="text-xs mb-0.5 text-center" style={{ color: '#94a3b8' }}>Bis</div>
                   <div className="flex items-center gap-0.5">
                     <button onClick={() => handleUebungUpdate('übungBis', -1)} className="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>−</button>
-                    <div className="flex items-center justify-center h-6 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', minWidth: '1.8rem', padding: '0 3px' }}>{localValues.übungBis}</div>
+                    <div className="flex items-center justify-center h-6 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', width: '3rem' }}>{localValues.übungBis}</div>
                     <button onClick={() => handleUebungUpdate('übungBis', 1)} className="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>+</button>
                   </div>
                 </div>
@@ -446,23 +446,23 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 <label className="text-xs font-medium mb-1 block" style={{ color: '#cbd5e1' }}>Seite</label>
                 <div className="flex items-center gap-0.5">
                   <button onClick={() => handleNumberUpdate('seite2', -1)} className="flex items-center justify-center w-7 h-7 text-sm font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>−</button>
-                  <div className="flex items-center justify-center h-7 font-semibold text-sm cursor-pointer rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', minWidth: '2.2rem', padding: '0 4px' }} onClick={() => setEditingField('seite2')}>
+                  <div className="flex items-center justify-center h-7 font-semibold text-sm cursor-pointer rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', width: '3rem' }} onClick={() => setEditingField('seite2')}>
                     {editingField === 'seite2' ? (
-                      <input type="number" value={localValues.seite2} onChange={(e) => setLocalValues(prev => ({ ...prev, seite2: e.target.value }))} onBlur={() => { handleFieldUpdate('seite2', localValues.seite2); setEditingField(null) }} onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()} className="text-center font-bold text-sm border-none outline-none bg-transparent" style={{ width: '2.2rem' }} autoFocus />
+                      <input type="number" value={localValues.seite2} onChange={(e) => setLocalValues(prev => ({ ...prev, seite2: e.target.value }))} onBlur={() => { handleFieldUpdate('seite2', localValues.seite2); setEditingField(null) }} onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()} className="text-center font-bold text-sm border-none outline-none bg-transparent" style={{ width: '3rem' }} autoFocus />
                     ) : (localValues.seite2 || '1')}
                   </div>
                   <button onClick={() => handleNumberUpdate('seite2', 1)} className="flex items-center justify-center w-7 h-7 text-sm font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>+</button>
                 </div>
               </div>
 
-              <div className="flex-1 min-w-0">
+              <div className="flex-shrink-0">
                 <label className="text-xs font-medium mb-1 block" style={{ color: '#cbd5e1' }}>Übungen</label>
                 <div className="flex items-center gap-2">
                   <div>
                     <div className="text-xs mb-0.5 text-center" style={{ color: '#94a3b8' }}>Von</div>
                     <div className="flex items-center gap-0.5">
                       <button onClick={() => handleUebung2Update('übung2Von', -1)} className="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>−</button>
-                      <div className="flex items-center justify-center h-6 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', minWidth: '1.8rem', padding: '0 3px' }}>{localValues.übung2Von}</div>
+                      <div className="flex items-center justify-center h-6 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', width: '3rem' }}>{localValues.übung2Von}</div>
                       <button onClick={() => handleUebung2Update('übung2Von', 1)} className="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>+</button>
                     </div>
                   </div>
@@ -470,7 +470,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                     <div className="text-xs mb-0.5 text-center" style={{ color: '#94a3b8' }}>Bis</div>
                     <div className="flex items-center gap-0.5">
                       <button onClick={() => handleUebung2Update('übung2Bis', -1)} className="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>−</button>
-                      <div className="flex items-center justify-center h-6 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', minWidth: '1.8rem', padding: '0 3px' }}>{localValues.übung2Bis}</div>
+                      <div className="flex items-center justify-center h-6 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-medium)', color: 'var(--text-primary)', width: '3rem' }}>{localValues.übung2Bis}</div>
                       <button onClick={() => handleUebung2Update('übung2Bis', 1)} className="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}>+</button>
                     </div>
                   </div>

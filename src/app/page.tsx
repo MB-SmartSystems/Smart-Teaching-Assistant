@@ -356,42 +356,40 @@ export default function Home() {
                   <div
                     key={student.id}
                     onClick={() => setSelectedStudent(student.id)}
-                    className={`rounded-lg shadow-md border p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-l-4' : 'border-gray-200'}`}
+                    className="rounded-xl shadow-md p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer group"
                     style={{
-                      borderLeftColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active)' : undefined,
-                      backgroundColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active-bg)' : '#354F52'
+                      background: 'linear-gradient(135deg, var(--bg-secondary), var(--accent-light))',
+                      border: '1px solid var(--border-light)'
                     }}
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
-                        <div className="font-bold text-xl mb-1" style={{ color: 'var(--text-primary)' }}>
+                        <div className="font-bold text-lg text-white flex items-center gap-2">
                           {student.vorname} {student.nachname}
                         </div>
-                        <div className="text-base font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
-                          {student.unterrichtszeit} • {student.buch || 'Kein Buch'}
-                        </div>
-                        <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                          Zahlung: <span className="font-semibold" style={{
-                            color: student.zahlungStatus === 'ja' ? 'var(--status-success)' :
-                                   student.zahlungStatus === 'nein' ? 'var(--status-error)' : 'var(--status-warning)'
-                          }}>
-                            {student.zahlungStatus || 'unbekannt'}
-                          </span>
-                          {student.monatlicherbetrag && (
-                            <> • {student.monatlicherbetrag}€</>
-                          )}
+                        <div className="text-white/90 text-sm font-medium mt-2 flex items-center gap-3 flex-wrap">
+                          <span>⏰ {student.unterrichtszeit}</span>
+                          {student.buch && <span>📖 {student.buch}</span>}
+                          {student.monatlicherbetrag && <span>💰 {student.monatlicherbetrag}€</span>}
                         </div>
                         {student.wichtigerFokus && (
-                          <div className="text-sm mt-1 font-medium" style={{ color: 'var(--primary)' }}>
-                            Fokus: {student.wichtigerFokus}
+                          <div className="text-sm mt-2 font-medium" style={{ color: 'var(--primary)' }}>
+                            🎯 {student.wichtigerFokus}
                           </div>
                         )}
                       </div>
-                      {autoSwitchStatus?.currentStudent?.id === student.id && (
-                        <span className="ml-4 px-3 py-1 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: 'var(--status-active)' }}>
-                          Aktuell
+                      <div className="flex flex-col items-end gap-2 ml-4">
+                        <span className="px-3 py-1 rounded-lg text-xs font-semibold" style={{
+                          backgroundColor: student.zahlungStatus === 'ja' ? 'rgba(16, 185, 129, 0.2)' :
+                                         student.zahlungStatus === 'nein' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                          color: student.zahlungStatus === 'ja' ? '#10b981' :
+                                 student.zahlungStatus === 'nein' ? '#ef4444' : '#f59e0b'
+                        }}>
+                          {student.zahlungStatus === 'ja' ? 'Zahlung OK' :
+                           student.zahlungStatus === 'nein' ? 'Keine Zahlung' :
+                           student.zahlungStatus === 'Paypal' ? 'PayPal' : 'Offen'}
                         </span>
-                      )}
+                      </div>
                     </div>
                   </div>
                 ))
