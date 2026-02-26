@@ -353,10 +353,15 @@ export default function Home() {
                   return timeA.localeCompare(timeB)
                 })
                 .map(student => (
-                  <div key={student.id} className={`rounded-lg shadow-md border p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-l-4' : 'border-gray-200'}`} style={{
-                    borderLeftColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active)' : undefined,
-                    backgroundColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active-bg)' : '#354F52'
-                  }}>
+                  <div
+                    key={student.id}
+                    onClick={() => setSelectedStudent(student.id)}
+                    className={`rounded-lg shadow-md border p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer ${autoSwitchStatus?.currentStudent?.id === student.id ? 'border-l-4' : 'border-gray-200'}`}
+                    style={{
+                      borderLeftColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active)' : undefined,
+                      backgroundColor: autoSwitchStatus?.currentStudent?.id === student.id ? 'var(--status-active-bg)' : '#354F52'
+                    }}
+                  >
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
                         <div className="font-bold text-xl mb-1" style={{ color: 'var(--text-primary)' }}>
@@ -382,18 +387,11 @@ export default function Home() {
                           </div>
                         )}
                       </div>
-                      
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedStudent(student.id)
-                        }}
-                        className={autoSwitchStatus?.currentStudent?.id === student.id 
-                          ? 'btn-primary ml-4' 
-                          : 'btn-secondary ml-4'}
-                      >
-                        {autoSwitchStatus?.currentStudent?.id === student.id ? 'Aktuell' : 'Details'}
-                      </button>
+                      {autoSwitchStatus?.currentStudent?.id === student.id && (
+                        <span className="ml-4 px-3 py-1 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: 'var(--status-active)' }}>
+                          Aktuell
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))

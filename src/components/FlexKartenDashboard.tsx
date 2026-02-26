@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { FlexKarte, fetchFlexKarten, getRestStunden, getKontingent, getVerbraucht, isLowBalance, isExpired, getSchuelerName } from '@/lib/flexKarten'
 import { Unterrichtseinheit, fetchUnterrichtseinheiten, createUnterrichtseinheit, updateFlexKarteStunden, formatDauer, getFortschrittStars, FORTSCHRITT_OPTIONS } from '@/lib/unterrichtseinheiten'
+import FlexKarteBooking from './FlexKarteBooking'
 
 export default function FlexKartenDashboard() {
   const [karten, setKarten] = useState<FlexKarte[]>([])
@@ -13,6 +14,7 @@ export default function FlexKartenDashboard() {
   const [showStats, setShowStats] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [showBooking, setShowBooking] = useState(false)
 
   // Formular-State
   const [formDatum, setFormDatum] = useState(new Date().toISOString().split('T')[0])
@@ -22,12 +24,15 @@ export default function FlexKartenDashboard() {
   const [formFortschritt, setFormFortschritt] = useState(0)
   const [formNotizen, setFormNotizen] = useState('')
 
-  useEffect(() => {
-    fetchFlexKarten().then(data => {
-      setKarten(data)
-      setLoading(false)
-    })
+  const loadKarten = useCallback(async () => {
+    const data = await fetchFlexKarten()
+    setKarten(data)
+    setLoading(false)
   }, [])
+
+  useEffect(() => {
+    loadKarten()
+  }, [loadKarten])
 
   // Einheiten laden wenn Karte ausgewählt
   const loadEinheiten = useCallback(async (karte: FlexKarte) => {
@@ -120,9 +125,15 @@ export default function FlexKartenDashboard() {
   if (loading) {
     return (
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-          Flex-Karten
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Flex-Karten
+          </h2>
+          <button onClick={() => setShowBooking(true)} className="btn-primary text-sm">
+            + Flex-Karte buchen
+          </button>
+        </div>
+        <FlexKarteBooking isOpen={showBooking} onClose={() => setShowBooking(false)} onSuccess={() => loadKarten()} />
         <div className="rounded-lg p-6 text-center" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
           <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Laden...</div>
         </div>
@@ -133,9 +144,15 @@ export default function FlexKartenDashboard() {
   if (karten.length === 0) {
     return (
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-          Flex-Karten
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Flex-Karten
+          </h2>
+          <button onClick={() => setShowBooking(true)} className="btn-primary text-sm">
+            + Flex-Karte buchen
+          </button>
+        </div>
+        <FlexKarteBooking isOpen={showBooking} onClose={() => setShowBooking(false)} onSuccess={() => loadKarten()} />
         <div className="rounded-lg p-6 text-center" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
           <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Keine Flex-Karten vorhanden</div>
         </div>
@@ -145,9 +162,24 @@ export default function FlexKartenDashboard() {
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-        Flex-Karten
-      </h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          Flex-Karten
+        </h2>
+        <button
+          onClick={() => setShowBooking(true)}
+          className="btn-primary text-sm"
+        >
+          + Flex-Karte buchen
+        </button>
+      </div>
+
+      {/* Booking Modal */}
+      <FlexKarteBooking
+        isOpen={showBooking}
+        onClose={() => setShowBooking(false)}
+        onSuccess={() => loadKarten()}
+      />
 
       {/* Bereich B: Statistik-Akkordeon */}
       <div className="mb-4 rounded-lg overflow-hidden" style={{ border: '1px solid var(--border-light)' }}>
