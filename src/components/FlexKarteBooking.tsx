@@ -19,7 +19,7 @@ const KARTEN_TYPEN = [
 
 export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselectedStudent }: FlexKarteBookingProps) {
   const [students, setStudents] = useState<SchülerApp[]>([])
-  const [selectedStudent, setSelectedStudent] = useState<number | ''>('')
+  const [selectedStudent, setSelectedStudent] = useState<number | ''>(preselectedStudent ? preselectedStudent.id : '')
   const [selectedTyp, setSelectedTyp] = useState(0)
   const [kaufdatum, setKaufdatum] = useState(new Date().toISOString().split('T')[0])
   const [loading, setLoading] = useState(false)
@@ -28,15 +28,18 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
 
   useEffect(() => {
     if (isOpen) {
-      const storage = OfflineStorageManager.getInstance()
-      storage.getStudents().then(all => {
-        const active = all.filter(s =>
-          s.anfrageStatus === 'aktiver Schüler' ||
-          s.anfrageStatus === 'Probeunterricht abgeschlossen' ||
-          !s.anfrageStatus
-        ).sort((a, b) => a.vorname.localeCompare(b.vorname))
-        setStudents(active)
-      })
+      // Schülerliste nur laden wenn kein preselectedStudent (für Dashboard-Nutzung)
+      if (!preselectedStudent) {
+        const storage = OfflineStorageManager.getInstance()
+        storage.getStudents().then(all => {
+          const active = all.filter(s =>
+            s.anfrageStatus === 'aktiver Schüler' ||
+            s.anfrageStatus === 'Probeunterricht abgeschlossen' ||
+            !s.anfrageStatus
+          ).sort((a, b) => a.vorname.localeCompare(b.vorname))
+          setStudents(active)
+        })
+      }
       // Reset form - preselect student if provided
       setSelectedStudent(preselectedStudent ? preselectedStudent.id : '')
       setSelectedTyp(0)
@@ -88,10 +91,10 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
   if (!isOpen) return null
 
   const typ = KARTEN_TYPEN[selectedTyp]
-  const student = students.find(s => s.id === selectedStudent)
+  const displayStudent = preselectedStudent || students.find(s => s.id === selectedStudent)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
       <div className="w-full max-w-md rounded-xl shadow-2xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
         {/* Header */}
         <div className="flex justify-between items-center p-5 border-b" style={{ borderColor: 'var(--border-light)' }}>
@@ -111,24 +114,37 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
           </div>
         ) : (
           <div className="p-5 space-y-5">
-            {/* Schüler auswählen */}
+            {/* Schüler - fest oder Dropdown */}
             <div>
               <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-secondary)' }}>Schüler</label>
-              <select
-                value={selectedStudent}
-                onChange={(e) => setSelectedStudent(e.target.value ? Number(e.target.value) : '')}
-                className="w-full p-3 rounded-lg border font-medium"
-                style={{
-                  backgroundColor: 'var(--bg-primary)',
-                  borderColor: 'var(--border-medium)',
-                  color: 'var(--text-primary)',
-                }}
-              >
-                <option value="">Schüler auswählen...</option>
-                {students.map(s => (
-                  <option key={s.id} value={s.id}>{s.vorname} {s.nachname}</option>
-                ))}
-              </select>
+              {preselectedStudent ? (
+                <div
+                  className="w-full p-3 rounded-lg border font-semibold"
+                  style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    borderColor: 'var(--border-medium)',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  {preselectedStudent.vorname} {preselectedStudent.nachname}
+                </div>
+              ) : (
+                <select
+                  value={selectedStudent}
+                  onChange={(e) => setSelectedStudent(e.target.value ? Number(e.target.value) : '')}
+                  className="w-full p-3 rounded-lg border font-medium"
+                  style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    borderColor: 'var(--border-medium)',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  <option value="">Schüler auswählen...</option>
+                  {students.map(s => (
+                    <option key={s.id} value={s.id}>{s.vorname} {s.nachname}</option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* Kartentyp */}
@@ -176,7 +192,7 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
               <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--accent-light)' }}>
                 <div className="text-sm font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Zusammenfassung</div>
                 <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  {student?.vorname} {student?.nachname} &mdash; {typ.label}
+                  {displayStudent?.vorname} {displayStudent?.nachname} &mdash; {typ.label}
                 </div>
                 <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                   Kaufdatum: {new Date(kaufdatum).toLocaleDateString('de-DE')}
