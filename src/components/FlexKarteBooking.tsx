@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { SchülerApp } from '@/lib/baserow'
 import { OfflineStorageManager } from '@/lib/offlineSync'
+import { useToast } from './Toast'
 
 interface FlexKarteBookingProps {
   isOpen: boolean
@@ -18,12 +19,12 @@ const KARTEN_TYPEN = [
 ]
 
 export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselectedStudent }: FlexKarteBookingProps) {
+  const toast = useToast()
   const [students, setStudents] = useState<SchülerApp[]>([])
   const [selectedStudent, setSelectedStudent] = useState<number | ''>(preselectedStudent ? preselectedStudent.id : '')
   const [selectedTyp, setSelectedTyp] = useState(0)
   const [kaufdatum, setKaufdatum] = useState(new Date().toISOString().split('T')[0])
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -44,7 +45,6 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
       setSelectedStudent(preselectedStudent ? preselectedStudent.id : '')
       setSelectedTyp(0)
       setKaufdatum(new Date().toISOString().split('T')[0])
-      setSuccess(false)
       setError('')
     }
   }, [isOpen, preselectedStudent])
@@ -73,16 +73,25 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
       })
 
       if (!response.ok) {
-        throw new Error('Fehler beim Buchen')
+        const data = await response.json().catch(() => ({ error: 'Unbekannter Fehler' }))
+        throw new Error(data.details || data.error || 'Fehler beim Buchen')
       }
 
-      setSuccess(true)
-      setTimeout(() => {
-        onSuccess?.()
-        onClose()
-      }, 2000)
+      const result = await response.json()
+      const studentName = displayStudent ? `${displayStudent.vorname} ${displayStudent.nachname}` : 'Schüler'
+
+      if (result.validated === false) {
+        toast.info(`Flex-Karte für ${studentName} erstellt, aber bitte in Baserow prüfen.`)
+      } else {
+        toast.success(`Flex-Karte für ${studentName} gebucht!`)
+      }
+
+      onSuccess?.()
+      onClose()
     } catch (err) {
-      setError('Fehler beim Buchen. Bitte erneut versuchen.')
+      const errorMsg = err instanceof Error ? err.message : 'Fehler beim Buchen. Bitte erneut versuchen.'
+      setError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setLoading(false)
     }
@@ -102,18 +111,7 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
           <button onClick={onClose} className="text-2xl leading-none px-2" style={{ color: 'var(--text-muted)' }}>&times;</button>
         </div>
 
-        {success ? (
-          <div className="p-8 text-center">
-            <div className="text-4xl mb-3">&#10003;</div>
-            <div className="text-lg font-semibold" style={{ color: 'var(--status-success)' }}>
-              Flex-Karte erfolgreich gebucht!
-            </div>
-            <div className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>
-              Rechnung wird erstellt.
-            </div>
-          </div>
-        ) : (
-          <div className="p-5 space-y-5">
+        <div className="p-5 space-y-5">
             {/* Schüler - fest oder Dropdown */}
             <div>
               <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-secondary)' }}>Schüler</label>
@@ -219,7 +217,6 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
               {loading ? 'Wird gebucht...' : 'Flex-Karte buchen'}
             </button>
           </div>
-        )}
       </div>
     </div>
   )

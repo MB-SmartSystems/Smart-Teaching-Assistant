@@ -11,6 +11,8 @@ interface AllStudentsModalProps {
 export default function AllStudentsModal({ students, onClose }: AllStudentsModalProps) {
   const [sortBy, setSortBy] = useState<'name' | 'day' | 'payment' | 'drums'>('name')
   const [filterBy, setFilterBy] = useState<'all' | 'drums-yes' | 'drums-no' | 'drums-unknown'>('all')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [tagFilter, setTagFilter] = useState<string>('all')
   const [searchTerm, setSearchTerm] = useState('')
 
   // Sortierung
@@ -36,6 +38,20 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
       const searchLower = searchTerm.toLowerCase()
       const fullName = `${student.vorname} ${student.nachname}`.toLowerCase()
       if (!fullName.includes(searchLower)) return false
+    }
+
+    // Status-Filter
+    if (statusFilter !== 'all') {
+      if (!student.anfrageStatus || student.anfrageStatus !== statusFilter) return false
+    }
+
+    // Unterrichtstag-Filter
+    if (tagFilter !== 'all') {
+      if (tagFilter === 'kein') {
+        if (student.unterrichtstag) return false
+      } else {
+        if (student.unterrichtstag !== tagFilter) return false
+      }
     }
 
     // Schlagzeug-Filter
@@ -131,21 +147,62 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
             <option value="drums">Sortieren: Schlagzeug</option>
           </select>
 
-          {/* Filter */}
+          {/* Status-Filter */}
           <select
-            value={filterBy}
-            onChange={(e) => setFilterBy(e.target.value as any)}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 rounded border"
-            style={{ 
-              backgroundColor: 'var(--background)', 
+            style={{
+              backgroundColor: 'var(--background)',
               borderColor: 'var(--border-medium)',
               color: 'var(--text-primary)'
             }}
           >
-            <option value="all">Alle Schüler</option>
+            <option value="all">Alle Status</option>
+            <option value="Erstkontakt">Erstkontakt</option>
+            <option value="Probetermin vorschlagen">Probetermin vorschlagen</option>
+            <option value="Probeunterricht Termin steht">Probeunterricht Termin steht</option>
+            <option value="Probeunterricht abgeschlossen">Probeunterricht abgeschlossen</option>
+            <option value="aktiver Schüler">Aktiver Schüler</option>
+            <option value="Follow-Up">Follow-Up</option>
+            <option value="Vertrag gesendet, warten auf Antwort">Vertrag gesendet</option>
+            <option value="Anfrage über Website">Anfrage über Website</option>
+          </select>
+
+          {/* Unterrichtstag-Filter */}
+          <select
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value)}
+            className="px-3 py-2 rounded border"
+            style={{
+              backgroundColor: 'var(--background)',
+              borderColor: 'var(--border-medium)',
+              color: 'var(--text-primary)'
+            }}
+          >
+            <option value="all">Alle Tage</option>
+            <option value="Montag">Montag</option>
+            <option value="Dienstag">Dienstag</option>
+            <option value="Mittwoch">Mittwoch</option>
+            <option value="Donnerstag">Donnerstag</option>
+            <option value="kein">Kein Tag</option>
+          </select>
+
+          {/* Schlagzeug-Filter */}
+          <select
+            value={filterBy}
+            onChange={(e) => setFilterBy(e.target.value as any)}
+            className="px-3 py-2 rounded border"
+            style={{
+              backgroundColor: 'var(--background)',
+              borderColor: 'var(--border-medium)',
+              color: 'var(--text-primary)'
+            }}
+          >
+            <option value="all">Schlagzeug: Alle</option>
             <option value="drums-yes">🥁 Hat Schlagzeug</option>
             <option value="drums-no">❌ Kein Schlagzeug</option>
-            <option value="drums-unknown">❓ Schlagzeug unbekannt</option>
+            <option value="drums-unknown">❓ Unbekannt</option>
           </select>
         </div>
 

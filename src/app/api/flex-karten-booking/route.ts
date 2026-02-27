@@ -81,7 +81,10 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text()
       console.error('Baserow Create Error:', errorText)
-      throw new Error(`Baserow Create Error: ${response.status}`)
+      return NextResponse.json(
+        { error: 'Baserow Fehler', details: errorText },
+        { status: 502 }
+      )
     }
 
     const data = await response.json()
@@ -109,7 +112,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, id: data.id })
+    // Validation: GET Request auf die neue Row um Speicherung zu prüfen
+    let validated = false
+    try {
+      const validateRes = await fetch(
+        `${BASEROW_BASE_URL}/api/database/rows/table/${FLEX_TABLE_ID}/${data.id}/?user_field_names=true`,
+        {
+          headers: {
+            'Authorization': `Token ${BASEROW_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      if (validateRes.ok) {
+        const row = await validateRes.json()
+        // Prüfe ob Schüler-Link korrekt gespeichert
+        validated = row.Schueler_Link?.some((s: { id: number }) => s.id === schueler_id) ?? false
+      }
+    } catch (valErr) {
+      console.warn('Validation GET fehlgeschlagen:', valErr)
+    }
+
+    return NextResponse.json({
+      success: true,
+      id: data.id,
+      validated,
+      ...(validated ? {} : { warning: 'Eintrag erstellt, aber Validierung fehlgeschlagen. Bitte in Baserow prüfen.' }),
+    })
   } catch (error) {
     console.error('Fehler beim Buchen der Flex-Karte:', error)
     return NextResponse.json(

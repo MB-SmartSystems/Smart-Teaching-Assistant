@@ -11,10 +11,13 @@ import BookStats from '@/components/BookStats'
 import EarningsOverview from '@/components/EarningsOverview'
 import Login from '@/components/Login'
 import { getTodayAttendance } from '@/lib/attendance'
+import { FlexKarte, fetchFlexKarten, getRestStunden } from '@/lib/flexKarten'
 import SongManagement from '@/components/SongManagement'
 import FlexKartenDashboard from '@/components/FlexKartenDashboard'
 import PreiserhoehungsDashboard from '@/components/PreiserhoehungsDashboard'
 import AllStudentsModal from '@/components/AllStudentsModal'
+import { ToastProvider } from '@/components/Toast'
+import AufgabenWidget from '@/components/AufgabenWidget'
 
 export default function Home() {
   const [students, setStudents] = useState<SchülerApp[]>([])
@@ -25,6 +28,8 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false)
   const [showSongManagement, setShowSongManagement] = useState(false)
   const [showAllStudents, setShowAllStudents] = useState(false)
+  const [flexKarten, setFlexKarten] = useState<FlexKarte[]>([])
+  const [showFlexSchueler, setShowFlexSchueler] = useState(true)
   
   // Authentifizierung
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -53,6 +58,9 @@ export default function Home() {
     storage.initialize().then(() => {
       loadStudents()
     })
+
+    // FlexKarten laden
+    fetchFlexKarten().then(setFlexKarten)
 
     // Zeit alle 30 Sekunden aktualisieren (Performance optimiert)
     const timeInterval = setInterval(() => {
@@ -178,6 +186,7 @@ export default function Home() {
   }
 
   return (
+    <ToastProvider>
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
       <header style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }} className="shadow-lg border-b p-6">
@@ -228,6 +237,9 @@ export default function Home() {
                   )}
                 </div>
               </div>
+
+              {/* Aufgaben Widget */}
+              <AufgabenWidget />
 
               {/* Alle Schüler Button */}
               <button
@@ -400,6 +412,67 @@ export default function Home() {
           </div>
         )}
 
+        {/* Flex-Karten-Schüler (ohne festen Termin) */}
+        {isClient && flexKarten.length > 0 && (() => {
+          const currentDay = getCurrentDay()
+          const activeFlexKarten = flexKarten.filter(k => k.Status?.value === 'Aktiv')
+          // Schüler-IDs die eine aktive FlexKarte haben
+          const flexSchuelerIds = new Set(activeFlexKarten.map(k => k.Schueler_Link?.[0]?.id).filter(Boolean))
+          // Schüler die FlexKarte haben ABER keinen festen Termin heute
+          const flexSchueler = students.filter(s =>
+            flexSchuelerIds.has(s.id) && s.unterrichtstag !== currentDay
+          )
+
+          if (flexSchueler.length === 0) return null
+
+          return (
+            <div className="mb-8">
+              <button
+                onClick={() => setShowFlexSchueler(!showFlexSchueler)}
+                className="text-2xl font-bold mb-4 flex items-center gap-2 w-full text-left"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <span>{showFlexSchueler ? '▼' : '▶'}</span>
+                🎫 Flex-Karten-Schüler ({flexSchueler.length})
+              </button>
+              {showFlexSchueler && (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {flexSchueler.map(student => {
+                    const karte = activeFlexKarten.find(k => k.Schueler_Link?.[0]?.id === student.id)
+                    const restStunden = karte ? getRestStunden(karte) : 0
+                    const gueltigBis = karte?.Gueltig_bis
+                    return (
+                      <div
+                        key={student.id}
+                        onClick={() => setSelectedStudent(student.id)}
+                        className="rounded-xl p-4 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5 border"
+                        style={{
+                          backgroundColor: 'var(--bg-secondary)',
+                          borderColor: restStunden < 1 ? '#ef4444' : 'var(--border-light)',
+                        }}
+                      >
+                        <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                          {student.vorname} {student.nachname}
+                        </div>
+                        <div className="flex items-center gap-3 mt-2 text-sm">
+                          <span style={{ color: restStunden < 1 ? '#ef4444' : '#10b981' }}>
+                            ⏱ {restStunden.toFixed(1)} Std
+                          </span>
+                          {gueltigBis && (
+                            <span style={{ color: 'var(--text-muted)' }}>
+                              bis {new Date(gueltigBis).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })()}
+
         {/* Einnahmen-Übersicht */}
         {isClient && students.length > 0 && (
           <EarningsOverview students={students} />
@@ -451,5 +524,6 @@ export default function Home() {
         />
       )}
     </div>
+    </ToastProvider>
   )
 }

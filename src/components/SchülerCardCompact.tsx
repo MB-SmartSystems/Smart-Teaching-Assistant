@@ -1,12 +1,15 @@
 'use client'
 
 import { SchülerApp } from '@/lib/baserow'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useOfflineSync } from '@/lib/offlineSync'
 import BookDropdown from './BookDropdown'
 import EarningsCard from './EarningsCard'
 import FlexKarteBooking from './FlexKarteBooking'
 import SongSuggestions from './SongSuggestions'
+import { useToast } from './Toast'
+import { FlexKarte, fetchFlexKarten, getRestStunden, getVerbraucht } from '@/lib/flexKarten'
+import { createUnterrichtseinheit, updateFlexKarteStunden } from '@/lib/unterrichtseinheiten'
 import { 
   getTodayAttendance, 
   setAttendance, 
@@ -25,10 +28,16 @@ interface SchülerCardCompactProps {
 
 export default function SchülerCardCompact({ student, isOpen, onClose }: SchülerCardCompactProps) {
   const { updateField } = useOfflineSync()
+  const toast = useToast()
 
   // Local State für Auto-Save
   const [isSaving, setIsSaving] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
+
+  // FlexKarte State für Quick-Buttons
+  const [activeFlexKarte, setActiveFlexKarte] = useState<FlexKarte | null>(null)
+  const [quickButtonLoading, setQuickButtonLoading] = useState(false)
+  const [confirmMinutes, setConfirmMinutes] = useState<number | null>(null)
   
   // Parse Übungen-String zu von/bis Zahlen
   const parseUebungen = (ubungString: string): { von: number; bis: number } => {
@@ -69,6 +78,57 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
     hatSchlagzeug: student.hatSchlagzeug
   })
 
+  // FlexKarte laden für Quick-Buttons
+  useEffect(() => {
+    if (isOpen) {
+      fetchFlexKarten().then(karten => {
+        const aktive = karten.find(k =>
+          k.Schueler_Link?.[0]?.id === student.id && k.Status?.value === 'Aktiv'
+        )
+        setActiveFlexKarte(aktive || null)
+      })
+    }
+  }, [isOpen, student.id])
+
+  // Quick-Button: Stunde dokumentieren
+  const handleQuickLesson = async (minuten: number) => {
+    if (!activeFlexKarte) return
+    setQuickButtonLoading(true)
+    try {
+      const stunden = minuten / 60
+      const verbraucht = getVerbraucht(activeFlexKarte)
+      const rest = getRestStunden(activeFlexKarte)
+      const neueVerbraucht = verbraucht + stunden
+      const neueRest = Math.max(0, rest - stunden)
+
+      // Unterrichtseinheit erstellen
+      await createUnterrichtseinheit({
+        datum: new Date().toISOString().split('T')[0],
+        uhrzeit: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+        dauer: stunden.toFixed(2),
+        schueler_id: student.id,
+        flexkarte_id: activeFlexKarte.id,
+      })
+
+      // FlexKarte-Stunden aktualisieren
+      await updateFlexKarteStunden(activeFlexKarte.id, neueVerbraucht, neueRest)
+
+      // Lokalen State aktualisieren
+      setActiveFlexKarte(prev => prev ? {
+        ...prev,
+        Verbrauchte_Stunden: neueVerbraucht.toFixed(2),
+        Rest_Stunden: neueRest.toFixed(2),
+      } : null)
+
+      toast.success(`${minuten} Min abgezogen. Guthaben: ${neueRest.toFixed(1)} Std.`)
+      setConfirmMinutes(null)
+    } catch (err) {
+      toast.error('Fehler beim Dokumentieren der Stunde')
+    } finally {
+      setQuickButtonLoading(false)
+    }
+  }
+
   // FlexKarte Booking State
   const [showFlexBooking, setShowFlexBooking] = useState(false)
 
@@ -77,11 +137,23 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   const todayAttendance = getTodayAttendance(student.id)
   const attendanceStats = getAttendanceStats(student.id, 30)
 
-  // Update lokale Werte + Auto-Save
-  const updateLocalValue = async (field: keyof SchülerApp, value: string) => {
+  // Felder die KEINEN Toast bekommen (zu häufig geändert)
+  const SILENT_FIELDS = new Set(['buch', 'seite', 'übung', 'buch2', 'seite2', 'übung2'])
+
+  // Feld-Labels für Toasts
+  const FIELD_LABELS: Record<string, string> = {
+    wichtigerFokus: 'Fokus',
+    aktuelleLieder: 'Lieder',
+  }
+
+  // Update lokale Werte + Auto-Save (showToast=false für textareas, die onBlur toasten)
+  const updateLocalValue = async (field: keyof SchülerApp, value: string, showToast = false) => {
     setLocalValues(prev => ({ ...prev, [field]: value }))
     try {
       await updateField(student.id, field, value)
+      if (showToast && !SILENT_FIELDS.has(field)) {
+        toast.success(`${FIELD_LABELS[field] || field} gespeichert`)
+      }
     } catch (error) {
       console.error(`Fehler beim Auto-Save ${field}:`, error)
     }
@@ -174,17 +246,19 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   // Auto-Save für Select-Felder
   const handleSelectUpdate = async (field: string, value: string) => {
     setLocalValues(prev => ({ ...prev, [field]: value }))
-    
+
     try {
       if (field === 'zahlungStatus') {
         const optionId = ZAHLUNG_OPTIONS[value]
         if (optionId) {
           await updateField(student.id, field, optionId)
+          toast.success('Zahlung gespeichert')
         }
       } else if (field === 'hatSchlagzeug') {
         const optionId = SCHLAGZEUG_OPTIONS[value]
         if (optionId) {
           await updateField(student.id, field, optionId)
+          toast.success('Schlagzeug gespeichert')
         }
       }
     } catch (error) {
@@ -201,9 +275,9 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   }
 
   const SCHLAGZEUG_OPTIONS: Record<string, number> = {
-    'Ja': 3572,
-    'Nein': 3573,
-    'Unbekannt': 3574,
+    'Ja': 3569,
+    'Nein': 3570,
+    'Unbekannt': 3571,
   }
 
   // Attendance Handler
@@ -430,6 +504,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             <textarea
               value={localValues.wichtigerFokus}
               onChange={(e) => updateLocalValue('wichtigerFokus', e.target.value)}
+              onBlur={() => toast.success('Fokus gespeichert')}
               className="w-full p-3 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
               rows={3}
               placeholder="Was ist der wichtigste Fokus für diesen Schüler?"
@@ -442,6 +517,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             <textarea
               value={localValues.aktuelleLieder}
               onChange={(e) => updateLocalValue('aktuelleLieder', e.target.value)}
+              onBlur={() => toast.success('Lieder gespeichert')}
               className="w-full p-3 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
               rows={3}
               placeholder="Welche Lieder werden aktuell geübt?"
@@ -522,6 +598,55 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               💡 Standard: Erschienen (keine Auswahl nötig)
             </div>
           </div>
+
+          {/* Quick-Buttons: Stunde dokumentieren (nur wenn aktive FlexKarte) */}
+          {activeFlexKarte && (
+            <div className="mb-6">
+              <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>
+                ⏱ Stunde dokumentieren
+                <span className="text-sm font-normal ml-2" style={{ color: '#9ca3af' }}>
+                  (Guthaben: {getRestStunden(activeFlexKarte).toFixed(1)} Std)
+                </span>
+              </h3>
+              {confirmMinutes ? (
+                <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-light)' }}>
+                  <div className="text-sm mb-3" style={{ color: 'var(--text-primary)' }}>
+                    {confirmMinutes} Min für {student.vorname} abziehen?
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleQuickLesson(confirmMinutes)}
+                      disabled={quickButtonLoading}
+                      className="px-4 py-2 rounded-lg text-sm font-medium text-white"
+                      style={{ backgroundColor: quickButtonLoading ? 'var(--border-medium)' : '#10b981' }}
+                    >
+                      {quickButtonLoading ? 'Wird gespeichert...' : 'Ja, abziehen'}
+                    </button>
+                    <button
+                      onClick={() => setConfirmMinutes(null)}
+                      className="px-4 py-2 rounded-lg text-sm font-medium"
+                      style={{ color: 'var(--text-muted)', backgroundColor: '#374151' }}
+                    >
+                      Abbrechen
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-2">
+                  {[30, 45, 60].map(min => (
+                    <button
+                      key={min}
+                      onClick={() => setConfirmMinutes(min)}
+                      className="py-3 px-4 rounded-lg font-semibold text-sm transition-colors"
+                      style={{ backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
+                    >
+                      {min} Min
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Flex-Karte buchen */}
           <div className="mb-6">
