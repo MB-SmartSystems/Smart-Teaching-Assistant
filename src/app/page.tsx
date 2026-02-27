@@ -239,7 +239,7 @@ export default function Home() {
               </div>
 
               {/* Aufgaben Widget */}
-              <AufgabenWidget />
+              <AufgabenWidget students={students} />
 
               {/* Alle Schüler Button */}
               <button
@@ -395,13 +395,15 @@ export default function Home() {
                       <div className="flex flex-col items-end gap-2 ml-4">
                         <span className="px-3 py-1 rounded-lg text-xs font-semibold" style={{
                           backgroundColor: student.zahlungStatus === 'ja' ? 'rgba(16, 185, 129, 0.2)' :
-                                         student.zahlungStatus === 'nein' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                                         student.zahlungStatus === 'nein' ? 'rgba(239, 68, 68, 0.2)' :
+                                         student.zahlungStatus === 'Paypal' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(107, 114, 128, 0.2)',
                           color: student.zahlungStatus === 'ja' ? '#10b981' :
-                                 student.zahlungStatus === 'nein' ? '#ef4444' : '#f59e0b'
+                                 student.zahlungStatus === 'nein' ? '#ef4444' :
+                                 student.zahlungStatus === 'Paypal' ? '#3b82f6' : '#6b7280'
                         }}>
                           {student.zahlungStatus === 'ja' ? 'Zahlung OK' :
                            student.zahlungStatus === 'nein' ? 'Keine Zahlung' :
-                           student.zahlungStatus === 'Paypal' ? 'PayPal' : 'Offen'}
+                           student.zahlungStatus === 'Paypal' ? 'PayPal' : 'Unbekannt'}
                         </span>
                       </div>
                     </div>
@@ -521,6 +523,10 @@ export default function Home() {
         <AllStudentsModal
           students={students}
           onClose={() => setShowAllStudents(false)}
+          onStudentClick={(id) => {
+            setShowAllStudents(false)
+            setSelectedStudent(id)
+          }}
         />
       )}
     </div>

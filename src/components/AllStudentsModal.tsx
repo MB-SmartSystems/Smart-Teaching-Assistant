@@ -6,9 +6,10 @@ import { useState } from 'react'
 interface AllStudentsModalProps {
   students: SchülerApp[]
   onClose: () => void
+  onStudentClick?: (studentId: number) => void
 }
 
-export default function AllStudentsModal({ students, onClose }: AllStudentsModalProps) {
+export default function AllStudentsModal({ students, onClose, onStudentClick }: AllStudentsModalProps) {
   const [sortBy, setSortBy] = useState<'name' | 'day' | 'payment' | 'drums'>('name')
   const [filterBy, setFilterBy] = useState<'all' | 'drums-yes' | 'drums-no' | 'drums-unknown'>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -61,61 +62,80 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
       case 'drums-no':
         return student.hatSchlagzeug === 'Nein'
       case 'drums-unknown':
-        return student.hatSchlagzeug === 'Unbekannt' || !student.hatSchlagzeug
+        return !student.hatSchlagzeug || student.hatSchlagzeug === 'Unbekannt'
       default:
         return true
     }
   })
 
-  // Schlagzeug-Status Farbe
-  const getDrumsColor = (status: string) => {
+  // Schlagzeug-Status Farbe + Text
+  const getDrumsBadge = (status: string | undefined) => {
     switch (status) {
-      case 'Ja': return 'var(--status-success)'
-      case 'Nein': return 'var(--status-error)'
-      default: return 'var(--status-warning)'
+      case 'Ja':
+        return { bg: '#10b981', text: 'Ja' }
+      case 'Nein':
+        return { bg: '#ef4444', text: 'Nein' }
+      default:
+        return { bg: '#6b7280', text: 'Unbekannt' }
     }
   }
 
-  // WhatsApp Link (direkt zu Nummer, nicht zu App)
+  // Zahlung-Status
+  const getZahlungBadge = (status: string | undefined) => {
+    switch (status) {
+      case 'ja':
+        return { bg: 'rgba(16, 185, 129, 0.2)', color: '#10b981', text: 'Zahlung OK' }
+      case 'nein':
+        return { bg: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', text: 'Keine Zahlung' }
+      case 'Paypal':
+        return { bg: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6', text: 'PayPal' }
+      default:
+        return { bg: 'rgba(107, 114, 128, 0.2)', color: '#6b7280', text: 'Unbekannt' }
+    }
+  }
+
+  // WhatsApp Link
   const getWhatsAppLink = (nummer: string) => {
     if (!nummer) return '#'
     let cleanNumber = nummer.replace(/[^0-9+]/g, '')
-    
-    // Deutsche Nummern: 017x, 016x, 015x → +49
     if (cleanNumber.match(/^01[567]/)) {
       cleanNumber = '49' + cleanNumber.slice(1)
     } else if (cleanNumber.startsWith('+')) {
       cleanNumber = cleanNumber.slice(1)
     }
-    
     return `https://wa.me/${cleanNumber}`
   }
 
-  // Email Link (mailto)
-  const getEmailLink = (email: string) => {
-    if (!email) return '#'
-    return `mailto:${email}`
+  // Klick auf Schüler-Karte
+  const handleStudentClick = (studentId: number) => {
+    if (onStudentClick) {
+      onStudentClick(studentId)
+    }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
-      <div className="w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-xl" style={{ backgroundColor: 'var(--card-background)' }}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-xl" style={{ backgroundColor: 'var(--card-background, var(--bg-secondary))' }}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--background)' }}>
+        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--border-color, var(--border-light))', backgroundColor: 'var(--background, var(--bg-primary))' }}>
           <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            📋 Alle Schüler ({filteredStudents.length})
+            Alle Sch&uuml;ler ({filteredStudents.length})
           </h2>
           <button
             onClick={onClose}
             className="text-2xl font-bold hover:opacity-70 transition-opacity"
             style={{ color: 'var(--text-muted)' }}
           >
-            ✕
+            &#x2715;
           </button>
         </div>
 
         {/* Controls */}
-        <div className="p-4 border-b flex flex-wrap gap-4 items-center" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--accent-light)' }}>
+        <div className="p-4 border-b flex flex-wrap gap-3 items-center" style={{ borderColor: 'var(--border-color, var(--border-light))', backgroundColor: 'var(--accent-light, var(--bg-secondary))' }}>
           {/* Suche */}
           <input
             type="text"
@@ -123,8 +143,8 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="px-3 py-2 rounded border flex-1 min-w-[200px]"
-            style={{ 
-              backgroundColor: 'var(--background)', 
+            style={{
+              backgroundColor: 'var(--bg-primary)',
               borderColor: 'var(--border-medium)',
               color: 'var(--text-primary)'
             }}
@@ -133,16 +153,16 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
           {/* Sortierung */}
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'name' | 'day' | 'payment' | 'drums')}
             className="px-3 py-2 rounded border"
-            style={{ 
-              backgroundColor: 'var(--background)', 
-              borderColor: 'var(--border-medium)',
-              color: 'var(--text-primary)'
+            style={{
+              backgroundColor: 'rgb(31, 41, 55)',
+              borderColor: 'rgb(55, 65, 81)',
+              color: 'white'
             }}
           >
             <option value="name">Sortieren: Name</option>
-            <option value="day">Sortieren: Unterrichtstag</option>
+            <option value="day">Sortieren: Tag</option>
             <option value="payment">Sortieren: Zahlung</option>
             <option value="drums">Sortieren: Schlagzeug</option>
           </select>
@@ -153,9 +173,9 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 rounded border"
             style={{
-              backgroundColor: 'var(--background)',
-              borderColor: 'var(--border-medium)',
-              color: 'var(--text-primary)'
+              backgroundColor: 'rgb(31, 41, 55)',
+              borderColor: 'rgb(55, 65, 81)',
+              color: 'white'
             }}
           >
             <option value="all">Alle Status</option>
@@ -163,10 +183,10 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
             <option value="Probetermin vorschlagen">Probetermin vorschlagen</option>
             <option value="Probeunterricht Termin steht">Probeunterricht Termin steht</option>
             <option value="Probeunterricht abgeschlossen">Probeunterricht abgeschlossen</option>
-            <option value="aktiver Schüler">Aktiver Schüler</option>
+            <option value="aktiver Schüler">Aktiver Sch&uuml;ler</option>
             <option value="Follow-Up">Follow-Up</option>
             <option value="Vertrag gesendet, warten auf Antwort">Vertrag gesendet</option>
-            <option value="Anfrage über Website">Anfrage über Website</option>
+            <option value="Anfrage über Website">Anfrage &uuml;ber Website</option>
           </select>
 
           {/* Unterrichtstag-Filter */}
@@ -175,9 +195,9 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
             onChange={(e) => setTagFilter(e.target.value)}
             className="px-3 py-2 rounded border"
             style={{
-              backgroundColor: 'var(--background)',
-              borderColor: 'var(--border-medium)',
-              color: 'var(--text-primary)'
+              backgroundColor: 'rgb(31, 41, 55)',
+              borderColor: 'rgb(55, 65, 81)',
+              color: 'white'
             }}
           >
             <option value="all">Alle Tage</option>
@@ -191,114 +211,117 @@ export default function AllStudentsModal({ students, onClose }: AllStudentsModal
           {/* Schlagzeug-Filter */}
           <select
             value={filterBy}
-            onChange={(e) => setFilterBy(e.target.value as any)}
+            onChange={(e) => setFilterBy(e.target.value as 'all' | 'drums-yes' | 'drums-no' | 'drums-unknown')}
             className="px-3 py-2 rounded border"
             style={{
-              backgroundColor: 'var(--background)',
-              borderColor: 'var(--border-medium)',
-              color: 'var(--text-primary)'
+              backgroundColor: 'rgb(31, 41, 55)',
+              borderColor: 'rgb(55, 65, 81)',
+              color: 'white'
             }}
           >
             <option value="all">Schlagzeug: Alle</option>
-            <option value="drums-yes">🥁 Hat Schlagzeug</option>
-            <option value="drums-no">❌ Kein Schlagzeug</option>
-            <option value="drums-unknown">❓ Unbekannt</option>
+            <option value="drums-yes">Hat Schlagzeug</option>
+            <option value="drums-no">Kein Schlagzeug</option>
+            <option value="drums-unknown">Unbekannt</option>
           </select>
         </div>
 
-        {/* Tabelle */}
-        <div className="overflow-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
-          <table className="w-full">
-            <thead className="sticky top-0" style={{ backgroundColor: 'var(--background)', borderBottom: '2px solid var(--border-color)' }}>
-              <tr>
-                <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)' }}>Name</th>
-                <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)' }}>Unterricht</th>
-                <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)' }}>🥁</th>
-                <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)' }}>Zahlung</th>
-                <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)' }}>Kontakt</th>
-                <th className="text-left p-3 font-semibold" style={{ color: 'var(--text-primary)' }}>Buch/Übung</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStudents.map((student) => (
-                <tr
-                  key={student.id}
-                  className="border-b hover:opacity-80 transition-opacity"
-                  style={{ borderColor: 'var(--border-color)' }}
-                >
-                  <td className="p-3" style={{ color: 'var(--text-primary)' }}>
-                    <div className="font-semibold">{student.vorname} {student.nachname}</div>
-                    <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {student.ansprechpartner || 'Kein Ansprechpartner'}
-                    </div>
-                  </td>
-                  <td className="p-3" style={{ color: 'var(--text-primary)' }}>
-                    <div>{student.unterrichtstag || 'Nicht gesetzt'}</div>
-                    <div className="text-sm" style={{ color: 'var(--text-muted)' }}>{student.unterrichtszeit || 'Keine Zeit'}</div>
-                  </td>
-                  <td className="p-3">
-                    <div
-                      className="px-2 py-1 rounded text-xs font-semibold text-center min-w-[80px]"
-                      style={{
-                        backgroundColor: getDrumsColor(student.hatSchlagzeug),
-                        color: 'white'
-                      }}
-                    >
-                      {student.hatSchlagzeug === 'Ja' ? '✅ Ja' : 
-                       student.hatSchlagzeug === 'Nein' ? '❌ Nein' : '❓ Unbekannt'}
-                    </div>
-                  </td>
-                  <td className="p-3" style={{ color: 'var(--text-primary)' }}>
-                    <div className={student.zahlungStatus === 'ja' ? 'text-green-600 font-semibold' : 'text-red-500'}>
-                      {student.zahlungStatus === 'ja' ? '✅ Läuft' : 
-                       student.zahlungStatus === 'nein' ? '❌ Nein' : 
-                       student.zahlungStatus === 'Paypal' ? '💳 PayPal' : '❓ Offen'}
-                    </div>
-                    <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {student.monatlicherbetrag ? `${student.monatlicherbetrag}€` : 'Kein Betrag'}
-                    </div>
-                  </td>
-                  <td className="p-3">
-                    <div className="flex gap-2">
-                      {student.handynummer && (
-                        <a
-                          href={getWhatsAppLink(student.handynummer)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-green-600 hover:text-green-800 text-sm font-semibold"
-                          title={`WhatsApp: ${student.handynummer}`}
-                        >
-                          📱
-                        </a>
-                      )}
-                      {student.email && (
-                        <a
-                          href={getEmailLink(student.email)}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-semibold"
-                          title={`Email: ${student.email}`}
-                        >
-                          ✉️
-                        </a>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-3 text-sm" style={{ color: 'var(--text-muted)' }}>
-                    <div>{student.buch || 'Kein Buch'}</div>
-                    <div>S.{student.seite || '?'} Ü.{student.übung || '?'}</div>
-                    {student.buch2 && (
-                      <div className="mt-1 text-xs">
-                        Buch 2: S.{student.seite2 || '?'} Ü.{student.übung2 || '?'}
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {filteredStudents.length === 0 && (
+        {/* Card Grid */}
+        <div className="overflow-auto p-4" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+          {filteredStudents.length === 0 ? (
             <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
-              Keine Schüler gefunden
+              Keine Sch&uuml;ler gefunden
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredStudents.map((student) => {
+                const drums = getDrumsBadge(student.hatSchlagzeug)
+                const zahlung = getZahlungBadge(student.zahlungStatus)
+
+                return (
+                  <div
+                    key={student.id}
+                    onClick={() => handleStudentClick(student.id)}
+                    className="rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 border"
+                    style={{
+                      backgroundColor: 'var(--bg-secondary, rgb(31, 41, 55))',
+                      borderColor: 'var(--border-light, rgb(55, 65, 81))',
+                    }}
+                  >
+                    {/* Name + Status Badge */}
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="font-bold text-base" style={{ color: 'var(--text-primary, white)' }}>
+                          {student.vorname} {student.nachname}
+                        </div>
+                        {student.anfrageStatus && (
+                          <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted, #9ca3af)' }}>
+                            {student.anfrageStatus}
+                          </div>
+                        )}
+                      </div>
+                      {/* Schlagzeug Badge */}
+                      <span
+                        className="px-2 py-0.5 rounded text-xs font-semibold text-white shrink-0 ml-2"
+                        style={{ backgroundColor: drums.bg }}
+                      >
+                        {drums.text}
+                      </span>
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex flex-wrap items-center gap-2 text-sm" style={{ color: 'var(--text-secondary, #d1d5db)' }}>
+                      {student.unterrichtstag && (
+                        <span>{student.unterrichtstag} {student.unterrichtszeit || ''}</span>
+                      )}
+                      {!student.unterrichtstag && (
+                        <span style={{ color: 'var(--text-muted, #6b7280)' }}>Kein fester Tag</span>
+                      )}
+                    </div>
+
+                    {/* Zahlung + Betrag + Kontakt */}
+                    <div className="flex justify-between items-center mt-2">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="px-2 py-0.5 rounded text-xs font-semibold"
+                          style={{ backgroundColor: zahlung.bg, color: zahlung.color }}
+                        >
+                          {zahlung.text}
+                        </span>
+                        {student.monatlicherbetrag && (
+                          <span className="text-xs" style={{ color: 'var(--text-muted, #9ca3af)' }}>
+                            {student.monatlicherbetrag}&euro;/Mo
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        {student.handynummer && (
+                          <a
+                            href={getWhatsAppLink(student.handynummer)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-green-500 hover:text-green-400 text-sm"
+                            title={`WhatsApp: ${student.handynummer}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            WA
+                          </a>
+                        )}
+                        {student.email && (
+                          <a
+                            href={`mailto:${student.email}`}
+                            className="text-blue-400 hover:text-blue-300 text-sm"
+                            title={`Email: ${student.email}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Mail
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

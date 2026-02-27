@@ -26,6 +26,12 @@ interface SchülerCardCompactProps {
   onClose: () => void
 }
 
+// Baserow max 1 Dezimalstelle
+function formatDecimal(value: number): string {
+  if (value % 1 === 0) return value.toString()
+  return value.toFixed(1)
+}
+
 export default function SchülerCardCompact({ student, isOpen, onClose }: SchülerCardCompactProps) {
   const { updateField } = useOfflineSync()
   const toast = useToast()
@@ -105,7 +111,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
       await createUnterrichtseinheit({
         datum: new Date().toISOString().split('T')[0],
         uhrzeit: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-        dauer: stunden.toFixed(2),
+        dauer: formatDecimal(stunden),
         schueler_id: student.id,
         flexkarte_id: activeFlexKarte.id,
       })
@@ -116,8 +122,8 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
       // Lokalen State aktualisieren
       setActiveFlexKarte(prev => prev ? {
         ...prev,
-        Verbrauchte_Stunden: neueVerbraucht.toFixed(2),
-        Rest_Stunden: neueRest.toFixed(2),
+        Verbrauchte_Stunden: formatDecimal(neueVerbraucht),
+        Rest_Stunden: formatDecimal(neueRest),
       } : null)
 
       toast.success(`${minuten} Min abgezogen. Guthaben: ${neueRest.toFixed(1)} Std.`)
@@ -289,7 +295,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }} onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }}>
         
         {/* Header - Modern Design */}
@@ -536,11 +542,11 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
                     : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
                   style={localValues.zahlungStatus === status
-                    ? { 
+                    ? {
                         backgroundColor: status === 'ja' ? '#10b981' :
                                        status === 'nein' ? '#ef4444' :
-                                       status === 'Paypal' ? '#3b82f6' : '#f59e0b',
-                        color: 'white' 
+                                       status === 'Paypal' ? '#3b82f6' : '#6b7280',
+                        color: 'white'
                       }
                     : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
                 >
@@ -562,10 +568,10 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
                     : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
                   style={localValues.hatSchlagzeug === status
-                    ? { 
+                    ? {
                         backgroundColor: status === 'Ja' ? '#10b981' :
-                                       status === 'Nein' ? '#ef4444' : '#f59e0b',
-                        color: 'white' 
+                                       status === 'Nein' ? '#ef4444' : '#6b7280',
+                        color: 'white'
                       }
                     : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
                 >

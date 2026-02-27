@@ -73,6 +73,12 @@ export async function createUnterrichtseinheit(data: {
   }
 }
 
+// Baserow erlaubt max 1 Dezimalstelle bei Stunden-Feldern
+function formatDecimal(value: number): string {
+  if (value % 1 === 0) return value.toString()
+  return value.toFixed(1)
+}
+
 // Verbrauchte Stunden auf Flex-Karte aktualisieren
 export async function updateFlexKarteStunden(
   karteId: number,
@@ -86,8 +92,8 @@ export async function updateFlexKarteStunden(
       body: JSON.stringify({
         karteId,
         updates: {
-          Verbrauchte_Stunden: neueVerbrauchteStunden.toFixed(2),
-          Rest_Stunden: neueRestStunden.toFixed(2),
+          Verbrauchte_Stunden: formatDecimal(neueVerbrauchteStunden),
+          Rest_Stunden: formatDecimal(neueRestStunden),
         }
       })
     })

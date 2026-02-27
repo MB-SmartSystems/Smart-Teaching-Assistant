@@ -5,6 +5,12 @@ const BASEROW_TOKEN = process.env.BASEROW_TOKEN
 const FLEX_TABLE_ID = "841"
 const N8N_WEBHOOK_URL = process.env.N8N_FLEXKARTE_WEBHOOK_URL
 
+// Baserow erlaubt max 1 Dezimalstelle bei Stunden-Feldern
+function formatDecimal(value: number): string {
+  if (value % 1 === 0) return value.toString()
+  return value.toFixed(1)
+}
+
 // Mapping: Kartentyp-String -> Baserow single_select Option-ID
 const KARTENTYP_MAP: Record<string, number> = {
   '2-Std (125€)': 3289,
@@ -56,10 +62,10 @@ export async function POST(request: NextRequest) {
       Karten_Typ: KARTENTYP_MAP[kartentyp],
       Gekauft_am: gekauft_am,
       Gueltig_bis: gueltigBis,
-      Kontingent_Stunden: kontingent_stunden.toFixed(2),
+      Kontingent_Stunden: formatDecimal(kontingent_stunden),
       Preis_EUR: preis.toFixed(2),
-      Rest_Stunden: kontingent_stunden.toFixed(2),
-      Verbrauchte_Stunden: '0.00',
+      Rest_Stunden: formatDecimal(kontingent_stunden),
+      Verbrauchte_Stunden: '0',
       Schueler_Link: [schueler_id],
       Status: 3299, // "Aktiv"
       Bezahlt: 3293, // "Nein" (default, wird manuell auf Ja gesetzt)
