@@ -296,7 +296,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }} onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }}>
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar rounded-2xl shadow-2xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }}>
         
         {/* Header - Modern Design */}
         <div className="flex items-center justify-between p-6 border-b" style={{ 

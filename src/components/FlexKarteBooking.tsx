@@ -33,9 +33,9 @@ export default function FlexKarteBooking({ isOpen, onClose, onSuccess, preselect
       if (!preselectedStudent) {
         const storage = OfflineStorageManager.getInstance()
         storage.getStudents().then(all => {
-          // Alle Schüler anzeigen, alphabetisch sortiert
+          // Alle Schüler anzeigen, alphabetisch nach Vorname sortiert
           const sorted = [...all].sort((a, b) =>
-            `${a.nachname} ${a.vorname}`.localeCompare(`${b.nachname} ${b.vorname}`)
+            (a.vorname || '').localeCompare(b.vorname || '', 'de')
           )
           setStudents(sorted)
         })

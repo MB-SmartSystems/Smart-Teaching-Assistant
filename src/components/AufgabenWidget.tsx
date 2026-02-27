@@ -369,7 +369,7 @@ export default function AufgabenWidget({ students = [] }: AufgabenWidgetProps) {
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto p-5 space-y-3" style={{ maxHeight: 'calc(85vh - 80px)' }}>
+            <div className="overflow-y-auto custom-scrollbar p-5 space-y-3" style={{ maxHeight: 'calc(85vh - 80px)' }}>
 
               {/* Create Form */}
               {showCreateForm && (
@@ -473,7 +473,9 @@ export default function AufgabenWidget({ students = [] }: AufgabenWidgetProps) {
                         style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
                       >
                         <option value="">-- Kein Sch&uuml;ler --</option>
-                        {students.map(s => (
+                        {[...students].sort((a, b) =>
+                          (a.vorname || '').localeCompare(b.vorname || '', 'de')
+                        ).map(s => (
                           <option key={s.id} value={s.id}>{s.vorname} {s.nachname}</option>
                         ))}
                       </select>
