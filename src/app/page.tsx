@@ -403,6 +403,11 @@ export default function Home() {
                             )
                           })()}
                           {student.startdatum && <span>📅 seit {new Date(student.startdatum).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })}</span>}
+                          {student.guthabenMinuten > 0 && (
+                            <span className="font-semibold" style={{ color: '#34d399' }}>
+                              💳 {student.guthabenMinuten} Min
+                            </span>
+                          )}
                         </div>
                         {student.wichtigerFokus && (
                           <div className="text-sm mt-2 font-medium" style={{ color: 'var(--primary)' }}>

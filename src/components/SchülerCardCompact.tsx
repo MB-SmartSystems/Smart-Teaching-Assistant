@@ -144,6 +144,10 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   const todayAttendance = getTodayAttendance(student.id)
   const attendanceStats = getAttendanceStats(student.id, 30)
 
+  // Guthaben State (Lehrerabsage-Guthaben, lokale Spiegelung für sofortiges UI-Feedback)
+  const [localGuthaben, setLocalGuthaben] = useState(student.guthabenMinuten)
+  const [isLehrerAbsageLoading, setIsLehrerAbsageLoading] = useState(false)
+
   // Felder die KEINEN Toast bekommen (zu häufig geändert)
   const SILENT_FIELDS = new Set(['buch', 'seite', 'übung', 'buch2', 'seite2', 'übung2'])
 
@@ -293,6 +297,36 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
     setAttendanceKey(Date.now()) // Force re-render
   }
 
+  // Lehrerabsage: Anwesenheit setzen + Guthaben gutschreiben
+  const handleLehrerAbsage = async () => {
+    if (isLehrerAbsageLoading) return
+    setIsLehrerAbsageLoading(true)
+
+    // Anwesenheit sofort lokal setzen
+    setAttendance(student.id, getTodayString(), 'vom_lehrer_abgesagt')
+    setAttendanceKey(Date.now())
+
+    try {
+      const res = await fetch('/api/students/guthaben', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: student.id }),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setLocalGuthaben(data.neuesGuthaben)
+        toast.success(`✅ ${data.minuten} Min gutgeschrieben. Guthaben: ${data.neuesGuthaben} Min`)
+      } else {
+        toast.error(data.error || '❌ Fehler beim Gutschreiben')
+      }
+    } catch {
+      toast.error('❌ Netzwerkfehler beim Gutschreiben')
+    } finally {
+      setIsLehrerAbsageLoading(false)
+    }
+  }
+
   if (!isOpen) return null
 
   return (
@@ -317,6 +351,11 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             {student.monatlicherbetrag && (
               <p className="text-white/80 text-sm mt-1">
                 💰 {student.monatlicherbetrag}€ / Monat
+              </p>
+            )}
+            {localGuthaben > 0 && (
+              <p className="text-sm mt-1 font-semibold" style={{ color: '#34d399' }}>
+                💳 Guthaben: {localGuthaben} Min
               </p>
             )}
             {student.geburtsdatum && (() => {
@@ -606,8 +645,9 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
           {/* Anwesenheit - Vereinfacht */}
           <div className="mb-6">
             <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>📅 Anwesenheit Heute</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              {(['krank_abgemeldet', 'schulfrei', 'nicht_erschienen'] as AttendanceStatus[]).map(status => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {/* Standard-Buttons: Abgemeldet, Schulfrei, Nicht erschienen */}
+              {(['vom_schueler_abgesagt', 'schulfrei', 'nicht_erschienen'] as AttendanceStatus[]).map(status => (
                 <button
                   key={status}
                   onClick={() => handleAttendanceUpdate(status)}
@@ -621,9 +661,25 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                   {getStatusText(status)}
                 </button>
               ))}
+
+              {/* Von Lehrer abgesagt – mit Guthaben-Gutschrift */}
+              <button
+                onClick={handleLehrerAbsage}
+                disabled={isLehrerAbsageLoading}
+                className="font-medium py-3 px-4 rounded-lg transition-colors text-sm"
+                style={
+                  todayAttendance?.status === 'vom_lehrer_abgesagt'
+                    ? { backgroundColor: getStatusColor('vom_lehrer_abgesagt'), color: 'white' }
+                    : isLehrerAbsageLoading
+                    ? { backgroundColor: '#374151', color: '#6b7280', border: '1px solid #4b5563', cursor: 'wait' }
+                    : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #f59e0b' }
+                }
+              >
+                {isLehrerAbsageLoading ? '⏳ Speichert...' : 'Von Lehrer abgesagt'}
+              </button>
             </div>
             <div className="mt-3 text-sm" style={{ color: '#9ca3af' }}>
-              💡 Standard: Erschienen (keine Auswahl nötig)
+              💡 Standard: Erschienen (keine Auswahl nötig) · &quot;Von Lehrer abgesagt&quot; schreibt Unterrichtsguthaben gut
             </div>
           </div>
 
