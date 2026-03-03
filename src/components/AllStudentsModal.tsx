@@ -221,7 +221,7 @@ export default function AllStudentsModal({ students, onClose, onStudentClick }: 
             }}
           >
             <option value="all">Schlagzeug: Alle</option>
-            <option value="drums-yes">Hat Schlagzeug</option>
+            <option value="drums-yes">Hat Schlagzeug/Klavier</option>
             <option value="drums-no">Kein Schlagzeug</option>
             <option value="drums-unknown">Unbekannt</option>
           </select>

@@ -147,6 +147,11 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   // Guthaben State (Lehrerabsage-Guthaben, lokale Spiegelung für sofortiges UI-Feedback)
   const [localGuthaben, setLocalGuthaben] = useState(student.guthabenMinuten)
   const [isLehrerAbsageLoading, setIsLehrerAbsageLoading] = useState(false)
+  // Persistente Sperre: verhindert Mehrfach-Klick über Modal-Schließen hinaus
+  const [alreadyAbgemeldetToday, setAlreadyAbgemeldetToday] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return !!localStorage.getItem(`lehrerabsage_${student.id}_${getTodayString()}`)
+  })
 
   // Felder die KEINEN Toast bekommen (zu häufig geändert)
   const SILENT_FIELDS = new Set(['buch', 'seite', 'übung', 'buch2', 'seite2', 'übung2'])
@@ -299,7 +304,16 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
 
   // Lehrerabsage: Anwesenheit setzen + Guthaben gutschreiben
   const handleLehrerAbsage = async () => {
-    if (isLehrerAbsageLoading) return
+    if (isLehrerAbsageLoading || alreadyAbgemeldetToday) return
+
+    // Persistente Doppelklick-Prüfung via localStorage (überlebt Modal-Schließen)
+    const lsKey = `lehrerabsage_${student.id}_${getTodayString()}`
+    if (localStorage.getItem(lsKey)) {
+      setAlreadyAbgemeldetToday(true)
+      toast.error('⚠️ Heute bereits gutgeschrieben')
+      return
+    }
+
     setIsLehrerAbsageLoading(true)
 
     // Anwesenheit sofort lokal setzen
@@ -315,6 +329,9 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
       const data = await res.json()
 
       if (res.ok) {
+        // Sperre für heute setzen (wird bei Mitternacht automatisch ungültig, da Datum im Key)
+        localStorage.setItem(lsKey, '1')
+        setAlreadyAbgemeldetToday(true)
         setLocalGuthaben(data.neuesGuthaben)
         toast.success(`✅ ${data.minuten} Min gutgeschrieben. Guthaben: ${data.neuesGuthaben} Min`)
       } else {
@@ -619,7 +636,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
 
           {/* Schlagzeug */}
           <div className="mb-6">
-            <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>🥁 Hat Schlagzeug</h3>
+            <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>🥁 Hat Schlagzeug/Klavier</h3>
             <div className="grid grid-cols-3 gap-2">
               {['Ja', 'Nein', 'Unbekannt'].map(status => (
                 <button
@@ -665,17 +682,17 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               {/* Von Lehrer abgesagt – mit Guthaben-Gutschrift */}
               <button
                 onClick={handleLehrerAbsage}
-                disabled={isLehrerAbsageLoading}
+                disabled={isLehrerAbsageLoading || alreadyAbgemeldetToday}
                 className="font-medium py-3 px-4 rounded-lg transition-colors text-sm"
                 style={
-                  todayAttendance?.status === 'vom_lehrer_abgesagt'
+                  todayAttendance?.status === 'vom_lehrer_abgesagt' || alreadyAbgemeldetToday
                     ? { backgroundColor: getStatusColor('vom_lehrer_abgesagt'), color: 'white' }
                     : isLehrerAbsageLoading
                     ? { backgroundColor: '#374151', color: '#6b7280', border: '1px solid #4b5563', cursor: 'wait' }
                     : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #f59e0b' }
                 }
               >
-                {isLehrerAbsageLoading ? '⏳ Speichert...' : 'Von Lehrer abgesagt'}
+                {isLehrerAbsageLoading ? '⏳ Speichert...' : alreadyAbgemeldetToday ? '✅ Heute erledigt' : 'Von Lehrer abgesagt'}
               </button>
             </div>
             <div className="mt-3 text-sm" style={{ color: '#9ca3af' }}>
