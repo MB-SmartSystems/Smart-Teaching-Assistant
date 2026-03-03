@@ -18,6 +18,7 @@ import PreiserhoehungsDashboard from '@/components/PreiserhoehungsDashboard'
 import AllStudentsModal from '@/components/AllStudentsModal'
 import { ToastProvider } from '@/components/Toast'
 import AufgabenWidget from '@/components/AufgabenWidget'
+import { calcAge, hadRecentBirthday } from '@/lib/birthday'
 
 export default function Home() {
   const [students, setStudents] = useState<SchülerApp[]>([])
@@ -383,7 +384,24 @@ export default function Home() {
                           <span>⏰ {student.unterrichtszeit}</span>
                           {student.buch && <span>📖 {student.buch}</span>}
                           {student.monatlicherbetrag && <span>💰 {student.monatlicherbetrag}€</span>}
-                          {student.alter && <span>🎂 {student.alter} Jahre</span>}
+                          {student.geburtsdatum && (() => {
+                            const age = calcAge(student.geburtsdatum)
+                            const hasBirthday = hadRecentBirthday(student.geburtsdatum)
+                            return (
+                              <>
+                                {hasBirthday && (
+                                  <span
+                                    className="font-bold animate-pulse"
+                                    style={{ color: '#fbbf24', textShadow: '0 0 8px rgba(251,191,36,0.6)' }}
+                                    title="Geburtstag in den letzten 14 Tagen!"
+                                  >
+                                    🎂
+                                  </span>
+                                )}
+                                {age !== null && <span>{age} Jahre</span>}
+                              </>
+                            )
+                          })()}
                           {student.startdatum && <span>📅 seit {new Date(student.startdatum).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })}</span>}
                         </div>
                         {student.wichtigerFokus && (

@@ -10,15 +10,16 @@ import SongSuggestions from './SongSuggestions'
 import { useToast } from './Toast'
 import { FlexKarte, fetchFlexKarten, getRestStunden, getVerbraucht } from '@/lib/flexKarten'
 import { createUnterrichtseinheit, updateFlexKarteStunden } from '@/lib/unterrichtseinheiten'
-import { 
-  getTodayAttendance, 
-  setAttendance, 
-  getAttendanceStats, 
+import {
+  getTodayAttendance,
+  setAttendance,
+  getAttendanceStats,
   getTodayString,
   AttendanceStatus,
   getStatusText,
   getStatusColor
 } from '@/lib/attendance'
+import { calcAge, hadRecentBirthday } from '@/lib/birthday'
 
 interface SchülerCardCompactProps {
   student: SchülerApp
@@ -318,6 +319,27 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                 💰 {student.monatlicherbetrag}€ / Monat
               </p>
             )}
+            {student.geburtsdatum && (() => {
+              const age = calcAge(student.geburtsdatum)
+              const hasBirthday = hadRecentBirthday(student.geburtsdatum)
+              const formatted = new Date(student.geburtsdatum).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+              return (
+                <p className="text-white/80 text-sm mt-1 flex items-center gap-2">
+                  {hasBirthday ? (
+                    <span
+                      className="font-bold animate-pulse"
+                      style={{ color: '#fbbf24', textShadow: '0 0 8px rgba(251,191,36,0.6)', fontSize: '1.1em' }}
+                      title="Geburtstag in den letzten 14 Tagen – Glückwunsch noch nicht überbracht?"
+                    >
+                      🎂
+                    </span>
+                  ) : (
+                    <span>🎂</span>
+                  )}
+                  {formatted}{age !== null && ` (${age} Jahre)`}
+                </p>
+              )
+            })()}
           </div>
           
           <div className="flex gap-3">

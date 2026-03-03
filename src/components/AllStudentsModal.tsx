@@ -2,6 +2,7 @@
 
 import { SchülerApp } from '@/lib/baserow'
 import { useState } from 'react'
+import { calcAge, hadRecentBirthday } from '@/lib/birthday'
 
 interface AllStudentsModalProps {
   students: SchülerApp[]
@@ -237,6 +238,8 @@ export default function AllStudentsModal({ students, onClose, onStudentClick }: 
               {filteredStudents.map((student) => {
                 const drums = getDrumsBadge(student.hatSchlagzeug)
                 const zahlung = getZahlungBadge(student.zahlungStatus)
+                const age = calcAge(student.geburtsdatum)
+                const hasBirthday = hadRecentBirthday(student.geburtsdatum)
 
                 return (
                   <div
@@ -245,13 +248,23 @@ export default function AllStudentsModal({ students, onClose, onStudentClick }: 
                     className="rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 border"
                     style={{
                       backgroundColor: 'var(--bg-secondary, rgb(31, 41, 55))',
-                      borderColor: 'var(--border-light, rgb(55, 65, 81))',
+                      borderColor: hasBirthday ? '#fbbf24' : 'var(--border-light, rgb(55, 65, 81))',
+                      boxShadow: hasBirthday ? '0 0 0 1px rgba(251,191,36,0.4)' : undefined,
                     }}
                   >
                     {/* Name + Status Badge */}
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <div className="font-bold text-base" style={{ color: 'var(--text-primary, white)' }}>
+                        <div className="font-bold text-base flex items-center gap-1.5" style={{ color: 'var(--text-primary, white)' }}>
+                          {hasBirthday && (
+                            <span
+                              className="animate-pulse"
+                              title="Geburtstag in den letzten 14 Tagen!"
+                              style={{ fontSize: '1.1em' }}
+                            >
+                              🎂
+                            </span>
+                          )}
                           {student.vorname} {student.nachname}
                         </div>
                         {student.anfrageStatus && (
@@ -260,13 +273,23 @@ export default function AllStudentsModal({ students, onClose, onStudentClick }: 
                           </div>
                         )}
                       </div>
-                      {/* Schlagzeug Badge */}
-                      <span
-                        className="px-2 py-0.5 rounded text-xs font-semibold text-white shrink-0 ml-2"
-                        style={{ backgroundColor: drums.bg }}
-                      >
-                        {drums.text}
-                      </span>
+                      {/* Badges: Alter + Schlagzeug */}
+                      <div className="flex flex-col items-end gap-1 ml-2 shrink-0">
+                        {age !== null && (
+                          <span
+                            className="px-2 py-0.5 rounded text-xs font-semibold"
+                            style={{ backgroundColor: 'var(--bg-light)', color: 'var(--text-muted)' }}
+                          >
+                            {age} J
+                          </span>
+                        )}
+                        <span
+                          className="px-2 py-0.5 rounded text-xs font-semibold text-white"
+                          style={{ backgroundColor: drums.bg }}
+                        >
+                          {drums.text}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Details */}
