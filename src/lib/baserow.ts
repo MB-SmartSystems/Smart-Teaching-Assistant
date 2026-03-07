@@ -35,6 +35,7 @@ export interface Schüler {
   field_7849: { id: number; value: string; color: string } | null // Empfehlung/Quelle
   field_8370: { id: number; value: string; color: string } | null // Hat Schlagzeug
   field_8172: number | null // Guthaben_Minuten (Lehrerabsage-Guthaben)
+  field_7851: number | null // Unterrichtsdauer in Minuten (30, 45 oder 60)
 }
 
 // Vereinfachte Schüler-Struktur für die App
@@ -64,6 +65,7 @@ export interface SchülerApp {
   hatSchlagzeug: string // 'Ja' | 'Nein' | 'Unbekannt'
   alter: string // field_7821 (Alter)
   guthabenMinuten: number // field_8172 (Lehrerabsage-Guthaben in Minuten)
+  unterrichtsdauer: number // field_7851 (Unterrichtsdauer in Minuten: 30, 45 oder 60)
 }
 
 // API Helper Funktionen - alle über Server-Side API Routes
@@ -133,6 +135,7 @@ export function convertToAppFormat(baserowStudent: Schüler): SchülerApp {
     hatSchlagzeug: baserowStudent.field_8370?.value || 'Unbekannt',
     alter: baserowStudent.field_7821 || '',
     guthabenMinuten: baserowStudent.field_8172 ?? 0,
+    unterrichtsdauer: baserowStudent.field_7851 ?? 45,
   }
 }
 

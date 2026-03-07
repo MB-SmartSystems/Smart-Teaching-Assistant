@@ -67,6 +67,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
   })
   const [showBuch2, setShowBuch2] = useState(!!student.buch2)
   const [localZahlung, setLocalZahlung] = useState(student.zahlungStatus)
+  const [localGuthaben, setLocalGuthaben] = useState(student.guthabenMinuten)
 
   // Anwesenheits-State (attendanceVersion erzwingt Re-Read nach Update)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -260,6 +261,18 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     } catch (error) {
       console.error('Fehler beim Update des Zahlungsstatus:', error)
       setLocalZahlung(student.zahlungStatus) // Revert on error
+    }
+  }
+
+  // Guthaben-Minuten updaten
+  const handleGuthabenUpdate = async (neuesGuthaben: number) => {
+    const clamped = Math.max(0, neuesGuthaben)
+    setLocalGuthaben(clamped)
+    try {
+      await BaserowAPI.updateStudentField(student.id, 'field_8172', clamped)
+    } catch (error) {
+      console.error('Fehler beim Update des Guthabens:', error)
+      setLocalGuthaben(localGuthaben) // Revert on error
     }
   }
 
@@ -732,7 +745,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 Schüler abgesagt
               </button>
               <button
-                onClick={() => handleAttendanceUpdate('vom_lehrer_abgesagt')}
+                onClick={() => { handleAttendanceUpdate('vom_lehrer_abgesagt'); handleGuthabenUpdate(localGuthaben + student.unterrichtsdauer) }}
                 className="font-medium py-2 px-3 rounded-lg transition-colors text-white text-sm"
                 style={{ backgroundColor: 'var(--status-warning)' }}
               >
@@ -759,6 +772,48 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
             </div>
           </div>
         )}
+      </div>
+
+
+      {/* Minuten-Guthaben */}
+      <div className="mb-6">
+        <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>⏱ Minuten-Guthaben</h3>
+        <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--accent-light)' }}>
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-2xl font-bold" style={{ color: localGuthaben > 0 ? 'var(--status-warning)' : 'var(--text-muted)' }}>
+              {localGuthaben} min
+            </span>
+            {localGuthaben > 0 && (
+              <span className="text-sm px-2 py-1 rounded-full font-medium" style={{ backgroundColor: 'rgba(234, 179, 8, 0.2)', color: 'var(--status-warning)' }}>
+                Ausstehend
+              </span>
+            )}
+            {localGuthaben === 0 && (
+              <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Kein Guthaben</span>
+            )}
+          </div>
+
+          {localGuthaben > 0 && (
+            <>
+              <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>Nachholen — wähle die nachgeholten Minuten:</p>
+              <div className="grid grid-cols-4 gap-2">
+                {[15, 30, 45, 60].map((min) => (
+                  <button
+                    key={min}
+                    onClick={() => handleGuthabenUpdate(localGuthaben - min)}
+                    disabled={min > localGuthaben}
+                    className="font-medium py-2 px-2 rounded-lg text-sm transition-colors"
+                    style={min > localGuthaben
+                      ? { backgroundColor: 'var(--bg-primary)', color: 'var(--text-muted)', border: '1px solid var(--border-light)', opacity: 0.4 }
+                      : { backgroundColor: 'var(--accent-light)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+                  >
+                    −{min} min
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Einnahmen */}
