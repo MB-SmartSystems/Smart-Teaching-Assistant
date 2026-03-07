@@ -35,7 +35,7 @@ export interface Schüler {
   field_7849: { id: number; value: string; color: string } | null // Empfehlung/Quelle
   field_8370: { id: number; value: string; color: string } | null // Hat Schlagzeug
   field_8172: number | null // Guthaben_Minuten (Lehrerabsage-Guthaben)
-  field_7851: number | null // Unterrichtsdauer in Minuten (30, 45 oder 60)
+  field_7851: { id: number; value: string; color: string } | null // Unterrichtsdauer (Single-Select: 30, 45, 60)
 }
 
 // Vereinfachte Schüler-Struktur für die App
@@ -135,7 +135,7 @@ export function convertToAppFormat(baserowStudent: Schüler): SchülerApp {
     hatSchlagzeug: baserowStudent.field_8370?.value || 'Unbekannt',
     alter: baserowStudent.field_7821 || '',
     guthabenMinuten: baserowStudent.field_8172 ?? 0,
-    unterrichtsdauer: baserowStudent.field_7851 ?? 45,
+    unterrichtsdauer: parseInt(baserowStudent.field_7851?.value || "45") || 45,
   }
 }
 
