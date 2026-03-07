@@ -96,10 +96,11 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
     const lastLessonDate = getLastLessonDate(student.unterrichtstag)
     if (lastLessonDate && thisYearBirthday > lastLessonDate && thisYearBirthday < today) {
       const daysSince = Math.floor((today.getTime() - thisYearBirthday.getTime()) / (1000 * 60 * 60 * 24))
-      return { 
-        text: `Geburtstag seit letzter Stunde (vor ${daysSince} Tag${daysSince !== 1 ? 'en' : ''}) 🎂`, 
+      return {
+        text: `Hatte vor ${daysSince} Tag${daysSince !== 1 ? 'en' : ''} Geburtstag – schon gratuliert?`,
         color: 'var(--primary)',
-        priority: 2 
+        priority: 2,
+        type: 'since-last-lesson' as const
       }
     }
     
@@ -339,7 +340,7 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
           )}
         </div>
         
-        {birthdayStatus && (
+        {birthdayStatus && birthdayStatus.priority !== 2 && (
           <span className="px-3 py-2 rounded-lg text-white text-sm font-bold" style={{
             backgroundColor: birthdayStatus.color
           }}>
@@ -347,6 +348,20 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
           </span>
         )}
       </div>
+
+      {/* Geburtstag-Banner: seit letzter Stunde */}
+      {birthdayStatus && birthdayStatus.priority === 2 && (
+        <div className="flex items-center gap-3 rounded-xl px-5 py-4 mb-6 animate-pulse" style={{
+          background: 'linear-gradient(135deg, #be185d, #7c3aed)',
+          boxShadow: '0 0 0 3px rgba(190, 24, 93, 0.4)'
+        }}>
+          <span className="text-3xl">🎂</span>
+          <div>
+            <p className="text-white font-bold text-base leading-tight">Geburtstag verpasst!</p>
+            <p className="text-pink-100 text-sm mt-0.5">{birthdayStatus.text}</p>
+          </div>
+        </div>
+      )}
 
       {/* Buch und Stand */}
       <div className="grid grid-cols-1 gap-6 mb-6">
