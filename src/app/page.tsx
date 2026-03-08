@@ -190,10 +190,10 @@ export default function Home() {
     <ToastProvider>
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
-      <header style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }} className="shadow-lg border-b p-6">
+      <header style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }} className="shadow-lg border-b p-4 sm:p-6">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <div>
-            <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="text-xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
               Smart Teaching Assistant
             </h1>
             <p className="text-base font-medium" style={{ color: 'var(--text-secondary)' }}>
@@ -215,9 +215,9 @@ export default function Home() {
           </div>
           
           <div className="text-right">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-end">
               {/* Sync Status */}
-              <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full" style={{ 
                   backgroundColor: syncStatus.status === 'synced' ? 'var(--status-success)' :
                                  syncStatus.status === 'syncing' ? 'var(--status-warning)' :
@@ -273,7 +273,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="p-6 max-w-6xl mx-auto">
+      <main className="p-3 sm:p-6 max-w-6xl mx-auto">
         
         {/* Auto-Switch Status Card - Modern Design */}
         {isClient && autoSwitchStatus && (

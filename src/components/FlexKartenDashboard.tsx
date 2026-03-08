@@ -195,7 +195,7 @@ export default function FlexKartenDashboard() {
         </button>
 
         {showStats && (
-          <div className="grid grid-cols-3 gap-4 p-4" style={{ backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-light)' }}>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 p-4" style={{ backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-light)' }}>
             <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--accent-light)' }}>
               <div className="text-xl font-bold" style={{ color: 'var(--status-success)' }}>
                 {totalEinnahmen.toFixed(0)}€

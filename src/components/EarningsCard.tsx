@@ -156,7 +156,7 @@ export default function EarningsCard({ student }: EarningsCardProps) {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-4 mb-4">
 
         {/* Bisher bezahlt */}
         <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--accent-light)' }}>

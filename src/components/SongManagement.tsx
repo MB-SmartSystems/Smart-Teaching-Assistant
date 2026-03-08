@@ -81,7 +81,7 @@ export default function SongManagement({ isOpen, onClose }: SongManagementProps)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden" style={{
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-hidden" style={{
         backgroundColor: 'var(--bg-secondary)'
       }}>
         {/* Header */}
@@ -243,7 +243,7 @@ export default function SongManagement({ isOpen, onClose }: SongManagementProps)
                   Neues Lied hinzufügen
                 </h3>
                 
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <input
                     type="text"
                     placeholder="Liedtitel"
@@ -270,7 +270,7 @@ export default function SongManagement({ isOpen, onClose }: SongManagementProps)
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                   <select
                     value={newSong.book}
                     onChange={(e) => setNewSong({...newSong, book: e.target.value})}
@@ -313,7 +313,7 @@ export default function SongManagement({ isOpen, onClose }: SongManagementProps)
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <select
                     value={newSong.difficulty}
                     onChange={(e) => setNewSong({...newSong, difficulty: e.target.value as any})}

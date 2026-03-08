@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Mobile Schüler-Management für Schlagzeugunterricht",
   manifest: "/manifest.json",
   themeColor: "#4ade80",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
   icons: {
     icon: "/icon-192.png",
     apple: "/icon-192.png",

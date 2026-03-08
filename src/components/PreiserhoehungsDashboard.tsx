@@ -40,7 +40,7 @@ export default function PreiserhoehungsDashboard() {
       </h2>
 
       {/* Zusammenfassung */}
-      <div className="grid grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
         <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}>
           <div className="text-xl font-bold" style={{ color: 'var(--primary)' }}>
             +{totalDiff.toFixed(0)}€

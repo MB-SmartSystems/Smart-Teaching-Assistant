@@ -120,7 +120,7 @@ export default function AllStudentsModal({ students, onClose, onStudentClick }: 
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-xl" style={{ backgroundColor: 'var(--card-background, var(--bg-secondary))' }}>
+      <div className="w-full max-w-full sm:max-w-4xl lg:max-w-6xl max-h-[90vh] overflow-hidden rounded-xl" style={{ backgroundColor: 'var(--card-background, var(--bg-secondary))' }}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--border-color, var(--border-light))', backgroundColor: 'var(--background, var(--bg-primary))' }}>
           <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -136,14 +136,14 @@ export default function AllStudentsModal({ students, onClose, onStudentClick }: 
         </div>
 
         {/* Controls */}
-        <div className="p-4 border-b flex flex-wrap gap-3 items-center" style={{ borderColor: 'var(--border-color, var(--border-light))', backgroundColor: 'var(--accent-light, var(--bg-secondary))' }}>
+        <div className="p-3 sm:p-4 border-b flex flex-wrap gap-2 sm:gap-3 items-center" style={{ borderColor: 'var(--border-color, var(--border-light))', backgroundColor: 'var(--accent-light, var(--bg-secondary))' }}>
           {/* Suche */}
           <input
             type="text"
             placeholder="Nach Namen suchen..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-2 rounded border flex-1 min-w-[200px]"
+            className="px-3 py-2 rounded border flex-1 min-w-0 w-full sm:min-w-[200px]"
             style={{
               backgroundColor: 'var(--bg-primary)',
               borderColor: 'var(--border-medium)',
