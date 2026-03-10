@@ -156,17 +156,9 @@ export default function Home() {
     setSelectedStudent(null)
   }
 
-  // Heutige Schüler - nur wenn Client hydrated und Zeit verfügbar, ausschließlich Absagen
+  // Heutige Schüler - alle mit heutigem Unterrichtstag, auch Abgesagte (werden nur gedimmt)
   const todaysStudents = isClient && currentTime ? students.filter(s => {
-    // Nur Schüler mit heutigem Unterrichtstag
     if (s.unterrichtstag !== getCurrentDay()) return false
-    
-    // Prüfen ob Schüler heute abgesagt hat
-    const todayAttendance = getTodayAttendance(s.id)
-    if (todayAttendance && todayAttendance.status !== 'erschienen') {
-      return false // Schüler hat abgesagt / schulfrei / nicht erschienen, nicht anzeigen
-    }
-    
     return true
   }) : []
 
@@ -313,6 +305,8 @@ export default function Home() {
                     const isCurrent = student.id === currentStudentId
                     const startTime = student.unterrichtszeit.split('-')[0] || '00:00'
                     const isPast = now && startTime < now && !isCurrent
+                    const todayAttendance = getTodayAttendance(student.id)
+                    const isAbsent = todayAttendance && todayAttendance.status !== 'erschienen'
 
                     if (isCurrent) {
                       // Large card with blue accent — col-span-2
@@ -376,12 +370,15 @@ export default function Home() {
                         onClick={() => setSelectedStudent(student.id)}
                         className="rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 relative"
                         style={{
-                          background: isPast ? 'rgba(26,26,26,0.6)' : 'var(--bg-secondary)',
-                          border: `1px solid ${isPast ? 'rgba(64,64,64,0.5)' : 'var(--border-light)'}`,
-                          opacity: isPast ? 0.65 : 1
+                          background: isAbsent ? 'rgba(20,20,20,0.5)' : isPast ? 'rgba(26,26,26,0.6)' : 'var(--bg-secondary)',
+                          border: `1px solid ${isAbsent ? 'rgba(239,68,68,0.25)' : isPast ? 'rgba(64,64,64,0.5)' : 'var(--border-light)'}`,
+                          opacity: isAbsent ? 0.5 : isPast ? 0.65 : 1
                         }}
                       >
-                        {isPast && (
+                        {isAbsent && (
+                          <span className="absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>✕ Abgesagt</span>
+                        )}
+                        {!isAbsent && isPast && (
                           <span className="absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(16,185,129,0.2)', color: '#10b981' }}>✓</span>
                         )}
                         <div className="font-bold text-base mb-1" style={{ color: 'var(--text-primary)' }}>
