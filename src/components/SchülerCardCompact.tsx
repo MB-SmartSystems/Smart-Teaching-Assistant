@@ -366,44 +366,46 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }} onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar rounded-2xl shadow-2xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }}>
         
-        {/* Header - Modern Design */}
-        <div className="flex items-center justify-between p-6 border-b" style={{ 
-          borderColor: 'var(--border-light)', 
-          background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))'
+        {/* Header */}
+        <div className="flex items-start justify-between p-5 border-b" style={{
+          borderColor: 'rgba(255,255,255,0.06)',
+          background: 'linear-gradient(160deg, #1e1a16 0%, #0f0c09 100%)'
         }}>
-          <div>
-            <h2 className="text-2xl font-bold text-white">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-2xl font-bold" style={{ color: '#fafaf9', letterSpacing: '-0.01em' }}>
               {student.vorname} {student.nachname}
             </h2>
-            <div className="flex items-center gap-4 mt-2 text-white/90">
-              <span>📅 {student.unterrichtstag} {student.unterrichtszeit}</span>
+            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+              <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                {student.unterrichtstag} · {student.unterrichtszeit}
+              </span>
               {student.anfrageStatus && (
                 <span className="badge badge-success">{student.anfrageStatus}</span>
               )}
+              {student.monatlicherbetrag && (
+                <span className="text-sm font-semibold" style={{ color: '#f59e0b' }}>
+                  {student.monatlicherbetrag} €/Mo
+                </span>
+              )}
             </div>
-            {student.monatlicherbetrag && (
-              <p className="text-white/80 text-sm mt-1">
-                💰 {student.monatlicherbetrag}€ / Monat
-              </p>
-            )}
+
             {localGuthaben > 0 && (
-              <div className="mt-1">
-                <p className="text-sm font-semibold" style={{ color: '#34d399' }}>
-                  💳 Guthaben: {localGuthaben} Min
+              <div className="mt-3 rounded-xl p-3" style={{ backgroundColor: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-bold" style={{ color: '#f59e0b' }}>
+                    💳 Guthaben: {localGuthaben} Min
+                  </span>
+                </div>
+                <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  Nachgeholt — Minuten abziehen:
                 </p>
-                <div className="flex gap-1 mt-2 flex-wrap">
-                  <p className="text-xs w-full" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    Nachgeholt — Minuten abziehen:
-                  </p>
+                <div className="flex gap-2 flex-wrap">
                   {[15, 30, 45, 60].map((min) => (
                     <button
                       key={min}
                       onClick={() => handleGuthabenAbzug(min)}
                       disabled={min > localGuthaben}
-                      className="text-xs px-2 py-1 rounded font-medium"
-                      style={min > localGuthaben
-                        ? { backgroundColor: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.3)' }
-                        : { backgroundColor: 'rgba(52,211,153,0.2)', color: '#34d399', border: '1px solid #34d399' }}
+                      className="btn-guthaben-abzug"
                     >
                       −{min} min
                     </button>
@@ -446,11 +448,9 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
 
         <div className="p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           
-          {/* Buch 1 - Modern Card */}
-          <div className="card-compact mb-6">
-            <h3 className="font-semibold mb-4 text-lg flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-              📖 Buch
-            </h3>
+          {/* Buch 1 */}
+          <div className="card-compact mb-5">
+            <h3 className="section-header mb-3">📖 Buch</h3>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Buch</label>
               <BookDropdown
@@ -532,11 +532,9 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             </div>
           </div>
 
-          {/* Buch 2 - Modern Card */}
-          <div className="card-compact mb-6">
-            <h3 className="font-semibold mb-4 text-lg flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-              📚 Buch 2
-            </h3>
+          {/* Buch 2 */}
+          <div className="card-compact mb-5">
+            <h3 className="section-header mb-3">📚 Buch 2</h3>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Buch 2</label>
               <BookDropdown
@@ -619,34 +617,34 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
           </div>
 
           {/* Wichtiger Fokus */}
-          <div className="mb-6">
-            <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>🎯 Wichtiger Fokus</h3>
+          <div className="mb-5">
+            <h3 className="section-header">🎯 Wichtiger Fokus</h3>
             <textarea
               value={localValues.wichtigerFokus}
               onChange={(e) => updateLocalValue('wichtigerFokus', e.target.value)}
               onBlur={() => toast.success('Fokus gespeichert')}
-              className="w-full p-3 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
+              className="w-full"
               rows={3}
               placeholder="Was ist der wichtigste Fokus für diesen Schüler?"
             />
           </div>
 
           {/* Aktuelle Lieder */}
-          <div className="mb-6">
-            <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>🎵 Aktuelle Lieder</h3>
+          <div className="mb-5">
+            <h3 className="section-header">🎵 Aktuelle Lieder</h3>
             <textarea
               value={localValues.aktuelleLieder}
               onChange={(e) => updateLocalValue('aktuelleLieder', e.target.value)}
               onBlur={() => toast.success('Lieder gespeichert')}
-              className="w-full p-3 rounded border text-white bg-gray-800 border-gray-600 focus:border-blue-500"
+              className="w-full"
               rows={3}
               placeholder="Welche Lieder werden aktuell geübt?"
             />
           </div>
 
           {/* Zahlung */}
-          <div className="mb-6">
-            <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>💳 Zahlung</h3>
+          <div className="mb-5">
+            <h3 className="section-header">💳 Zahlung</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {['ja', 'nein', 'Paypal', 'unbekannt'].map(status => (
                 <button
@@ -671,8 +669,8 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
           </div>
 
           {/* Schlagzeug */}
-          <div className="mb-6">
-            <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>🥁 Hat Schlagzeug/Klavier</h3>
+          <div className="mb-5">
+            <h3 className="section-header">🥁 Hat Schlagzeug/Klavier</h3>
             <div className="grid grid-cols-3 gap-2">
               {['Ja', 'Nein', 'Unbekannt'].map(status => (
                 <button
@@ -695,9 +693,9 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             </div>
           </div>
 
-          {/* Anwesenheit - Vereinfacht */}
-          <div className="mb-6">
-            <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>📅 Anwesenheit Heute</h3>
+          {/* Anwesenheit */}
+          <div className="mb-5">
+            <h3 className="section-header">📅 Anwesenheit Heute</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {/* Standard-Buttons: Abgemeldet, Schulfrei, Nicht erschienen */}
               {(['vom_schueler_abgesagt', 'schulfrei', 'nicht_erschienen'] as AttendanceStatus[]).map(status => (
@@ -738,11 +736,11 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
 
           {/* Quick-Buttons: Stunde dokumentieren (nur wenn aktive FlexKarte) */}
           {activeFlexKarte && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>
+            <div className="mb-5">
+              <h3 className="section-header">
                 ⏱ Stunde dokumentieren
-                <span className="text-sm font-normal ml-2" style={{ color: '#9ca3af' }}>
-                  (Guthaben: {getRestStunden(activeFlexKarte).toFixed(1)} Std)
+                <span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>
+                  ({getRestStunden(activeFlexKarte).toFixed(1)} Std übrig)
                 </span>
               </h3>
               {confirmMinutes ? (
@@ -786,11 +784,10 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
           )}
 
           {/* Flex-Karte buchen */}
-          <div className="mb-6">
+          <div className="mb-5">
             <button
               onClick={() => setShowFlexBooking(true)}
-              className="w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors text-sm"
-              style={{ backgroundColor: 'var(--primary)' }}
+              className="btn-primary w-full justify-center py-3 text-sm"
             >
               🎫 Flex-Karte buchen
             </button>

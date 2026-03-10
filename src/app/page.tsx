@@ -190,13 +190,13 @@ export default function Home() {
     <ToastProvider>
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
-      <header style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }} className="shadow-lg border-b p-4 sm:p-6">
+      <header style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }} className="border-b p-4 sm:p-5">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
           <div>
-            <h1 className="text-xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="text-lg sm:text-2xl font-bold" style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
               Smart Teaching Assistant
             </h1>
-            <p className="text-base font-medium" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
               {isClient && currentTime ? (
                 <>
                   {getCurrentDay()}, {currentTime.toLocaleDateString('de-DE', { 
@@ -279,12 +279,13 @@ export default function Home() {
         {isClient && autoSwitchStatus && (
           <div className="mb-6">
             {autoSwitchStatus.currentStudent ? (
-              <div 
+              <div
                 onClick={() => setSelectedStudent(autoSwitchStatus.currentStudent!.id)}
                 className="card cursor-pointer group"
-                style={{ 
-                  background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
-                  border: 'none'
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b, #b45309)',
+                  border: 'none',
+                  boxShadow: '0 0 30px rgba(245,158,11,0.2)'
                 }}
               >
                 <div className="flex justify-between items-center">
@@ -310,19 +311,20 @@ export default function Home() {
                 </div>
               </div>
             ) : autoSwitchStatus.isWaitingTime && autoSwitchStatus.nextStudent ? (
-              <div 
+              <div
                 onClick={() => setSelectedStudent(autoSwitchStatus.nextStudent!.id)}
                 className="card cursor-pointer"
-                style={{ 
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  border: 'none'
+                style={{
+                  background: 'linear-gradient(135deg, #292524, #1c1917)',
+                  border: '1px solid rgba(245,158,11,0.3)',
+                  boxShadow: '0 0 20px rgba(245,158,11,0.08)'
                 }}
               >
-                <div className="font-bold text-xl text-white flex items-center gap-2">
+                <div className="font-bold text-xl flex items-center gap-2" style={{ color: '#f59e0b' }}>
                   ⏳ Nächster: {autoSwitchStatus.nextStudent.vorname} {autoSwitchStatus.nextStudent.nachname}
                 </div>
-                <div className="text-white/90 text-sm font-medium mt-2">
-                  {getCountdownText(autoSwitchStatus.minutesUntilNext)} • {autoSwitchStatus.nextStudent.unterrichtszeit}
+                <div className="text-sm font-medium mt-2" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                  {getCountdownText(autoSwitchStatus.minutesUntilNext)} · {autoSwitchStatus.nextStudent.unterrichtszeit}
                 </div>
               </div>
             ) : (
