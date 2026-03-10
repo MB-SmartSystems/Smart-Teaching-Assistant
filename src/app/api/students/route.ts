@@ -61,6 +61,7 @@ export async function PATCH(request: NextRequest) {
     'field_7858', // Zahlung läuft (Select-Feld)
     'field_8173', 'field_8174', 'field_8175', // Buch2/Seite2/Übung2
     'field_8370', // Hat Schlagzeug (Select-Feld)
+    'field_8802', // song_status (JSON string)
   ])
 
   // Fields that accept integer option IDs (single_select)
@@ -96,10 +97,10 @@ export async function PATCH(request: NextRequest) {
           )
         }
       } else {
-        // text fields: must be a string with max 1000 chars
-        if (typeof value !== 'string' || value.length > 1000) {
+        // text fields: must be a string with max 10000 chars
+        if (typeof value !== 'string' || value.length > 10000) {
           return NextResponse.json(
-            { error: 'Wert muss ein Text mit max. 1000 Zeichen sein' },
+            { error: 'Wert muss ein Text mit max. 10000 Zeichen sein' },
             { status: 400 }
           )
         }

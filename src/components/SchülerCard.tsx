@@ -6,6 +6,8 @@ import { useOfflineSync } from '@/lib/offlineSync'
 import BookDropdown from './BookDropdown'
 import EarningsCard from './EarningsCard'
 import SongSuggestions from './SongSuggestions'
+import SongManagement from './SongManagement'
+import { Song } from '@/lib/songs'
 import { 
   getTodayAttendance, 
   setAttendance, 
@@ -68,6 +70,18 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
   const [showBuch2, setShowBuch2] = useState(!!student.buch2)
   const [localZahlung, setLocalZahlung] = useState(student.zahlungStatus)
   const [localGuthaben, setLocalGuthaben] = useState(student.guthabenMinuten)
+  const [localSongStatus, setLocalSongStatus] = useState(student.songStatus || '')
+  const [showSongMgmt, setShowSongMgmt] = useState(false)
+  const [showAddSongForm, setShowAddSongForm] = useState(false)
+  const [newSongForm, setNewSongForm] = useState({
+    titel: '',
+    interpret: '',
+    schwierigkeit: 'Anfänger' as 'Anfänger' | 'Fortgeschritten' | 'Profi',
+    buch: student.buch || '',
+    mindest_seite: parseInt(student.seite || '1'),
+    mindest_uebung: 1,
+  })
+  const [savingNewSong, setSavingNewSong] = useState(false)
 
   // Anwesenheits-State (attendanceVersion erzwingt Re-Read nach Update)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -558,12 +572,16 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
           )}
         </div>
 
-        {/* Aktuelle Lieder */}
-        <div className="rounded-lg p-5 border-l-4" style={{ 
-          backgroundColor: 'var(--status-success-bg)', 
-          borderLeftColor: 'var(--status-success)' 
+        {/* Aktuelle Lieder + Vorschläge */}
+        <div className="rounded-lg p-5" style={{
+          backgroundColor: 'var(--primary-light)',
+          borderLeft: '4px solid var(--status-success)'
         }}>
-          <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>Heute gelernt</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold" style={{ color: '#ffffff' }}>Heute gelernt</h3>
+          </div>
+
+          {/* Aktuelle Lieder — Freitext */}
           {editingField === 'aktuelleLieder' ? (
             <input
               type="text"
@@ -574,22 +592,21 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
                 setEditingField(null)
               }}
               onKeyPress={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-              className="w-full p-3 border-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:border-transparent"
+              autoFocus
+              className="w-full p-2 rounded border text-sm mb-3"
               style={{
                 backgroundColor: 'var(--bg-primary)',
-                borderColor: 'var(--border-medium)',
-                color: 'var(--text-primary)',
-                '--tw-ring-color': 'var(--primary)'
-              } as React.CSSProperties}
-              placeholder="Z.B. We will rock you, Back in black"
-              autoFocus
+                borderColor: 'var(--primary)',
+                color: 'var(--text-primary)'
+              }}
             />
           ) : (
-            <div 
-              className="cursor-pointer p-3 rounded-lg border-2 border-dashed transition-colors"
+            <div
+              className="w-full p-2 rounded border text-sm mb-3 cursor-pointer"
               style={{
                 backgroundColor: 'var(--accent-light)',
-                borderColor: 'var(--border-medium)'
+                borderColor: 'var(--border-medium)',
+                color: localValues.aktuelleLieder ? 'var(--text-primary)' : 'var(--text-muted)'
               }}
               onClick={() => setEditingField('aktuelleLieder')}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
@@ -598,10 +615,110 @@ export default function SchülerCard({ student, isActive = false }: SchülerCard
               {localValues.aktuelleLieder || 'Neue Lieder hinzufügen...'}
             </div>
           )}
+
+          {/* Lied-Vorschläge */}
+          <SongSuggestions
+            student={{ ...student, songStatus: localSongStatus }}
+            onSongAccepted={(newStatus) => setLocalSongStatus(newStatus)}
+            onEditSong={() => setShowSongMgmt(true)}
+          />
+
+          {/* + Lied zur Datenbank */}
+          <div className="mt-3">
+            <button
+              onClick={() => setShowAddSongForm(!showAddSongForm)}
+              className="text-xs"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {showAddSongForm ? '✕ Abbrechen' : '+ Lied zur Datenbank hinzufügen'}
+            </button>
+
+            {showAddSongForm && (
+              <div className="mt-2 p-3 rounded border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-light)' }}>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <input
+                    type="text"
+                    placeholder="Titel"
+                    value={newSongForm.titel}
+                    onChange={e => setNewSongForm(p => ({...p, titel: e.target.value}))}
+                    className="p-2 rounded border text-xs"
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Interpret"
+                    value={newSongForm.interpret}
+                    onChange={e => setNewSongForm(p => ({...p, interpret: e.target.value}))}
+                    className="p-2 rounded border text-xs"
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  <select
+                    value={newSongForm.schwierigkeit}
+                    onChange={e => setNewSongForm(p => ({...p, schwierigkeit: e.target.value as 'Anfänger' | 'Fortgeschritten' | 'Profi'}))}
+                    className="p-2 rounded border text-xs"
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                  >
+                    <option>Anfänger</option>
+                    <option>Fortgeschritten</option>
+                    <option>Profi</option>
+                  </select>
+                  <input
+                    type="number"
+                    placeholder="Min. Seite"
+                    value={newSongForm.mindest_seite}
+                    onChange={e => setNewSongForm(p => ({...p, mindest_seite: parseInt(e.target.value)||1}))}
+                    className="p-2 rounded border text-xs"
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Min. Übung"
+                    value={newSongForm.mindest_uebung}
+                    onChange={e => setNewSongForm(p => ({...p, mindest_uebung: parseInt(e.target.value)||1}))}
+                    className="p-2 rounded border text-xs"
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+                <button
+                  disabled={!newSongForm.titel || !newSongForm.interpret || savingNewSong}
+                  onClick={async () => {
+                    setSavingNewSong(true)
+                    try {
+                      await fetch('/api/songs', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          titel: newSongForm.titel,
+                          interpret: newSongForm.interpret,
+                          schwierigkeit: newSongForm.schwierigkeit,
+                          buch: newSongForm.buch,
+                          mindest_seite: newSongForm.mindest_seite,
+                          mindest_uebung: newSongForm.mindest_uebung,
+                        })
+                      })
+                      setNewSongForm({ titel: '', interpret: '', schwierigkeit: 'Anfänger', buch: student.buch || '', mindest_seite: parseInt(student.seite || '1'), mindest_uebung: 1 })
+                      setShowAddSongForm(false)
+                    } catch {}
+                    setSavingNewSong(false)
+                  }}
+                  className="text-xs px-3 py-1 rounded"
+                  style={{
+                    backgroundColor: 'var(--primary)',
+                    color: 'white',
+                    opacity: (!newSongForm.titel || !newSongForm.interpret || savingNewSong) ? 0.5 : 1
+                  }}
+                >
+                  {savingNewSong ? 'Speichern...' : 'Zur Datenbank'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Liedvorschläge */}
-        <SongSuggestions student={student} />
+        {/* SongManagement Modal */}
+        <SongManagement isOpen={showSongMgmt} onClose={() => setShowSongMgmt(false)} />
       </div>
 
       {/* Zahlungsstatus */}

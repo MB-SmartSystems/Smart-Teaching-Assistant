@@ -1,407 +1,219 @@
 'use client'
 
-import { useState } from 'react'
-import { Song, SongSuggestion, StudentProgress, generateSongSuggestions, mockSongs } from '@/lib/songs'
+import { useState, useEffect } from 'react'
+import { Song, convertSongFromBaserow, SongBaserow } from '@/lib/songs'
 
 interface SongManagementProps {
   isOpen: boolean
   onClose: () => void
 }
 
-export default function SongManagement({ isOpen, onClose }: SongManagementProps) {
-  const [songs, setSongs] = useState<Song[]>(mockSongs)
-  const [selectedTab, setSelectedTab] = useState<'suggestions' | 'manage'>('suggestions')
-  const [newSong, setNewSong] = useState({
-    title: '',
-    artist: '',
-    book: 'Essential Beats',
-    minPage: 1,
-    minExercise: '1',
-    difficulty: 'anfaenger' as const,
-    techniqueFocus: '',
-    notes: ''
-  })
+const BOOKS = ['Essential Beats', 'Groove Essentials', 'Rock Beats']
+const DIFFICULTIES: Song['schwierigkeit'][] = ['Anfänger', 'Fortgeschritten', 'Profi']
 
-  // Mock Schüler-Fortschritt (später aus Props)
-  const mockStudentProgress: StudentProgress = {
-    currentBook: 'Essential Beats',
-    currentPage: 30,
-    currentExercise: '12',
-    techniqueFocus: 'Timing'
+const emptyForm = {
+  titel: '',
+  interpret: '',
+  schwierigkeit: 'Anfänger' as Song['schwierigkeit'],
+  buch: 'Essential Beats',
+  mindest_seite: 1,
+  mindest_uebung: 1,
+  reihenfolge: 0,
+}
+
+export default function SongManagement({ isOpen, onClose }: SongManagementProps) {
+  const [songs, setSongs] = useState<Song[]>([])
+  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [form, setForm] = useState({ ...emptyForm })
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editForm, setEditForm] = useState({ ...emptyForm })
+
+  useEffect(() => {
+    if (isOpen) loadSongs()
+  }, [isOpen])
+
+  const loadSongs = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/songs')
+      if (!res.ok) throw new Error('Fehler beim Laden')
+      const data = await res.json()
+      setSongs(data.map((s: SongBaserow) => convertSongFromBaserow(s)))
+    } catch (e) {
+      setError('Songs konnten nicht geladen werden.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const suggestions = generateSongSuggestions(mockStudentProgress, songs)
-
-  const addSong = () => {
-    if (!newSong.title || !newSong.artist) return
-
-    const song: Song = {
-      id: Date.now(), // Temporäre ID
-      title: newSong.title,
-      artist: newSong.artist,
-      book: newSong.book,
-      minPage: newSong.minPage,
-      minExercise: newSong.minExercise,
-      difficulty: newSong.difficulty,
-      techniqueFocus: newSong.techniqueFocus.split(',').map(t => t.trim()),
-      notes: newSong.notes || undefined,
-      active: true
+  const addSong = async () => {
+    if (!form.titel || !form.interpret || !form.buch) return
+    setSaving(true)
+    try {
+      const res = await fetch('/api/songs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          titel: form.titel,
+          interpret: form.interpret,
+          schwierigkeit: form.schwierigkeit,
+          buch: form.buch,
+          mindest_seite: form.mindest_seite,
+          mindest_uebung: form.mindest_uebung,
+          reihenfolge: form.reihenfolge,
+        })
+      })
+      if (!res.ok) throw new Error('Fehler')
+      const created: SongBaserow = await res.json()
+      setSongs(prev => [...prev, convertSongFromBaserow(created)])
+      setForm({ ...emptyForm })
+    } catch {
+      setError('Song konnte nicht gespeichert werden.')
+    } finally {
+      setSaving(false)
     }
+  }
 
-    setSongs([...songs, song])
-    setNewSong({
-      title: '',
-      artist: '',
-      book: 'Essential Beats', 
-      minPage: 1,
-      minExercise: '1',
-      difficulty: 'anfaenger',
-      techniqueFocus: '',
-      notes: ''
+  const startEdit = (song: Song) => {
+    setEditingId(song.id)
+    setEditForm({
+      titel: song.titel,
+      interpret: song.interpret,
+      schwierigkeit: song.schwierigkeit,
+      buch: song.buch,
+      mindest_seite: song.mindest_seite,
+      mindest_uebung: song.mindest_uebung,
+      reihenfolge: song.reihenfolge,
     })
   }
 
-  const getDifficultyColor = (difficulty: 'perfect' | 'easy' | 'challenging') => {
-    switch (difficulty) {
-      case 'perfect': return 'var(--status-success)'
-      case 'easy': return 'var(--status-warning)'
-      case 'challenging': return 'var(--status-error)'
+  const saveEdit = async () => {
+    if (!editingId) return
+    setSaving(true)
+    try {
+      const res = await fetch('/api/songs', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingId, ...editForm })
+      })
+      if (!res.ok) throw new Error('Fehler')
+      const updated: SongBaserow = await res.json()
+      setSongs(prev => prev.map(s => s.id === editingId ? convertSongFromBaserow(updated) : s))
+      setEditingId(null)
+    } catch {
+      setError('Song konnte nicht aktualisiert werden.')
+    } finally {
+      setSaving(false)
     }
   }
 
-  const getDifficultyText = (difficulty: 'perfect' | 'easy' | 'challenging') => {
-    switch (difficulty) {
-      case 'perfect': return 'Perfekt'
-      case 'easy': return 'Einfach'
-      case 'challenging': return 'Herausfordernd'
-    }
+  const inputStyle = {
+    backgroundColor: 'var(--bg-primary)',
+    borderColor: 'var(--border-medium)',
+    color: 'var(--text-primary)',
   }
 
   if (!isOpen) return null
 
+  const grouped = DIFFICULTIES.reduce((acc, diff) => {
+    acc[diff] = songs.filter(s => s.schwierigkeit === diff)
+    return acc
+  }, {} as Record<string, Song[]>)
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-hidden" style={{
-        backgroundColor: 'var(--bg-secondary)'
-      }}>
+      <div className="rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--bg-secondary)' }}>
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b" style={{
-          borderColor: 'var(--border-light)'
-        }}>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            🎵 Lieder-Datenbank
-          </h2>
-          <button
-            onClick={onClose}
-            className="btn-secondary"
-          >
-            Schließen
-          </button>
+        <div className="flex justify-between items-center p-6 border-b" style={{ borderColor: 'var(--border-light)' }}>
+          <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Lieder-Datenbank</h2>
+          <button onClick={onClose} className="btn-secondary">Schließen</button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b" style={{ borderColor: 'var(--border-light)' }}>
-          <button
-            onClick={() => setSelectedTab('suggestions')}
-            className={`px-6 py-3 font-medium transition-colors ${
-              selectedTab === 'suggestions' 
-                ? 'border-b-2 border-primary'
-                : ''
-            }`}
-            style={{
-              color: selectedTab === 'suggestions' ? 'var(--primary)' : 'var(--text-secondary)',
-              borderBottomColor: selectedTab === 'suggestions' ? 'var(--primary)' : 'transparent'
-            }}
-          >
-            Vorschläge
-          </button>
-          <button
-            onClick={() => setSelectedTab('manage')}
-            className={`px-6 py-3 font-medium transition-colors ${
-              selectedTab === 'manage' 
-                ? 'border-b-2 border-primary'
-                : ''
-            }`}
-            style={{
-              color: selectedTab === 'manage' ? 'var(--primary)' : 'var(--text-secondary)',
-              borderBottomColor: selectedTab === 'manage' ? 'var(--primary)' : 'transparent'
-            }}
-          >
-            Verwalten
-          </button>
-        </div>
+        <div className="overflow-y-auto flex-1 p-6 space-y-6">
+          {error && (
+            <div className="p-3 rounded text-sm" style={{ backgroundColor: 'var(--status-error)', color: 'white' }}>{error}</div>
+          )}
 
-        {/* Content */}
-        <div className="p-6 max-h-[60vh] overflow-y-auto">
-          
-          {/* Vorschläge Tab */}
-          {selectedTab === 'suggestions' && (
-            <div>
-              <div className="mb-4">
-                <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                  Liedvorschläge basierend auf aktuellem Fortschritt
-                </h3>
-                <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  Buch: {mockStudentProgress.currentBook} • 
-                  Seite: {mockStudentProgress.currentPage} • 
-                  Übung: {mockStudentProgress.currentExercise}
-                  {mockStudentProgress.techniqueFocus && ` • Fokus: ${mockStudentProgress.techniqueFocus}`}
-                </div>
-              </div>
+          {/* Neues Lied */}
+          <div>
+            <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Neues Lied hinzufügen</h3>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <input type="text" placeholder="Titel" value={form.titel} onChange={e => setForm({...form, titel: e.target.value})} className="p-2 rounded border text-sm" style={inputStyle} />
+              <input type="text" placeholder="Interpret" value={form.interpret} onChange={e => setForm({...form, interpret: e.target.value})} className="p-2 rounded border text-sm" style={inputStyle} />
+            </div>
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              <select value={form.schwierigkeit} onChange={e => setForm({...form, schwierigkeit: e.target.value as Song['schwierigkeit']})} className="p-2 rounded border text-sm" style={inputStyle}>
+                {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+              <select value={form.buch} onChange={e => setForm({...form, buch: e.target.value})} className="p-2 rounded border text-sm" style={inputStyle}>
+                {BOOKS.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
+              <input type="number" placeholder="Reihenfolge" value={form.reihenfolge} onChange={e => setForm({...form, reihenfolge: parseInt(e.target.value)||0})} className="p-2 rounded border text-sm" style={inputStyle} />
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <input type="number" placeholder="Min. Seite" value={form.mindest_seite} onChange={e => setForm({...form, mindest_seite: parseInt(e.target.value)||1})} className="p-2 rounded border text-sm" style={inputStyle} />
+              <input type="number" placeholder="Min. Übung" value={form.mindest_uebung} onChange={e => setForm({...form, mindest_uebung: parseInt(e.target.value)||1})} className="p-2 rounded border text-sm" style={inputStyle} />
+            </div>
+            <button onClick={addSong} disabled={!form.titel || !form.interpret || saving} className="btn-primary text-sm" style={{ opacity: (!form.titel || !form.interpret || saving) ? 0.5 : 1 }}>
+              {saving ? 'Speichern...' : 'Lied hinzufügen'}
+            </button>
+          </div>
 
-              {suggestions.length > 0 ? (
-                <div className="space-y-4">
-                  {suggestions.map((suggestion, index) => (
-                    <div 
-                      key={suggestion.song.id}
-                      className="rounded-lg p-4 border-l-4"
-                      style={{
-                        backgroundColor: 'var(--accent-light)',
-                        borderLeftColor: getDifficultyColor(suggestion.difficulty)
-                      }}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <div className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
-                            {suggestion.song.title}
+          {/* Liste */}
+          <div>
+            <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+              Alle Lieder ({songs.length})
+              {loading && <span className="text-sm font-normal ml-2" style={{ color: 'var(--text-muted)' }}>Laden...</span>}
+            </h3>
+            {DIFFICULTIES.map(diff => grouped[diff].length > 0 && (
+              <div key={diff} className="mb-4">
+                <div className="text-xs font-semibold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>{diff}</div>
+                <div className="space-y-2">
+                  {grouped[diff].map(song => (
+                    <div key={song.id}>
+                      {editingId === song.id ? (
+                        <div className="p-3 rounded border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--primary)' }}>
+                          <div className="grid grid-cols-2 gap-2 mb-2">
+                            <input type="text" value={editForm.titel} onChange={e => setEditForm({...editForm, titel: e.target.value})} className="p-2 rounded border text-sm" style={inputStyle} />
+                            <input type="text" value={editForm.interpret} onChange={e => setEditForm({...editForm, interpret: e.target.value})} className="p-2 rounded border text-sm" style={inputStyle} />
                           </div>
-                          <div className="text-base" style={{ color: 'var(--text-secondary)' }}>
-                            {suggestion.song.artist}
+                          <div className="grid grid-cols-4 gap-2 mb-2">
+                            <select value={editForm.schwierigkeit} onChange={e => setEditForm({...editForm, schwierigkeit: e.target.value as Song['schwierigkeit']})} className="p-2 rounded border text-sm" style={inputStyle}>
+                              {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                            <select value={editForm.buch} onChange={e => setEditForm({...editForm, buch: e.target.value})} className="p-2 rounded border text-sm" style={inputStyle}>
+                              {BOOKS.map(b => <option key={b} value={b}>{b}</option>)}
+                            </select>
+                            <input type="number" value={editForm.mindest_seite} onChange={e => setEditForm({...editForm, mindest_seite: parseInt(e.target.value)||1})} className="p-2 rounded border text-sm" style={inputStyle} placeholder="Seite" />
+                            <input type="number" value={editForm.mindest_uebung} onChange={e => setEditForm({...editForm, mindest_uebung: parseInt(e.target.value)||1})} className="p-2 rounded border text-sm" style={inputStyle} placeholder="Übung" />
+                          </div>
+                          <div className="flex gap-2">
+                            <button onClick={saveEdit} disabled={saving} className="btn-primary text-sm">Speichern</button>
+                            <button onClick={() => setEditingId(null)} className="btn-secondary text-sm">Abbrechen</button>
                           </div>
                         </div>
-                        <div 
-                          className="px-3 py-1 rounded-lg text-sm font-bold"
-                          style={{ 
-                            backgroundColor: getDifficultyColor(suggestion.difficulty),
-                            color: 'white'
-                          }}
-                        >
-                          {getDifficultyText(suggestion.difficulty)}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
-                        <div>Ab Seite {suggestion.song.minPage}</div>
-                        <div>Ab Übung {suggestion.song.minExercise}</div>
-                        {suggestion.song.tempo && <div>{suggestion.song.tempo} BPM</div>}
-                        {suggestion.song.timeSignature && <div>{suggestion.song.timeSignature} Takt</div>}
-                      </div>
-
-                      <div className="mb-2">
-                        <div className="text-xs font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
-                          Warum dieser Song:
-                        </div>
-                        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                          {suggestion.matchReason.join(' • ')}
-                        </div>
-                      </div>
-
-                      {suggestion.song.techniqueFocus.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {suggestion.song.techniqueFocus.map((tech, i) => (
-                            <span 
-                              key={i}
-                              className="px-2 py-1 rounded text-xs font-medium"
-                              style={{
-                                backgroundColor: 'var(--primary)',
-                                color: 'white'
-                              }}
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {suggestion.song.notes && (
-                        <div className="mt-3 text-sm" style={{ color: 'var(--text-muted)' }}>
-                          💡 {suggestion.song.notes}
+                      ) : (
+                        <div className="flex justify-between items-center p-3 rounded border" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--border-light)' }}>
+                          <div>
+                            <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{song.titel}</span>
+                            <span className="text-sm ml-2" style={{ color: 'var(--text-muted)' }}>{song.interpret}</span>
+                            <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>{song.buch} · S.{song.mindest_seite} · Ü.{song.mindest_uebung}</span>
+                          </div>
+                          <button onClick={() => startEdit(song)} className="text-sm px-2 py-1 rounded" style={{ color: 'var(--text-secondary)', backgroundColor: 'var(--bg-secondary)' }}>&#9998;</button>
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div 
-                  className="text-center py-8 rounded-lg"
-                  style={{ 
-                    backgroundColor: 'var(--accent-light)',
-                    color: 'var(--text-muted)'
-                  }}
-                >
-                  Keine passenden Lieder für den aktuellen Fortschritt gefunden.
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Verwalten Tab */}
-          {selectedTab === 'manage' && (
-            <div>
-              <div className="mb-6">
-                <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-                  Neues Lied hinzufügen
-                </h3>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <input
-                    type="text"
-                    placeholder="Liedtitel"
-                    value={newSong.title}
-                    onChange={(e) => setNewSong({...newSong, title: e.target.value})}
-                    className="p-3 rounded-lg border"
-                    style={{
-                      backgroundColor: 'var(--bg-primary)',
-                      borderColor: 'var(--border-medium)',
-                      color: 'var(--text-primary)'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Künstler"
-                    value={newSong.artist}
-                    onChange={(e) => setNewSong({...newSong, artist: e.target.value})}
-                    className="p-3 rounded-lg border"
-                    style={{
-                      backgroundColor: 'var(--bg-primary)',
-                      borderColor: 'var(--border-medium)',
-                      color: 'var(--text-primary)'
-                    }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                  <select
-                    value={newSong.book}
-                    onChange={(e) => setNewSong({...newSong, book: e.target.value})}
-                    className="p-3 rounded-lg border"
-                    style={{
-                      backgroundColor: 'var(--bg-primary)',
-                      borderColor: 'var(--border-medium)',
-                      color: 'var(--text-primary)'
-                    }}
-                  >
-                    <option value="Essential Beats">Essential Beats</option>
-                    <option value="Groove Essentials">Groove Essentials</option>
-                    <option value="Rock Beats">Rock Beats</option>
-                  </select>
-                  
-                  <input
-                    type="number"
-                    placeholder="Min. Seite"
-                    value={newSong.minPage}
-                    onChange={(e) => setNewSong({...newSong, minPage: parseInt(e.target.value) || 1})}
-                    className="p-3 rounded-lg border"
-                    style={{
-                      backgroundColor: 'var(--bg-primary)',
-                      borderColor: 'var(--border-medium)',
-                      color: 'var(--text-primary)'
-                    }}
-                  />
-                  
-                  <input
-                    type="text"
-                    placeholder="Min. Übung (z.B. 10)"
-                    value={newSong.minExercise}
-                    onChange={(e) => setNewSong({...newSong, minExercise: e.target.value})}
-                    className="p-3 rounded-lg border"
-                    style={{
-                      backgroundColor: 'var(--bg-primary)',
-                      borderColor: 'var(--border-medium)',
-                      color: 'var(--text-primary)'
-                    }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <select
-                    value={newSong.difficulty}
-                    onChange={(e) => setNewSong({...newSong, difficulty: e.target.value as any})}
-                    className="p-3 rounded-lg border"
-                    style={{
-                      backgroundColor: 'var(--bg-primary)',
-                      borderColor: 'var(--border-medium)',
-                      color: 'var(--text-primary)'
-                    }}
-                  >
-                    <option value="anfaenger">Anfänger</option>
-                    <option value="fortgeschritten">Fortgeschritten</option>
-                    <option value="profi">Profi</option>
-                  </select>
-                  
-                  <input
-                    type="text"
-                    placeholder="Technik-Fokus (kommagetrennt)"
-                    value={newSong.techniqueFocus}
-                    onChange={(e) => setNewSong({...newSong, techniqueFocus: e.target.value})}
-                    className="p-3 rounded-lg border"
-                    style={{
-                      backgroundColor: 'var(--bg-primary)',
-                      borderColor: 'var(--border-medium)',
-                      color: 'var(--text-primary)'
-                    }}
-                  />
-                </div>
-
-                <textarea
-                  placeholder="Notizen (optional)"
-                  value={newSong.notes}
-                  onChange={(e) => setNewSong({...newSong, notes: e.target.value})}
-                  rows={3}
-                  className="w-full p-3 rounded-lg border mb-4"
-                  style={{
-                    backgroundColor: 'var(--bg-primary)',
-                    borderColor: 'var(--border-medium)',
-                    color: 'var(--text-primary)'
-                  }}
-                />
-
-                <button
-                  onClick={addSong}
-                  className="btn-primary"
-                  disabled={!newSong.title || !newSong.artist}
-                >
-                  Lied hinzufügen
-                </button>
               </div>
-
-              {/* Lieder-Liste */}
-              <div>
-                <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-                  Alle Lieder ({songs.length})
-                </h3>
-                
-                <div className="space-y-3">
-                  {songs.map(song => (
-                    <div 
-                      key={song.id}
-                      className="flex justify-between items-center p-4 rounded-lg border"
-                      style={{
-                        backgroundColor: 'var(--accent-light)',
-                        borderColor: 'var(--border-light)'
-                      }}
-                    >
-                      <div>
-                        <div className="font-bold" style={{ color: 'var(--text-primary)' }}>
-                          {song.title} - {song.artist}
-                        </div>
-                        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                          {song.book} • Seite {song.minPage}+ • Übung {song.minExercise}+ • {song.difficulty}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setSongs(songs.filter(s => s.id !== song.id))}
-                        className="text-red-500 hover:text-red-700 px-3 py-1 rounded"
-                        title="Lied löschen"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+            ))}
+            {!loading && songs.length === 0 && (
+              <div className="text-sm text-center py-6" style={{ color: 'var(--text-muted)' }}>Noch keine Lieder. Füge das erste Lied hinzu.</div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,108 +1,94 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { Song, SongStatus, parseSongStatus, getSongVorschlaege, convertSongFromBaserow, SongBaserow, parseUebungToNumber } from '@/lib/songs'
 import { SchülerApp } from '@/lib/baserow'
-import { Song, StudentProgress, generateSongSuggestions, mockSongs, parseExerciseToNumber } from '@/lib/songs'
 
 interface SongSuggestionsProps {
   student: SchülerApp
+  onSongAccepted?: (newSongStatus: string) => void
+  onEditSong?: (song: Song) => void
 }
 
-export default function SongSuggestions({ student }: SongSuggestionsProps) {
-  // Hauptbuch (Buch 1) Fortschritt
-  const book1Progress: StudentProgress = {
-    currentBook: student.buch || 'Essential Beats',
-    currentPage: parseInt(student.seite || '1'),
-    currentExercise: student.übung || '1',
-    techniqueFocus: student.wichtigerFokus || undefined
-  }
+export default function SongSuggestions({ student, onSongAccepted, onEditSong }: SongSuggestionsProps) {
+  const [songs, setSongs] = useState<Song[]>([])
+  const [accepting, setAccepting] = useState<number | null>(null)
 
-  // Buch 2 Fortschritt (falls vorhanden)
-  const book2Progress: StudentProgress | null = student.buch2 ? {
-    currentBook: student.buch2,
-    currentPage: parseInt(student.seite2 || '1'),
-    currentExercise: student.übung2 || '1',
-    techniqueFocus: student.wichtigerFokus || undefined
-  } : null
+  useEffect(() => {
+    fetch('/api/songs')
+      .then(r => r.json())
+      .then(data => setSongs(data.map((s: SongBaserow) => convertSongFromBaserow(s))))
+      .catch(() => {})
+  }, [])
 
-  // Liedvorschläge für beide Bücher generieren
-  const book1Suggestions = generateSongSuggestions(book1Progress, mockSongs).slice(0, 2)
-  const book2Suggestions = book2Progress ? generateSongSuggestions(book2Progress, mockSongs).slice(0, 2) : []
-  
-  // Kombinierte Vorschläge (maximal 3)
-  const suggestions = [...book1Suggestions, ...book2Suggestions].slice(0, 3)
+  const songStatus = parseSongStatus(student.songStatus)
 
-  if (suggestions.length === 0) {
-    return null // Keine Vorschläge = keine Anzeige
-  }
+  const buchProgress = [
+    { buch: student.buch || '', seite: parseInt(student.seite || '1'), uebung: parseUebungToNumber(student.übung) },
+    ...(student.buch2 ? [{ buch: student.buch2, seite: parseInt(student.seite2 || '1'), uebung: parseUebungToNumber(student.übung2) }] : [])
+  ]
 
-  const getDifficultyColor = (difficulty: 'perfect' | 'easy' | 'challenging') => {
-    switch (difficulty) {
-      case 'perfect': return 'var(--status-success)'
-      case 'easy': return 'var(--status-warning)'  
-      case 'challenging': return 'var(--status-error)'
+  const vorschlaege = getSongVorschlaege(songs, buchProgress, songStatus)
+
+  const akzeptieren = async (song: Song) => {
+    setAccepting(song.id)
+    const today = new Date().toISOString().split('T')[0]
+    const newStatus: SongStatus = {
+      aktiviert: [...songStatus.aktiviert, { id: song.id, am: today }]
     }
+    const newStatusStr = JSON.stringify(newStatus)
+    try {
+      const res = await fetch('/api/students', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: student.id, fieldName: 'field_8802', value: newStatusStr })
+      })
+      if (res.ok && onSongAccepted) {
+        onSongAccepted(newStatusStr)
+      }
+    } catch {}
+    setAccepting(null)
   }
+
+  if (vorschlaege.length === 0) return null
 
   return (
-    <div className="rounded-lg p-5 border-l-4" style={{ 
-      backgroundColor: 'var(--primary-light)', 
-      borderLeftColor: 'var(--primary)' 
-    }}>
-      <h3 className="font-semibold mb-3" style={{ color: '#ffffff' }}>
-        🎵 Liedvorschläge ({student.buch}{student.buch2 ? ` + ${student.buch2}` : ''})
-      </h3>
-      
-      <div className="space-y-3">
-        {suggestions.map((suggestion, index) => (
-          <div 
-            key={suggestion.song.id}
-            className="rounded-lg p-3 border-l-2"
-            style={{
-              backgroundColor: 'var(--accent-light)',
-              borderLeftColor: getDifficultyColor(suggestion.difficulty)
-            }}
-          >
-            <div className="flex justify-between items-start mb-1">
-              <div className="flex-1">
-                <div className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>
-                  {suggestion.song.title}
-                </div>
-                <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
-                  📖 {suggestion.song.book}
-                </div>
-                <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  {suggestion.song.artist}
-                </div>
-              </div>
-              
-              <div className="text-xs px-2 py-1 rounded" style={{
-                backgroundColor: getDifficultyColor(suggestion.difficulty),
-                color: 'white'
-              }}>
-                {suggestion.difficulty === 'perfect' ? 'Perfekt' :
-                 suggestion.difficulty === 'easy' ? 'Einfach' : 'Schwer'}
-              </div>
+    <div className="mt-3">
+      <div className="text-xs font-semibold mb-2 uppercase" style={{ color: 'var(--text-muted)' }}>Lied-Vorschläge</div>
+      <div className="space-y-2">
+        {vorschlaege.map(song => (
+          <div key={song.id} className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: 'var(--accent-light)' }}>
+            <div className="flex-1 min-w-0">
+              <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{song.titel}</span>
+              <span className="text-sm ml-2 italic" style={{ color: 'var(--text-muted)' }}>{song.interpret}</span>
             </div>
-
-            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Ab Seite {suggestion.song.minPage}, Übung {suggestion.song.minExercise}
-              {suggestion.song.techniqueFocus.length > 0 && 
-                ` • ${suggestion.song.techniqueFocus.slice(0, 2).join(', ')}`
-              }
+            <div className="flex gap-2 ml-2 flex-shrink-0">
+              <button
+                onClick={() => akzeptieren(song)}
+                disabled={accepting === song.id}
+                className="text-xs px-3 py-1 rounded border"
+                style={{
+                  color: 'var(--text-primary)',
+                  borderColor: 'var(--border-medium)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  opacity: accepting === song.id ? 0.5 : 1
+                }}
+              >
+                {accepting === song.id ? '...' : 'Akzeptieren'}
+              </button>
+              {onEditSong && (
+                <button
+                  onClick={() => onEditSong(song)}
+                  className="text-xs px-2 py-1 rounded"
+                  style={{ color: 'var(--text-secondary)', backgroundColor: 'var(--bg-secondary)' }}
+                  title="Bearbeiten"
+                >
+                  &#9998;
+                </button>
+              )}
             </div>
-
-            {suggestion.song.notes && (
-              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                💡 {suggestion.song.notes.slice(0, 60)}...
-              </div>
-            )}
           </div>
         ))}
-      </div>
-
-      <div className="text-xs mt-3 text-center" style={{ color: 'var(--text-muted)' }}>
-        Basierend auf: {book1Progress.currentBook}, Seite {book1Progress.currentPage}, Übung {book1Progress.currentExercise}
-        {book2Progress && ` + ${book2Progress.currentBook} S.${book2Progress.currentPage}`}
       </div>
     </div>
   )
