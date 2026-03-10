@@ -234,7 +234,7 @@ export default function AllStudentsModal({ students, onClose, onStudentClick }: 
               Keine Sch&uuml;ler gefunden
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-light)' }}>
               {filteredStudents.map((student) => {
                 const drums = getDrumsBadge(student.hatSchlagzeug)
                 const zahlung = getZahlungBadge(student.zahlungStatus)
@@ -245,102 +245,57 @@ export default function AllStudentsModal({ students, onClose, onStudentClick }: 
                   <div
                     key={student.id}
                     onClick={() => handleStudentClick(student.id)}
-                    className="rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 border"
+                    className="flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors hover:bg-white/5"
                     style={{
-                      backgroundColor: 'var(--bg-secondary, rgb(31, 41, 55))',
-                      borderColor: hasBirthday ? '#fbbf24' : 'var(--border-light, rgb(55, 65, 81))',
-                      boxShadow: hasBirthday ? '0 0 0 1px rgba(251,191,36,0.4)' : undefined,
+                      borderColor: hasBirthday ? 'rgba(251,191,36,0.3)' : undefined,
                     }}
                   >
-                    {/* Name + Status Badge */}
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <div className="font-bold text-base flex items-center gap-1.5" style={{ color: 'var(--text-primary, white)' }}>
-                          {hasBirthday && (
-                            <span
-                              className="animate-pulse"
-                              title="Geburtstag in den letzten 14 Tagen!"
-                              style={{ fontSize: '1.1em' }}
-                            >
-                              🎂
-                            </span>
-                          )}
-                          {student.vorname} {student.nachname}
-                        </div>
-                        {student.anfrageStatus && (
-                          <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted, #9ca3af)' }}>
-                            {student.anfrageStatus}
-                          </div>
-                        )}
-                      </div>
-                      {/* Badges: Alter + Schlagzeug */}
-                      <div className="flex flex-col items-end gap-1 ml-2 shrink-0">
+                    {/* Name + Status */}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm flex items-center gap-1.5" style={{ color: 'var(--text-primary)' }}>
+                        {hasBirthday && <span className="animate-pulse">🎂</span>}
+                        {student.vorname} {student.nachname}
                         {age !== null && (
-                          <span
-                            className="px-2 py-0.5 rounded text-xs font-semibold"
-                            style={{ backgroundColor: 'var(--bg-light)', color: 'var(--text-muted)' }}
-                          >
-                            {age} J
-                          </span>
+                          <span className="font-normal text-xs" style={{ color: 'var(--text-muted)' }}>({age} J)</span>
                         )}
-                        <span
-                          className="px-2 py-0.5 rounded text-xs font-semibold text-white"
-                          style={{ backgroundColor: drums.bg }}
-                        >
-                          {drums.text}
-                        </span>
                       </div>
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex flex-wrap items-center gap-2 text-sm" style={{ color: 'var(--text-secondary, #d1d5db)' }}>
-                      {student.unterrichtstag && (
-                        <span>{student.unterrichtstag} {student.unterrichtszeit || ''}</span>
-                      )}
-                      {!student.unterrichtstag && (
-                        <span style={{ color: 'var(--text-muted, #6b7280)' }}>Kein fester Tag</span>
+                      {student.anfrageStatus && (
+                        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{student.anfrageStatus}</div>
                       )}
                     </div>
 
-                    {/* Zahlung + Betrag + Kontakt */}
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="px-2 py-0.5 rounded text-xs font-semibold"
-                          style={{ backgroundColor: zahlung.bg, color: zahlung.color }}
-                        >
-                          {zahlung.text}
-                        </span>
-                        {student.monatlicherbetrag && (
-                          <span className="text-xs" style={{ color: 'var(--text-muted, #9ca3af)' }}>
-                            {student.monatlicherbetrag}&euro;/Mo
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        {student.handynummer && (
-                          <a
-                            href={getWhatsAppLink(student.handynummer)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-green-500 hover:text-green-400 text-sm"
-                            title={`WhatsApp: ${student.handynummer}`}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            WA
-                          </a>
-                        )}
-                        {student.email && (
-                          <a
-                            href={`mailto:${student.email}`}
-                            className="text-blue-400 hover:text-blue-300 text-sm"
-                            title={`Email: ${student.email}`}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Mail
-                          </a>
-                        )}
-                      </div>
+                    {/* Tag + Zeit */}
+                    <div className="text-xs shrink-0 hidden sm:block" style={{ color: 'var(--text-secondary)', minWidth: '120px' }}>
+                      {student.unterrichtstag ? `${student.unterrichtstag} ${student.unterrichtszeit || ''}` : <span style={{ color: 'var(--text-muted)' }}>Kein fester Tag</span>}
+                    </div>
+
+                    {/* Zahlung + Betrag */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="px-2 py-0.5 rounded text-xs font-semibold hidden sm:inline" style={{ backgroundColor: zahlung.bg, color: zahlung.color }}>
+                        {zahlung.text}
+                      </span>
+                      {student.monatlicherbetrag && (
+                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{student.monatlicherbetrag}€</span>
+                      )}
+                    </div>
+
+                    {/* Schlagzeug Badge */}
+                    <span className="px-2 py-0.5 rounded text-xs font-semibold text-white shrink-0" style={{ backgroundColor: drums.bg }}>
+                      {drums.text}
+                    </span>
+
+                    {/* Kontakt */}
+                    <div className="flex gap-2 shrink-0">
+                      {student.handynummer && (
+                        <a href={getWhatsAppLink(student.handynummer)} target="_blank" rel="noopener noreferrer"
+                          className="text-green-500 hover:text-green-400 text-xs font-medium"
+                          onClick={(e) => e.stopPropagation()}>WA</a>
+                      )}
+                      {student.email && (
+                        <a href={`mailto:${student.email}`}
+                          className="text-blue-400 hover:text-blue-300 text-xs font-medium"
+                          onClick={(e) => e.stopPropagation()}>Mail</a>
+                      )}
                     </div>
                   </div>
                 )
