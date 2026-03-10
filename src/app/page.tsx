@@ -296,9 +296,10 @@ export default function Home() {
               const now = currentTime ? `${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}` : ''
 
               const sorted = [...todaysStudents].sort((a, b) => {
-                const aIsCurrent = a.id === currentStudentId ? -1 : 0
-                const bIsCurrent = b.id === currentStudentId ? -1 : 0
-                if (aIsCurrent !== bIsCurrent) return aIsCurrent - bIsCurrent
+                if (currentStudentId !== undefined) {
+                  if (a.id === currentStudentId) return -1
+                  if (b.id === currentStudentId) return 1
+                }
                 const timeA = a.unterrichtszeit.split('-')[0] || '00:00'
                 const timeB = b.unterrichtszeit.split('-')[0] || '00:00'
                 return timeA.localeCompare(timeB)
