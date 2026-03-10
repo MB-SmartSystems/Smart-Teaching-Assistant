@@ -4,7 +4,6 @@ import { SchülerApp } from '@/lib/baserow'
 import { useState, useEffect } from 'react'
 import { useOfflineSync } from '@/lib/offlineSync'
 import BookDropdown from './BookDropdown'
-import EarningsCard from './EarningsCard'
 import FlexKarteBooking from './FlexKarteBooking'
 import SongSuggestions from './SongSuggestions'
 import { useToast } from './Toast'
@@ -612,30 +611,30 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             </div>
           </div>
 
-          {/* Wichtiger Fokus */}
-          <div className="mb-5">
-            <h3 className="section-header">🎯 Wichtiger Fokus</h3>
-            <textarea
-              value={localValues.wichtigerFokus}
-              onChange={(e) => updateLocalValue('wichtigerFokus', e.target.value)}
-              onBlur={() => toast.success('Fokus gespeichert')}
-              className="w-full"
-              rows={3}
-              placeholder="Was ist der wichtigste Fokus für diesen Schüler?"
-            />
-          </div>
-
-          {/* Aktuelle Lieder */}
-          <div className="mb-5">
-            <h3 className="section-header">🎵 Aktuelle Lieder</h3>
-            <textarea
-              value={localValues.aktuelleLieder}
-              onChange={(e) => updateLocalValue('aktuelleLieder', e.target.value)}
-              onBlur={() => toast.success('Lieder gespeichert')}
-              className="w-full"
-              rows={3}
-              placeholder="Welche Lieder werden aktuell geübt?"
-            />
+          {/* Wichtiger Fokus + Aktuelle Lieder nebeneinander */}
+          <div className="mb-5 grid grid-cols-2 gap-4">
+            <div>
+              <h3 className="section-header">🎯 Wichtiger Fokus</h3>
+              <textarea
+                value={localValues.wichtigerFokus}
+                onChange={(e) => updateLocalValue('wichtigerFokus', e.target.value)}
+                onBlur={() => toast.success('Fokus gespeichert')}
+                className="w-full"
+                rows={4}
+                placeholder="Was ist der wichtigste Fokus für diesen Schüler?"
+              />
+            </div>
+            <div>
+              <h3 className="section-header">🎵 Aktuelle Lieder</h3>
+              <textarea
+                value={localValues.aktuelleLieder}
+                onChange={(e) => updateLocalValue('aktuelleLieder', e.target.value)}
+                onBlur={() => toast.success('Lieder gespeichert')}
+                className="w-full"
+                rows={4}
+                placeholder="Welche Lieder werden aktuell geübt?"
+              />
+            </div>
           </div>
 
           {/* Zahlung + Schlagzeug + Anwesenheit — 3 Spalten */}
@@ -779,9 +778,9 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
           <div className="mb-5">
             <button
               onClick={() => setShowFlexBooking(true)}
-              className="btn-primary py-3 text-sm"
+              className="btn-secondary text-sm"
             >
-              🎫 Flex-Karte buchen
+              🎫 Neue Flex-Karte buchen
             </button>
           </div>
 
@@ -791,9 +790,6 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             onClose={() => setShowFlexBooking(false)}
             preselectedStudent={student}
           />
-
-          {/* Earnings Card */}
-          <EarningsCard student={student} />
 
         </div>
       </div>

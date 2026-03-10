@@ -296,6 +296,9 @@ export default function Home() {
               const now = currentTime ? `${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}` : ''
 
               const sorted = [...todaysStudents].sort((a, b) => {
+                const aIsCurrent = a.id === currentStudentId ? -1 : 0
+                const bIsCurrent = b.id === currentStudentId ? -1 : 0
+                if (aIsCurrent !== bIsCurrent) return aIsCurrent - bIsCurrent
                 const timeA = a.unterrichtszeit.split('-')[0] || '00:00'
                 const timeB = b.unterrichtszeit.split('-')[0] || '00:00'
                 return timeA.localeCompare(timeB)
@@ -346,6 +349,11 @@ export default function Home() {
                             )}
                             {student.guthabenMinuten > 0 && (
                               <span className="font-semibold" style={{ color: '#34d399' }}>💳 {student.guthabenMinuten} Min</span>
+                            )}
+                            {student.hatSchlagzeug && student.hatSchlagzeug !== 'Unbekannt' && (
+                              <span style={{ color: student.hatSchlagzeug === 'Ja' ? '#10b981' : '#ef4444' }}>
+                                🥁 {student.hatSchlagzeug === 'Ja' ? 'Hat Schlagzeug' : 'Kein Schlagzeug'}
+                              </span>
                             )}
                           </div>
                           {student.wichtigerFokus && (
