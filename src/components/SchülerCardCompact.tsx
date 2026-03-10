@@ -147,6 +147,22 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
   // Guthaben State (Lehrerabsage-Guthaben, lokale Spiegelung für sofortiges UI-Feedback)
   const [localGuthaben, setLocalGuthaben] = useState(student.guthabenMinuten)
   const [isLehrerAbsageLoading, setIsLehrerAbsageLoading] = useState(false)
+
+  const handleGuthabenAbzug = async (abzug: number) => {
+    const neuesGuthaben = Math.max(0, localGuthaben - abzug)
+    setLocalGuthaben(neuesGuthaben)
+    try {
+      await fetch('/api/students/guthaben-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: student.id, neuesGuthaben }),
+      })
+      toast.success(`−${abzug} Min abgezogen. Guthaben: ${neuesGuthaben} Min`)
+    } catch {
+      setLocalGuthaben(localGuthaben) // Revert
+      toast.error('Fehler beim Aktualisieren')
+    }
+  }
   // Persistente Sperre: verhindert Mehrfach-Klick über Modal-Schließen hinaus
   const [alreadyAbgemeldetToday, setAlreadyAbgemeldetToday] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false
@@ -371,9 +387,29 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               </p>
             )}
             {localGuthaben > 0 && (
-              <p className="text-sm mt-1 font-semibold" style={{ color: '#34d399' }}>
-                💳 Guthaben: {localGuthaben} Min
-              </p>
+              <div className="mt-1">
+                <p className="text-sm font-semibold" style={{ color: '#34d399' }}>
+                  💳 Guthaben: {localGuthaben} Min
+                </p>
+                <div className="flex gap-1 mt-2 flex-wrap">
+                  <p className="text-xs w-full" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    Nachgeholt — Minuten abziehen:
+                  </p>
+                  {[15, 30, 45, 60].map((min) => (
+                    <button
+                      key={min}
+                      onClick={() => handleGuthabenAbzug(min)}
+                      disabled={min > localGuthaben}
+                      className="text-xs px-2 py-1 rounded font-medium"
+                      style={min > localGuthaben
+                        ? { backgroundColor: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.3)' }
+                        : { backgroundColor: 'rgba(52,211,153,0.2)', color: '#34d399', border: '1px solid #34d399' }}
+                    >
+                      −{min} min
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
             {student.geburtsdatum && (() => {
               const age = calcAge(student.geburtsdatum)
