@@ -389,30 +389,6 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
               )}
             </div>
 
-            {localGuthaben > 0 && (
-              <div className="mt-3 rounded-xl p-3" style={{ backgroundColor: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-bold" style={{ color: '#f59e0b' }}>
-                    💳 Guthaben: {localGuthaben} Min
-                  </span>
-                </div>
-                <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                  Nachgeholt — Minuten abziehen:
-                </p>
-                <div className="flex gap-2 flex-wrap">
-                  {[15, 30, 45, 60].map((min) => (
-                    <button
-                      key={min}
-                      onClick={() => handleGuthabenAbzug(min)}
-                      disabled={min > localGuthaben}
-                      className="btn-guthaben-abzug"
-                    >
-                      −{min} min
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
             {student.geburtsdatum && (() => {
               const age = calcAge(student.geburtsdatum)
               const hasBirthday = hadRecentBirthday(student.geburtsdatum)
@@ -447,7 +423,27 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
         </div>
 
         <div className="p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          
+
+          {/* Guthaben-Abzug */}
+          {localGuthaben > 0 && (
+            <div className="mb-5">
+              <h3 className="section-header">💳 Guthaben-Abzug</h3>
+              <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>Guthaben: {localGuthaben} Min</p>
+              <div className="flex gap-2 flex-wrap">
+                {[15, 30, 45, 60].map((min) => (
+                  <button
+                    key={min}
+                    onClick={() => handleGuthabenAbzug(min)}
+                    disabled={min > localGuthaben}
+                    className="btn-guthaben-abzug"
+                  >
+                    −{min} min
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Buch 1 */}
           <div className="card-compact mb-5">
             <h3 className="section-header mb-3">📖 Buch</h3>
@@ -460,12 +456,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                 onToggleEdit={() => {}}
               />
             </div>
-            <div className="flex items-end gap-4 flex-wrap">
+            <div className="grid grid-cols-3 gap-4">
               {/* Seite */}
-              <div>
+              <div className="flex flex-col items-center text-center">
                 <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Seite</label>
                 <div className="flex items-center gap-0.5">
-                  <button onClick={() => handleSeiteUpdate(-1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">−</button>
+                  <button onClick={() => handleSeiteUpdate(-1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">−</button>
                   <input
                     type="text"
                     value={localValues.seite}
@@ -477,14 +473,14 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
                   />
-                  <button onClick={() => handleSeiteUpdate(1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">+</button>
+                  <button onClick={() => handleSeiteUpdate(1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">+</button>
                 </div>
               </div>
               {/* Übung Von */}
-              <div>
+              <div className="flex flex-col items-center text-center">
                 <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Übung Von</label>
                 <div className="flex items-center gap-0.5">
-                  <button onClick={() => handleUebungUpdate('übungVon', -1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">−</button>
+                  <button onClick={() => handleUebungUpdate('übungVon', -1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">−</button>
                   <input
                     type="text"
                     value={localValues.übungVon}
@@ -502,14 +498,14 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
                   />
-                  <button onClick={() => handleUebungUpdate('übungVon', 1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">+</button>
+                  <button onClick={() => handleUebungUpdate('übungVon', 1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">+</button>
                 </div>
               </div>
               {/* Übung Bis */}
-              <div>
+              <div className="flex flex-col items-center text-center">
                 <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Übung Bis</label>
                 <div className="flex items-center gap-0.5">
-                  <button onClick={() => handleUebungUpdate('übungBis', -1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">−</button>
+                  <button onClick={() => handleUebungUpdate('übungBis', -1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">−</button>
                   <input
                     type="text"
                     value={localValues.übungBis}
@@ -526,7 +522,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
                   />
-                  <button onClick={() => handleUebungUpdate('übungBis', 1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">+</button>
+                  <button onClick={() => handleUebungUpdate('übungBis', 1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">+</button>
                 </div>
               </div>
             </div>
@@ -544,12 +540,12 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                 onToggleEdit={() => {}}
               />
             </div>
-            <div className="flex items-end gap-4 flex-wrap">
+            <div className="grid grid-cols-3 gap-4">
               {/* Seite 2 */}
-              <div>
+              <div className="flex flex-col items-center text-center">
                 <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Seite</label>
                 <div className="flex items-center gap-0.5">
-                  <button onClick={() => handleSeite2Update(-1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">−</button>
+                  <button onClick={() => handleSeite2Update(-1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">−</button>
                   <input
                     type="text"
                     value={localValues.seite2}
@@ -561,14 +557,14 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
                   />
-                  <button onClick={() => handleSeite2Update(1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">+</button>
+                  <button onClick={() => handleSeite2Update(1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">+</button>
                 </div>
               </div>
               {/* Übung 2 Von */}
-              <div>
+              <div className="flex flex-col items-center text-center">
                 <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Übung Von</label>
                 <div className="flex items-center gap-0.5">
-                  <button onClick={() => handleUebung2Update('übung2Von', -1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">−</button>
+                  <button onClick={() => handleUebung2Update('übung2Von', -1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">−</button>
                   <input
                     type="text"
                     value={localValues.übung2Von}
@@ -586,14 +582,14 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
                   />
-                  <button onClick={() => handleUebung2Update('übung2Von', 1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">+</button>
+                  <button onClick={() => handleUebung2Update('übung2Von', 1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">+</button>
                 </div>
               </div>
               {/* Übung 2 Bis */}
-              <div>
+              <div className="flex flex-col items-center text-center">
                 <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Übung Bis</label>
                 <div className="flex items-center gap-0.5">
-                  <button onClick={() => handleUebung2Update('übung2Bis', -1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">−</button>
+                  <button onClick={() => handleUebung2Update('übung2Bis', -1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">−</button>
                   <input
                     type="text"
                     value={localValues.übung2Bis}
@@ -610,7 +606,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
                     className="text-center font-semibold text-sm py-1 rounded-lg border-none outline-none"
                     style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', width: '3rem' }}
                   />
-                  <button onClick={() => handleUebung2Update('übung2Bis', 1)} className="btn-secondary w-7 h-7 p-0 text-sm font-bold">+</button>
+                  <button onClick={() => handleUebung2Update('übung2Bis', 1)} className="btn-secondary w-9 h-9 p-0 text-sm font-bold">+</button>
                 </div>
               </div>
             </div>
@@ -642,92 +638,88 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
             />
           </div>
 
-          {/* Zahlung */}
+          {/* Zahlung + Schlagzeug + Anwesenheit — 3 Spalten */}
           <div className="mb-5">
-            <h3 className="section-header">💳 Zahlung</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {['ja', 'nein', 'Paypal', 'unbekannt'].map(status => (
-                <button
-                  key={status}
-                  onClick={() => handleSelectUpdate('zahlungStatus', status)}
-                  className={localValues.zahlungStatus === status
-                    ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
-                    : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
-                  style={localValues.zahlungStatus === status
-                    ? {
-                        backgroundColor: status === 'ja' ? '#10b981' :
-                                       status === 'nein' ? '#ef4444' :
-                                       status === 'Paypal' ? '#3b82f6' : '#6b7280',
-                        color: 'white'
-                      }
-                    : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
-                >
-                  {status.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
+            <div className="grid grid-cols-3 gap-3">
+              {/* Zahlung */}
+              <div>
+                <p className="section-header text-xs mb-2">💳 Zahlung</p>
+                <div className="flex flex-col gap-2">
+                  {['ja', 'nein', 'Paypal', 'unbekannt'].map(status => (
+                    <button
+                      key={status}
+                      onClick={() => handleSelectUpdate('zahlungStatus', status)}
+                      className="font-medium py-2 px-1 rounded-lg transition-colors text-xs w-full"
+                      style={localValues.zahlungStatus === status
+                        ? {
+                            backgroundColor: status === 'ja' ? '#10b981' :
+                                           status === 'nein' ? '#ef4444' :
+                                           status === 'Paypal' ? '#3b82f6' : '#6b7280',
+                            color: 'white'
+                          }
+                        : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
+                    >
+                      {status.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          {/* Schlagzeug */}
-          <div className="mb-5">
-            <h3 className="section-header">🥁 Hat Schlagzeug/Klavier</h3>
-            <div className="grid grid-cols-3 gap-2">
-              {['Ja', 'Nein', 'Unbekannt'].map(status => (
-                <button
-                  key={status}
-                  onClick={() => handleSelectUpdate('hatSchlagzeug', status)}
-                  className={localValues.hatSchlagzeug === status
-                    ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
-                    : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
-                  style={localValues.hatSchlagzeug === status
-                    ? {
-                        backgroundColor: status === 'Ja' ? '#10b981' :
-                                       status === 'Nein' ? '#ef4444' : '#6b7280',
-                        color: 'white'
-                      }
-                    : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
-                >
-                  {status.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
+              {/* Schlagzeug */}
+              <div>
+                <p className="section-header text-xs mb-2">🥁 Schlagzeug</p>
+                <div className="flex flex-col gap-2">
+                  {['Ja', 'Nein', 'Unbekannt'].map(status => (
+                    <button
+                      key={status}
+                      onClick={() => handleSelectUpdate('hatSchlagzeug', status)}
+                      className="font-medium py-2 px-1 rounded-lg transition-colors text-xs w-full"
+                      style={localValues.hatSchlagzeug === status
+                        ? {
+                            backgroundColor: status === 'Ja' ? '#10b981' :
+                                           status === 'Nein' ? '#ef4444' : '#6b7280',
+                            color: 'white'
+                          }
+                        : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
+                    >
+                      {status.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          {/* Anwesenheit */}
-          <div className="mb-5">
-            <h3 className="section-header">📅 Anwesenheit Heute</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {/* Standard-Buttons: Abgemeldet, Schulfrei, Nicht erschienen */}
-              {(['vom_schueler_abgesagt', 'schulfrei', 'nicht_erschienen'] as AttendanceStatus[]).map(status => (
-                <button
-                  key={status}
-                  onClick={() => handleAttendanceUpdate(status)}
-                  className={todayAttendance?.status === status
-                    ? 'font-medium py-3 px-4 rounded-lg shadow-md text-white text-sm'
-                    : 'font-medium py-3 px-4 rounded-lg transition-colors text-sm'}
-                  style={todayAttendance?.status === status
-                    ? { backgroundColor: getStatusColor(status), color: 'white' }
-                    : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
-                >
-                  {getStatusText(status)}
-                </button>
-              ))}
-
-              {/* Von Lehrer abgesagt – mit Guthaben-Gutschrift */}
-              <button
-                onClick={handleLehrerAbsage}
-                disabled={isLehrerAbsageLoading || alreadyAbgemeldetToday}
-                className="font-medium py-3 px-4 rounded-lg transition-colors text-sm"
-                style={
-                  todayAttendance?.status === 'vom_lehrer_abgesagt' || alreadyAbgemeldetToday
-                    ? { backgroundColor: getStatusColor('vom_lehrer_abgesagt'), color: 'white' }
-                    : isLehrerAbsageLoading
-                    ? { backgroundColor: '#374151', color: '#6b7280', border: '1px solid #4b5563', cursor: 'wait' }
-                    : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #f59e0b' }
-                }
-              >
-                {isLehrerAbsageLoading ? '⏳ Speichert...' : alreadyAbgemeldetToday ? '✅ Heute erledigt' : 'Von Lehrer abgesagt'}
-              </button>
+              {/* Anwesenheit */}
+              <div>
+                <p className="section-header text-xs mb-2">📅 Anwesenheit</p>
+                <div className="flex flex-col gap-2">
+                  {(['vom_schueler_abgesagt', 'schulfrei', 'nicht_erschienen'] as AttendanceStatus[]).map(status => (
+                    <button
+                      key={status}
+                      onClick={() => handleAttendanceUpdate(status)}
+                      className="font-medium py-2 px-1 rounded-lg transition-colors text-xs w-full"
+                      style={todayAttendance?.status === status
+                        ? { backgroundColor: getStatusColor(status), color: 'white' }
+                        : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #4b5563' }}
+                    >
+                      {getStatusText(status)}
+                    </button>
+                  ))}
+                  <button
+                    onClick={handleLehrerAbsage}
+                    disabled={isLehrerAbsageLoading || alreadyAbgemeldetToday}
+                    className="font-medium py-2 px-1 rounded-lg transition-colors text-xs w-full"
+                    style={
+                      todayAttendance?.status === 'vom_lehrer_abgesagt' || alreadyAbgemeldetToday
+                        ? { backgroundColor: getStatusColor('vom_lehrer_abgesagt'), color: 'white' }
+                        : isLehrerAbsageLoading
+                        ? { backgroundColor: '#374151', color: '#6b7280', border: '1px solid #4b5563', cursor: 'wait' }
+                        : { backgroundColor: '#374151', color: '#ffffff', border: '1px solid #f59e0b' }
+                    }
+                  >
+                    {isLehrerAbsageLoading ? '⏳...' : alreadyAbgemeldetToday ? '✅ Erledigt' : 'Von Lehrer abges.'}
+                  </button>
+                </div>
+              </div>
             </div>
             <div className="mt-3 text-sm" style={{ color: '#9ca3af' }}>
               💡 Standard: Erschienen (keine Auswahl nötig) · &quot;Von Lehrer abgesagt&quot; schreibt Unterrichtsguthaben gut
@@ -787,7 +779,7 @@ export default function SchülerCardCompact({ student, isOpen, onClose }: Schül
           <div className="mb-5">
             <button
               onClick={() => setShowFlexBooking(true)}
-              className="btn-primary w-full justify-center py-3 text-sm"
+              className="btn-primary py-3 text-sm"
             >
               🎫 Flex-Karte buchen
             </button>

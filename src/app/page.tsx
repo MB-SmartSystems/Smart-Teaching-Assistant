@@ -275,74 +275,6 @@ export default function Home() {
 
       <main className="p-3 sm:p-6 max-w-6xl mx-auto">
         
-        {/* Auto-Switch Status Card - Modern Design */}
-        {isClient && autoSwitchStatus && (
-          <div className="mb-6">
-            {autoSwitchStatus.currentStudent ? (
-              <div
-                onClick={() => setSelectedStudent(autoSwitchStatus.currentStudent!.id)}
-                className="card cursor-pointer group"
-                style={{
-                  background: 'linear-gradient(135deg, #f59e0b, #b45309)',
-                  border: 'none',
-                  boxShadow: '0 0 30px rgba(245,158,11,0.2)'
-                }}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-bold text-xl text-white flex items-center gap-2">
-                      ▶️ Aktuell: {autoSwitchStatus.currentStudent.vorname} {autoSwitchStatus.currentStudent.nachname}
-                    </div>
-                    <div className="text-white/90 text-sm font-medium mt-2 flex items-center gap-4">
-                      <span>⏰ {autoSwitchStatus.currentStudent.unterrichtszeit}</span>
-                      {autoSwitchStatus.currentStudent.monatlicherbetrag && (
-                        <span>💰 {autoSwitchStatus.currentStudent.monatlicherbetrag}€</span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {autoSwitchStatus.nextStudent && autoSwitchStatus.minutesUntilNext > 0 && (
-                    <div className="text-right text-white text-sm bg-white/10 rounded-lg p-3">
-                      <div className="font-semibold mb-1">Nächster:</div>
-                      <div className="font-medium">{autoSwitchStatus.nextStudent.vorname}</div>
-                      <div className="text-xs opacity-90">{getCountdownText(autoSwitchStatus.minutesUntilNext)}</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : autoSwitchStatus.isWaitingTime && autoSwitchStatus.nextStudent ? (
-              <div
-                onClick={() => setSelectedStudent(autoSwitchStatus.nextStudent!.id)}
-                className="card cursor-pointer"
-                style={{
-                  background: 'linear-gradient(135deg, #292524, #1c1917)',
-                  border: '1px solid rgba(245,158,11,0.3)',
-                  boxShadow: '0 0 20px rgba(245,158,11,0.08)'
-                }}
-              >
-                <div className="font-bold text-xl flex items-center gap-2" style={{ color: '#f59e0b' }}>
-                  ⏳ Nächster: {autoSwitchStatus.nextStudent.vorname} {autoSwitchStatus.nextStudent.nachname}
-                </div>
-                <div className="text-sm font-medium mt-2" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                  {getCountdownText(autoSwitchStatus.minutesUntilNext)} · {autoSwitchStatus.nextStudent.unterrichtszeit}
-                </div>
-              </div>
-            ) : (
-              <div className="card" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                <div className="font-bold text-xl flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                  😴 Kein Unterricht zur aktuellen Zeit
-                </div>
-                <div className="text-sm font-medium mt-2" style={{ color: 'var(--text-muted)' }}>
-                  {todaysStudents.length > 0 
-                    ? `${todaysStudents.length} Schüler heute geplant`
-                    : `Keine Schüler für ${getCurrentDay()} eingetragen`
-                  }
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Schüler Detail Modal (Kompakt + Manual Save) */}
         {selectedStudent && students.find(s => s.id === selectedStudent) && (
           <SchülerCardCompact
@@ -352,90 +284,119 @@ export default function Home() {
           />
         )}
 
-        {/* Heutige Termine (ohne aktuellen Schüler) */}
-        {isClient && todaysStudents.filter(s => s.id !== autoSwitchStatus?.currentStudent?.id).length > 0 && (
+        {/* Heutige Termine — Bento-Grid */}
+        {isClient && todaysStudents.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-              Weitere Termine heute ({todaysStudents.filter(s => s.id !== autoSwitchStatus?.currentStudent?.id).length} Schüler)
+            <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              Termine heute ({todaysStudents.length} Schüler)
             </h2>
-            
-            <div className="grid gap-4">
-              {todaysStudents
-                .filter(student => student.id !== autoSwitchStatus?.currentStudent?.id) // Aktuellen Schüler ausschließen
-                .sort((a, b) => {
-                  const timeA = a.unterrichtszeit.split('-')[0] || '00:00'
-                  const timeB = b.unterrichtszeit.split('-')[0] || '00:00'
-                  return timeA.localeCompare(timeB)
-                })
-                .map(student => (
-                  <div
-                    key={student.id}
-                    onClick={() => setSelectedStudent(student.id)}
-                    className="rounded-xl shadow-md p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer group"
-                    style={{
-                      background: 'linear-gradient(135deg, var(--bg-secondary), var(--accent-light))',
-                      border: '1px solid var(--border-light)'
-                    }}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex-1">
-                        <div className="font-bold text-lg text-white flex items-center gap-2">
+
+            {(() => {
+              const currentStudentId = autoSwitchStatus?.currentStudent?.id
+              const now = currentTime ? `${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}` : ''
+
+              const sorted = [...todaysStudents].sort((a, b) => {
+                const timeA = a.unterrichtszeit.split('-')[0] || '00:00'
+                const timeB = b.unterrichtszeit.split('-')[0] || '00:00'
+                return timeA.localeCompare(timeB)
+              })
+
+              const hasCurrent = !!currentStudentId
+
+              return (
+                <div className={`grid gap-3 ${hasCurrent ? 'grid-cols-3' : 'grid-cols-3'}`}>
+                  {sorted.map(student => {
+                    const isCurrent = student.id === currentStudentId
+                    const startTime = student.unterrichtszeit.split('-')[0] || '00:00'
+                    const isPast = now && startTime < now && !isCurrent
+
+                    if (isCurrent) {
+                      // Large card with blue accent — col-span-2
+                      return (
+                        <div
+                          key={student.id}
+                          onClick={() => setSelectedStudent(student.id)}
+                          className="col-span-2 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
+                          style={{
+                            background: 'linear-gradient(135deg, rgba(59,130,246,0.18) 0%, rgba(37,99,235,0.10) 100%)',
+                            border: '2px solid rgba(59,130,246,0.5)',
+                            boxShadow: '0 0 24px rgba(59,130,246,0.12)'
+                          }}
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(59,130,246,0.25)', color: '#60a5fa' }}>▶ JETZT</span>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-lg text-xs font-semibold" style={{
+                              backgroundColor: student.zahlungStatus === 'ja' ? 'rgba(16,185,129,0.2)' : student.zahlungStatus === 'nein' ? 'rgba(239,68,68,0.2)' : student.zahlungStatus === 'Paypal' ? 'rgba(59,130,246,0.2)' : 'rgba(107,114,128,0.2)',
+                              color: student.zahlungStatus === 'ja' ? '#10b981' : student.zahlungStatus === 'nein' ? '#ef4444' : student.zahlungStatus === 'Paypal' ? '#3b82f6' : '#6b7280'
+                            }}>
+                              {student.zahlungStatus === 'ja' ? 'Zahlung OK' : student.zahlungStatus === 'nein' ? 'Keine Zahlung' : student.zahlungStatus === 'Paypal' ? 'PayPal' : 'Unbekannt'}
+                            </span>
+                          </div>
+                          <div className="font-bold text-2xl mb-1" style={{ color: '#ffffff' }}>
+                            {student.vorname} {student.nachname}
+                          </div>
+                          <div className="flex items-center gap-4 text-sm font-medium flex-wrap" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                            <span>⏰ {student.unterrichtszeit}</span>
+                            {student.monatlicherbetrag && <span>💰 {student.monatlicherbetrag}€</span>}
+                            {student.buch && <span>📖 {student.buch}</span>}
+                            {student.geburtsdatum && hadRecentBirthday(student.geburtsdatum) && (
+                              <span className="font-bold animate-pulse" style={{ color: '#fbbf24' }} title="Geburtstag in den letzten 14 Tagen!">🎂</span>
+                            )}
+                            {student.guthabenMinuten > 0 && (
+                              <span className="font-semibold" style={{ color: '#34d399' }}>💳 {student.guthabenMinuten} Min</span>
+                            )}
+                          </div>
+                          {student.wichtigerFokus && (
+                            <div className="text-sm mt-3 font-medium" style={{ color: '#60a5fa' }}>🎯 {student.wichtigerFokus}</div>
+                          )}
+                          {autoSwitchStatus?.nextStudent && autoSwitchStatus.minutesUntilNext > 0 && (
+                            <div className="mt-3 text-xs font-medium" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                              Nächster: {autoSwitchStatus.nextStudent.vorname} in {getCountdownText(autoSwitchStatus.minutesUntilNext)}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }
+
+                    // Compact card — past (dimmed) or upcoming
+                    return (
+                      <div
+                        key={student.id}
+                        onClick={() => setSelectedStudent(student.id)}
+                        className="rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 relative"
+                        style={{
+                          background: isPast ? 'rgba(26,26,26,0.6)' : 'var(--bg-secondary)',
+                          border: `1px solid ${isPast ? 'rgba(64,64,64,0.5)' : 'var(--border-light)'}`,
+                          opacity: isPast ? 0.65 : 1
+                        }}
+                      >
+                        {isPast && (
+                          <span className="absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(16,185,129,0.2)', color: '#10b981' }}>✓</span>
+                        )}
+                        <div className="font-bold text-base mb-1" style={{ color: 'var(--text-primary)' }}>
                           {student.vorname} {student.nachname}
                         </div>
-                        <div className="text-white/90 text-sm font-medium mt-2 flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2 text-xs flex-wrap" style={{ color: 'var(--text-muted)' }}>
                           <span>⏰ {student.unterrichtszeit}</span>
-                          {student.buch && <span>📖 {student.buch}</span>}
                           {student.monatlicherbetrag && <span>💰 {student.monatlicherbetrag}€</span>}
-                          {student.geburtsdatum && (() => {
-                            const age = calcAge(student.geburtsdatum)
-                            const hasBirthday = hadRecentBirthday(student.geburtsdatum)
-                            return (
-                              <>
-                                {hasBirthday && (
-                                  <span
-                                    className="font-bold animate-pulse"
-                                    style={{ color: '#fbbf24', textShadow: '0 0 8px rgba(251,191,36,0.6)' }}
-                                    title="Geburtstag in den letzten 14 Tagen!"
-                                  >
-                                    🎂
-                                  </span>
-                                )}
-                                {age !== null && <span>{age} Jahre</span>}
-                              </>
-                            )
-                          })()}
-                          {student.startdatum && <span>📅 seit {new Date(student.startdatum).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })}</span>}
+                          {student.geburtsdatum && hadRecentBirthday(student.geburtsdatum) && (
+                            <span className="animate-pulse" style={{ color: '#fbbf24' }}>🎂</span>
+                          )}
                           {student.guthabenMinuten > 0 && (
-                            <span className="font-semibold" style={{ color: '#34d399' }}>
-                              💳 {student.guthabenMinuten} Min
-                            </span>
+                            <span style={{ color: '#34d399' }}>💳 {student.guthabenMinuten} Min</span>
                           )}
                         </div>
                         {student.wichtigerFokus && (
-                          <div className="text-sm mt-2 font-medium" style={{ color: 'var(--primary)' }}>
-                            🎯 {student.wichtigerFokus}
-                          </div>
+                          <div className="text-xs mt-1.5" style={{ color: 'var(--primary)' }}>🎯 {student.wichtigerFokus}</div>
                         )}
                       </div>
-                      <div className="flex flex-col items-end gap-2 ml-4">
-                        <span className="px-3 py-1 rounded-lg text-xs font-semibold" style={{
-                          backgroundColor: student.zahlungStatus === 'ja' ? 'rgba(16, 185, 129, 0.2)' :
-                                         student.zahlungStatus === 'nein' ? 'rgba(239, 68, 68, 0.2)' :
-                                         student.zahlungStatus === 'Paypal' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(107, 114, 128, 0.2)',
-                          color: student.zahlungStatus === 'ja' ? '#10b981' :
-                                 student.zahlungStatus === 'nein' ? '#ef4444' :
-                                 student.zahlungStatus === 'Paypal' ? '#3b82f6' : '#6b7280'
-                        }}>
-                          {student.zahlungStatus === 'ja' ? 'Zahlung OK' :
-                           student.zahlungStatus === 'nein' ? 'Keine Zahlung' :
-                           student.zahlungStatus === 'Paypal' ? 'PayPal' : 'Unbekannt'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
           </div>
         )}
 
